@@ -1,0 +1,22 @@
+#cpp-json functions.
+
+= Introduction =
+
+Here is a list of all functions found in the cpp-json library:
+
+= Details =
+
+  * `template <class In> json::value json::parse(In first, const In &last);`
+
+  * `bool json::is_string(const value &v);`
+  * `bool json::is_bool(const value &v);`
+  * `bool json::is_number(const value &v);`
+  * `bool json::is_object(const value &v);`
+  * `bool json::is_array(const value &v);`
+  * `bool json::is_null(const value &v);`
+
+  * `std::string json::to_string(const value &v);`
+  * `bool json::to_bool(const value &v);`
+  * `double json::to_number(const value &v);`
+
+  * `size_t json::size(const value &v);`
