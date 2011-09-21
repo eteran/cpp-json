@@ -7,8 +7,9 @@ Here is a list of all functions found in the cpp-json library:
 = Details =
 
   * `template <class In> json::value json::parse(In first, In last);`
+  * `value parse(std::istream &is);`
 
-this is the main parsing function of the library, pass it two iterators representing the text to parse.
+these are the main parsing functions of the library, pass it two iterators or a `std::istream` representing the text to parse.
 
   * `bool json::is_string(const value &v);`
   * `bool json::is_bool(const value &v);`
