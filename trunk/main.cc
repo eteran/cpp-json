@@ -3,8 +3,8 @@
 #include <fstream>
 #include <iostream>
 
-int main() {
-	std::ifstream file("test.json");	
+int main(int argc, char *argv[]) {
+	std::ifstream file(argv[1]);
 	json::value json = json::parse((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
 	
 	const json::value servlets = json["web-app"]["servlet"];

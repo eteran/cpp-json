@@ -7,14 +7,43 @@
 #include <boost/cstdint.hpp>
 #include "json_array.h"
 
+namespace json {
+	namespace detail {
+		template <class In>
+		void print_exception_details(In first, In current, In last) {
+			typedef typename std::iterator_traits<In>::iterator_category Cat;
+			print_exception_details_internal(first, current, last, Cat());
+		}
+		
+		template <class In, class Tr>
+		void print_exception_details_internal(In first, In current, In last, const Tr&) {
+			(void)first;
+			(void)current;
+			(void)last;
+		}
+		
+		template <class In>
+		void print_exception_details_internal(In first, In current, In last, const std::random_access_iterator_tag &) {
+			(void)last;
+			std::cerr << "an error occured " << current - first << " characters into the stream:" << std::endl;
+		}
+	}
+}
+
+
 template <class In>
 json::value json::parse(In first, In last) {
-	return detail::get_value(first, last);
+	const In original_first = first;
+	try {
+		return detail::get_value(first, last);
+	} catch(const json_exception &e) {
+		detail::print_exception_details(original_first, first, last);	
+		throw;
+	}
 }
 
 namespace json {
 	namespace detail {
-	
 	
 		template <class Ch>
 		bool is_digit(Ch ch) {
@@ -35,7 +64,14 @@ namespace json {
 				throw brace_expected();
 			}
 
-			while(true) {		
+			while(true) {
+			
+				// handle empty array			
+				if(peek_char(it, last) == '}') {
+					token = get_token(it, last);
+					break;
+				}
+				
 				object->values_.insert(get_pair(it, last));
 
 				token = get_token(it, last);
@@ -61,7 +97,14 @@ namespace json {
 				throw bracket_expected();
 			}
 
-			while(true) {		
+			while(true) {
+
+				// handle empty array			
+				if(peek_char(it, last) == ']') {
+					token = get_token(it, last);
+					break;
+				}
+
 				array->values_.push_back(get_value(it, last));
 
 				token = get_token(it, last);
