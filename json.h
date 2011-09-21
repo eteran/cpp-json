@@ -21,16 +21,17 @@
 
 #include <boost/shared_ptr.hpp>
 
-class json_exception    : public std::exception {};
-class invalid_string    : public json_exception {};
-class string_expected   : public json_exception {};
-class value_expected    : public json_exception {};
-class keyword_expected  : public json_exception {};
-class boolean_expected  : public json_exception {};
-class bracket_expected  : public json_exception {};
-class brace_expected    : public json_exception {};
-class colon_expected    : public json_exception {};
-class invalid_type_cast : public json_exception {};
+class json_exception            : public std::exception {};
+class invalid_string            : public json_exception {};
+class invalid_unicode_character : public json_exception {};
+class string_expected           : public json_exception {};
+class value_expected            : public json_exception {};
+class keyword_expected          : public json_exception {};
+class boolean_expected          : public json_exception {};
+class bracket_expected          : public json_exception {};
+class brace_expected            : public json_exception {};
+class colon_expected            : public json_exception {};
+class invalid_type_cast         : public json_exception {};
 
 namespace json {
 

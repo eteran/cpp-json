@@ -78,3 +78,27 @@ size_t json::size(const value &v) {
 json::value json::parse(std::istream &is) {
 	return parse((std::istreambuf_iterator<char>(is)), std::istreambuf_iterator<char>());
 }
+
+std::vector<uint8_t> json::detail::ucs2_to_utf8(uint16_t cp) {
+	std::vector<uint8_t> utf8;
+	
+	if(cp < 0x80) {
+		utf8.push_back(static_cast<uint8_t>(cp));
+	} else if(cp < 0x0800) {
+		uint8_t ch[2];
+		ch[0] = 0xc0 | ((cp >> 6) & 0x1f);
+		ch[1] = 0x80 | (cp & 0x3f);
+		utf8.push_back(static_cast<uint8_t>(ch[0]));
+		utf8.push_back(static_cast<uint8_t>(ch[1]));
+	} else {
+		uint8_t ch[3];
+		ch[0] = 0xe0 | ((cp >> 6) & 0x0f);
+		ch[1] = 0x80 | ((cp >> 6) & 0x3f);
+		ch[2] = 0x80 | (cp & 0x3f);
+		utf8.push_back(static_cast<uint8_t>(ch[0]));
+		utf8.push_back(static_cast<uint8_t>(ch[1]));
+		utf8.push_back(static_cast<uint8_t>(ch[2]));
+	}
+	
+	return utf8;
+}

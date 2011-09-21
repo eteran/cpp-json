@@ -6,6 +6,7 @@
 #include <boost/make_shared.hpp>
 #include <boost/cstdint.hpp>
 #include "json_array.h"
+#include <cstdio>
 
 namespace json {
 	namespace detail {
@@ -45,9 +46,17 @@ json::value json::parse(In first, In last) {
 namespace json {
 	namespace detail {
 	
+		std::vector<uint8_t> ucs2_to_utf8(uint16_t cp);
+	
+	
 		template <class Ch>
 		bool is_digit(Ch ch) {
 			return std::isdigit(ch);
+		}
+		
+		template <class Ch>
+		bool is_hexdigit(Ch ch) {
+			return std::isxdigit(ch);
 		}
 		
 		template <class Ch>
@@ -205,16 +214,14 @@ namespace json {
 
 		template <class In>
 		json::json_token get_string(In &it, const In &last) {
-			// TODO: support \u1234 style escapes
-			// TODO: support unicode in general
-
-			std::string s;
-
 			if(*it != '"') {
 				throw string_expected();
 			}
 			++it;
 
+
+			std::string s;
+			
 			while(it != last && *it != '"' && *it != '\n') {
 				if(*it == '\\') {
 					++it;
@@ -228,6 +235,35 @@ namespace json {
 						case 'n': s += '\n'; break;
 						case 'r': s += '\r'; break;
 						case 't': s += '\t'; break;
+						case 'u':
+							++it;
+							{
+								// convert \uXXXX escape sequences to UTF-8
+								char hex[4];
+								if(it == last) { throw invalid_string(); } hex[0] = *it++;
+								if(it == last) { throw invalid_string(); } hex[1] = *it++;
+								if(it == last) { throw invalid_string(); } hex[2] = *it++;
+								if(it == last) { throw invalid_string(); } hex[3] = *it;
+								
+								if(!is_hexdigit(hex[0])) throw invalid_unicode_character();
+								if(!is_hexdigit(hex[1])) throw invalid_unicode_character();
+								if(!is_hexdigit(hex[2])) throw invalid_unicode_character();
+								if(!is_hexdigit(hex[3])) throw invalid_unicode_character();
+																
+								uint16_t ucs2 = 0;
+								ucs2 |= ((is_digit(hex[0]) ? hex[0] - '0' : std::toupper(hex[0]) - 'A' + 10) << 12);
+								ucs2 |= ((is_digit(hex[1]) ? hex[1] - '0' : std::toupper(hex[1]) - 'A' + 10) << 8);
+								ucs2 |= ((is_digit(hex[2]) ? hex[2] - '0' : std::toupper(hex[2]) - 'A' + 10) << 4);
+								ucs2 |= ((is_digit(hex[3]) ? hex[3] - '0' : std::toupper(hex[3]) - 'A' + 10));
+								
+								const std::vector<uint8_t> utf8 = ucs2_to_utf8(ucs2);
+								for(std::vector<uint8_t>::const_iterator c_it = utf8.begin(); c_it != utf8.end(); ++c_it) {
+									s += *c_it;
+								}
+
+							}
+							break;
+						
 						default:
 							s += '\\';
 							break;
