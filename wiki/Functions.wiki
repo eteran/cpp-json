@@ -1,4 +1,4 @@
-#cpp-json functions.
+# cpp-json functions.
 
 = Introduction =
 
@@ -6,7 +6,7 @@ Here is a list of all functions found in the cpp-json library:
 
 = Details =
 
-  * `template <class In> json::value json::parse(In first, const In &last);`
+  * `template <class In> json::value json::parse(In first, In last);`
 
 this is the main parsing function of the library, pass it two iterators representing the text to parse.
 
