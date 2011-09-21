@@ -73,3 +73,8 @@ size_t json::size(const value &v) {
 	
 	return 0;
 }
+
+
+json::value json::parse(std::istream &is) {
+	return parse((std::istreambuf_iterator<char>(is)), std::istreambuf_iterator<char>());
+}
