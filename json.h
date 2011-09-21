@@ -63,6 +63,8 @@ namespace json {
 	template <class In>
 	value parse(In first, In last);
 	
+	value parse(std::istream &is);
+	
 	bool is_string(const value &v);
 	bool is_bool(const value &v);
 	bool is_number(const value &v);
