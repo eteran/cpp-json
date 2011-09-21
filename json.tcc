@@ -8,7 +8,7 @@
 #include "json_array.h"
 
 template <class In>
-json::value json::parse(In first, const In &last) {
+json::value json::parse(In first, In last) {
 	return detail::get_value(first, last);
 }
 
