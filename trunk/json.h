@@ -60,7 +60,7 @@ namespace json {
 	};
 		
 	template <class In>
-	value parse(In first, const In &last);
+	value parse(In first, In last);
 	
 	bool is_string(const value &v);
 	bool is_bool(const value &v);
