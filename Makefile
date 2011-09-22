@@ -18,7 +18,7 @@ APPNAME := cpp-json
 
 DEFINES  := 
 INCLUDES := 
-CXXFLAGS := -g-O2 -pedantic -pipe $(INCLUDES) -W -Wall
+CXXFLAGS := -g -O2 -pedantic -pipe $(INCLUDES) -W -Wall
 LDFLAGS  := -g
 
 H_FILES     := json.h json_array.h json_object.h json_token.h json_value.h
