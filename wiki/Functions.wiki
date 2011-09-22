@@ -29,3 +29,7 @@ attempts to convert a `json::value` to a basic type. May throw `invalid_type_cas
   * `size_t json::size(const value &v);`
 
 returns the size of a `json::value` which is an array. Or 0 for any other type.
+
+  * `boost::unordered_set<std::string> json::keys(const value &v);`
+
+returns an unordered set of keys for an object (or an empty set if v is not an object type).
