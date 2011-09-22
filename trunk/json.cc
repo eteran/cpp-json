@@ -1,6 +1,5 @@
 #include "json.h"
 
-
 json::value::value() {
 }
 
@@ -72,6 +71,21 @@ size_t json::size(const value &v) {
 	}
 	
 	return 0;
+}
+
+boost::unordered_set<std::string> json::keys(const value &v) {
+	
+	boost::unordered_set<std::string> keys;
+	if(is_object(v)) {
+	
+		const json_object::map_type &map = v.value_->object_->values_;
+	
+		for(json_object::map_type::const_iterator it = map.begin(); it != map.end(); ++it) {
+			keys.insert(it->first);
+		}		
+	}
+	
+	return keys;
 }
 
 
