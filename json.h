@@ -48,6 +48,7 @@ namespace json {
 		friend double to_number(const value &v);
 		
 		friend size_t size(const value &v);
+		friend boost::unordered_set<std::string> keys(const value &v);
 		
 	public:
 		value();
@@ -78,6 +79,7 @@ namespace json {
 	double to_number(const value &v);
 	
 	size_t size(const value &v);
+	boost::unordered_set<std::string> keys(const value &v);
 }
 
 #include "json.tcc"
