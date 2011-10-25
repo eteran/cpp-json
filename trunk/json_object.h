@@ -12,6 +12,8 @@ namespace json {
 	class json_value;
 	class json_object;
 	class value;
+	
+	boost::unordered_set<std::string> keys(const value &v);
 
 	namespace detail {
 		template <class In>
