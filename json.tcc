@@ -10,12 +10,6 @@
 
 namespace json {
 	namespace detail {
-		template <class In>
-		void print_exception_details(In first, In current, In last) {
-			typedef typename std::iterator_traits<In>::iterator_category Cat;
-			print_exception_details_internal(first, current, last, Cat());
-		}
-		
 		template <class In, class Tr>
 		void print_exception_details_internal(In first, In current, In last, const Tr&) {
 			(void)first;
@@ -27,6 +21,12 @@ namespace json {
 		void print_exception_details_internal(In first, In current, In last, const std::random_access_iterator_tag &) {
 			(void)last;
 			std::cerr << "an error occured " << current - first << " characters into the stream:" << std::endl;
+		}
+		
+		template <class In>
+		void print_exception_details(In first, In current, In last) {
+			typedef typename std::iterator_traits<In>::iterator_category Cat;
+			print_exception_details_internal(first, current, last, Cat());
 		}
 	}
 }
@@ -47,6 +47,30 @@ namespace json {
 	namespace detail {
 	
 		std::vector<uint8_t> ucs2_to_utf8(uint16_t cp);
+		
+		template <class In>
+		typename std::iterator_traits<In>::value_type peek_char(In &it, const In &last);
+		
+		template <class In>
+		json::json_token get_number(In &it, const In &last);
+		
+		template <class In>
+		std::pair<std::string, boost::shared_ptr<json::json_value> > get_pair(In &it, const In &last);
+		
+		template <class In>
+		json::json_token get_token(In &it, const In &last);
+		
+		template <class In>
+		json::json_token get_string(In &it, const In &last);
+		
+		template <class In>
+		json::json_token get_null(In &it, const In &last);
+		
+		template <class In>
+		json::json_token get_true(In &it, const In &last);
+		
+		template <class In>
+		json::json_token get_false(In &it, const In &last);
 	
 	
 		template <class Ch>
