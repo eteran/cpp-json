@@ -6,7 +6,6 @@
 #include <boost/make_shared.hpp>
 #include <boost/cstdint.hpp>
 #include "json_array.h"
-#include <cstdio>
 
 namespace json {
 	namespace detail {
@@ -260,14 +259,13 @@ namespace json {
 						case 'r': s += '\r'; break;
 						case 't': s += '\t'; break;
 						case 'u':
-							++it;
 							{
 								// convert \uXXXX escape sequences to UTF-8
 								char hex[4];
-								if(it == last) { throw invalid_string(); } hex[0] = *it++;
-								if(it == last) { throw invalid_string(); } hex[1] = *it++;
-								if(it == last) { throw invalid_string(); } hex[2] = *it++;
-								if(it == last) { throw invalid_string(); } hex[3] = *it;
+								if(it == last) { throw invalid_string(); } hex[0] = *++it;
+								if(it == last) { throw invalid_string(); } hex[1] = *++it;
+								if(it == last) { throw invalid_string(); } hex[2] = *++it;
+								if(it == last) { throw invalid_string(); } hex[3] = *++it;
 								
 								if(!is_hexdigit(hex[0])) throw invalid_unicode_character();
 								if(!is_hexdigit(hex[1])) throw invalid_unicode_character();

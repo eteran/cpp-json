@@ -14,6 +14,7 @@ namespace json {
 	class value;
 	
 	boost::unordered_set<std::string> keys(const value &v);
+	bool has_key(const value &v, const std::string &key);
 
 	namespace detail {
 		template <class In>
@@ -27,6 +28,7 @@ namespace json {
 		template<class In> friend boost::shared_ptr<json_value>  detail::get_value(In &, const In &);
 		template<class In> friend boost::shared_ptr<json_object> detail::get_object(In &, const In &);
 		friend boost::unordered_set<std::string> json::keys(const value &);
+		friend bool json::has_key(const value &v, const std::string &key);
 		
 	private:
 		typedef boost::unordered_map<std::string, boost::shared_ptr<json_value> > map_type;

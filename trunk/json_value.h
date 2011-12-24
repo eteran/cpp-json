@@ -41,7 +41,11 @@ namespace json {
 				type_ = invalid;
 			}
 		}
-
+		
+	private:
+		json_value(const json_value &);
+		json_value &operator=(const json_value &);
+		
 	public:
 		enum type {
 			invalid,
@@ -56,7 +60,7 @@ namespace json {
 	public:
 		boost::shared_ptr<json_object> object_;
 		boost::shared_ptr<json_array>  array_;
-		json_token                     token_;
+		json_token                     token_; // a string, number, bool or null
 		type                           type_;
 	};
 }
