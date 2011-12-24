@@ -49,6 +49,7 @@ namespace json {
 		
 		friend size_t size(const value &v);
 		friend boost::unordered_set<std::string> keys(const value &v);
+		friend bool has_key(const value &v, const std::string &key);
 		
 	public:
 		value();
@@ -80,6 +81,7 @@ namespace json {
 	
 	size_t size(const value &v);
 	boost::unordered_set<std::string> keys(const value &v);
+	bool has_key(const value &v, const std::string &key);
 }
 
 #include "json.tcc"

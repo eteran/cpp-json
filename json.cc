@@ -73,6 +73,18 @@ size_t json::size(const value &v) {
 	return 0;
 }
 
+bool json::has_key(const value &v, const std::string &key) {
+	if(is_object(v)) {
+		const json_object::map_type &map = v.value_->object_->values_;
+		for(json_object::map_type::const_iterator it = map.begin(); it != map.end(); ++it) {
+			if(it->first == key) {
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
 boost::unordered_set<std::string> json::keys(const value &v) {
 	
 	boost::unordered_set<std::string> keys;
