@@ -27,23 +27,9 @@ namespace json {
 			typedef typename std::iterator_traits<In>::iterator_category Cat;
 			print_exception_details_internal(first, current, last, Cat());
 		}
-	}
-}
-
-
-template <class In>
-json::value json::parse(In first, In last) {
-	const In original_first = first;
-	try {
-		return detail::get_value(first, last);
-	} catch(const json_exception &e) {
-		detail::print_exception_details(original_first, first, last);	
-		throw;
-	}
-}
-
-namespace json {
-	namespace detail {
+		
+		template <class In>
+		json::json_value get_value(In &it, const In &last);
 	
 		std::vector<uint8_t> ucs2_to_utf8(uint16_t cp);
 		
@@ -54,7 +40,7 @@ namespace json {
 		json::json_token get_number(In &it, const In &last);
 		
 		template <class In>
-		std::pair<std::string, boost::shared_ptr<json::json_value> > get_pair(In &it, const In &last);
+		std::pair<std::string, json::json_value> get_pair(In &it, const In &last);
 		
 		template <class In>
 		json::json_token get_token(In &it, const In &last);
@@ -70,7 +56,6 @@ namespace json {
 		
 		template <class In>
 		json::json_token get_false(In &it, const In &last);
-	
 	
 		template <class Ch>
 		bool is_digit(Ch ch) {
@@ -153,10 +138,10 @@ namespace json {
 		}
 
 		template <class In>
-		boost::shared_ptr<json::json_value> get_value(In &it, const In &last) {
+		json::json_value get_value(In &it, const In &last) {
 			switch(peek_char(it, last)) {
-			case '{': return boost::make_shared<json_value>(get_object(it, last));
-			case '[': return boost::make_shared<json_value>(get_array(it, last));
+			case '{': return json_value(get_object(it, last));
+			case '[': return json_value(get_array(it, last));
 			case '0':
 			case '1':
 			case '2':
@@ -168,22 +153,22 @@ namespace json {
 			case '8':
 			case '9':
 			case '-':
-				return boost::make_shared<json_value>(get_number(it, last));
+				return json_value(get_number(it, last));
 			case '"':
-				return boost::make_shared<json_value>(get_string(it, last));
+				return json_value(get_string(it, last));
 			case 't':
-				return boost::make_shared<json_value>(get_true(it, last));
+				return json_value(get_true(it, last));
 			case 'f':
-				return boost::make_shared<json_value>(get_false(it, last));
+				return json_value(get_false(it, last));
 			case 'n':
-				return boost::make_shared<json_value>(get_null(it, last));
+				return json_value(get_null(it, last));
 			}
 
 			throw value_expected();
 		}
 
 		template <class In>
-		std::pair<std::string, boost::shared_ptr<json::json_value> > get_pair(In &it, const In &last) {
+		std::pair<std::string, json::json_value> get_pair(In &it, const In &last) {
 			json_token token = get_token(it, last);
 			if(token.type_ != json_token::string) {
 				throw string_expected();
@@ -196,9 +181,7 @@ namespace json {
 				throw colon_expected();
 			}
 
-			boost::shared_ptr<json_value> value = get_value(it, last);
-
-			return std::make_pair(key, value);
+			return std::make_pair(key, get_value(it, last));
 		}
 
 		template <class In>
@@ -394,6 +377,17 @@ namespace json {
 			return *it;
 		}
 
+	}
+}
+
+template <class In>
+json::value json::parse(In first, In last) {
+	const In original_first = first;
+	try {
+		return detail::get_value(first, last);
+	} catch(const json_exception &e) {
+		detail::print_exception_details(original_first, first, last);	
+		throw;
 	}
 }
 
