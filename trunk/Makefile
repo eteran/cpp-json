@@ -61,14 +61,16 @@ depend:
 #-----------------------------------------------------------------
 # DO NOT DELETE THIS LINE -- make depend uses it
 #-----------------------------------------------------------------
-json.o: json.cc json.h json_token.h json_value.h json_object.h \
- json_array.h json.tcc
-json_array.o: json_array.cc json_array.h json_value.h json_token.h
-json_object.o: json_object.cc json_object.h json_value.h json_token.h
-json_token.o: json_token.cc json_token.h
-json_value.o: json_value.cc json_value.h json_token.h
-main.o: main.cc json.h json_token.h json_value.h json_object.h \
- json_array.h json.tcc
+json.o: json.cc json.h json_token.h json_object.h json_value.h \
+ json_error.h json_array.h json.tcc
+json_array.o: json_array.cc json_array.h json_value.h json_token.h \
+ json_error.h
+json_object.o: json_object.cc json_object.h json_value.h json_token.h \
+ json_error.h
+json_value.o: json_value.cc json_value.h json_token.h json_error.h \
+ json_object.h json_array.h
+main.o: main.cc json.h json_token.h json_object.h json_value.h \
+ json_error.h json_array.h json.tcc
 # DEPENDENCIES MUST END AT END OF FILE
 # IF YOU PUT STUFF HERE IT WILL GO AWAY
 # see make depend above
