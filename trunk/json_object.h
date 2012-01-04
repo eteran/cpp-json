@@ -2,6 +2,7 @@
 #ifndef JSON_OBJECT_20110526_H_
 #define JSON_OBJECT_20110526_H_
 
+#include "json_value.h"
 #include <boost/shared_ptr.hpp>
 #include <boost/unordered_map.hpp>
 #include <boost/unordered_set.hpp>
@@ -9,32 +10,23 @@
 
 namespace json {
 
-	class json_value;
 	class json_object;
-	class value;
 	
-	boost::unordered_set<std::string> keys(const value &v);
-	bool has_key(const value &v, const std::string &key);
-
-	namespace detail {
-		template <class In>
-		boost::shared_ptr<json_value> get_value(In &it, const In &last);
-		
+	namespace detail {		
 		template <class In>
 		boost::shared_ptr<json_object> get_object(In &it, const In &last);
 	}
 
 	class json_object {
-		template<class In> friend boost::shared_ptr<json_value>  detail::get_value(In &, const In &);
 		template<class In> friend boost::shared_ptr<json_object> detail::get_object(In &, const In &);
-		friend boost::unordered_set<std::string> json::keys(const value &);
-		friend bool json::has_key(const value &v, const std::string &key);
+		friend boost::unordered_set<std::string> json::keys(const json_value &);
+		friend bool json::has_key(const json_value &v, const std::string &key);
 		
 	private:
-		typedef boost::unordered_map<std::string, boost::shared_ptr<json_value> > map_type;
+		typedef boost::unordered_map<std::string, json_value> map_type;
 		
 	public:
-		boost::shared_ptr<json_value> operator[](const std::string &key) const;
+		json_value operator[](const std::string &key) const;
 		
 	private:
 		map_type values_;

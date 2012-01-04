@@ -12,56 +12,17 @@
 */
 
 #include "json_token.h"
-#include "json_value.h"
 #include "json_object.h"
 #include "json_array.h"
+#include "json_error.h"
+#include "json_value.h"
 
 #include <string>
-#include <exception>
-
 #include <boost/shared_ptr.hpp>
-
-class json_exception            : public std::exception {};
-class invalid_string            : public json_exception {};
-class invalid_unicode_character : public json_exception {};
-class string_expected           : public json_exception {};
-class value_expected            : public json_exception {};
-class keyword_expected          : public json_exception {};
-class boolean_expected          : public json_exception {};
-class bracket_expected          : public json_exception {};
-class brace_expected            : public json_exception {};
-class colon_expected            : public json_exception {};
-class invalid_type_cast         : public json_exception {};
 
 namespace json {
 
-	class value {
-		friend bool is_string(const value &v);
-		friend bool is_bool(const value &v);
-		friend bool is_number(const value &v);
-		friend bool is_object(const value &v);
-		friend bool is_array(const value &v);
-		friend bool is_null(const value &v);
-		
-		friend std::string to_string(const value &v);
-		friend bool to_bool(const value &v);
-		friend double to_number(const value &v);
-		
-		friend size_t size(const value &v);
-		friend boost::unordered_set<std::string> keys(const value &v);
-		friend bool has_key(const value &v, const std::string &key);
-		
-	public:
-		value();
-		value(const boost::shared_ptr<json_value> &v);
-		
-	public:
-		value operator[](const std::string &key) const;
-		value operator[](std::size_t n) const;
-
-	private:
-		boost::shared_ptr<json_value> value_;
-	};
+	typedef json_value value;	
 		
 	template <class In>
 	value parse(In first, In last);

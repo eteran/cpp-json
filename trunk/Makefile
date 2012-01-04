@@ -23,7 +23,7 @@ LDFLAGS  := -g
 
 H_FILES     := json.h json_array.h json_object.h json_token.h json_value.h
 TCC_FILES   := json.tcc
-CXX_FILES   := json.cc json_array.cc json_object.cc json_token.cc json_value.cc main.cc
+CXX_FILES   := json.cc json_array.cc json_object.cc json_value.cc main.cc
 O_FILES     := $(CXX_FILES:.cc=.o)
 SOURCEFILES := $(H_FILES) $(CXX_FILES) $(TCC_FILES)
 .PRECIOUS: $(SOURCEFILES)
