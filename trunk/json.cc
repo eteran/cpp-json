@@ -80,6 +80,10 @@ json::value json::parse(std::istream &is) {
 	return parse((std::istreambuf_iterator<char>(is)), std::istreambuf_iterator<char>());
 }
 
+json::value json::parse(const std::string &s) {
+	return parse(s.begin(), s.end());
+}
+
 std::vector<uint8_t> json::detail::ucs2_to_utf8(uint16_t cp) {
 	std::vector<uint8_t> utf8;
 	
