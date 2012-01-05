@@ -28,21 +28,21 @@ std::string json::to_string(const value &v) {
 	if(!is_string(v) && !is_bool(v) && !is_number(v)) {
 		throw invalid_type_cast();
 	}
-	return v.token_.string_;
+	return v.string_;
 }
 
 bool json::to_bool(const value &v) {
 	if(!is_bool(v)) {
 		throw invalid_type_cast();
 	}
-	return v.token_.string_ == "true";
+	return v.string_ == "true";
 }
 
 double json::to_number(const value &v) {
 	if(!is_number(v)) {
 		throw invalid_type_cast();
 	}
-	return strtod(v.token_.string_.c_str(), 0);
+	return strtod(v.string_.c_str(), 0);
 }
 
 size_t json::size(const value &v) {
