@@ -40,7 +40,7 @@ namespace json {
 		explicit json_value(const boost::shared_ptr<json_array> &a) : array_(a), type_(array) {
 		}
 
-		explicit json_value(const json_token &token) : token_(token) {
+		explicit json_value(const json_token &token) : string_(token.string_) {
 		
 			switch(token.type_) {
 			case json_token::string:
@@ -61,7 +61,7 @@ namespace json {
 		}
 
 	public:
-		json_value(const json_value & other) : object_(other.object_), array_(other.array_), token_(other.token_), type_(other.type_) {
+		json_value(const json_value &other) : object_(other.object_), array_(other.array_), string_(other.string_), type_(other.type_) {
 		}
 		
 		json_value &operator=(const json_value &rhs) {
@@ -73,7 +73,7 @@ namespace json {
 			using std::swap;
 			swap(object_, other.object_);
 			swap(array_, other.array_);
-			swap(token_, other.token_);
+			swap(string_, other.string_);
 			swap(type_, other.type_);
 		}
 		
@@ -95,7 +95,7 @@ namespace json {
 	private:
 		boost::shared_ptr<json_object> object_;
 		boost::shared_ptr<json_array>  array_;
-		json_token                     token_; // a string, number, bool or null
+		std::string                    string_; // a string, number, bool or null
 		type                           type_;
 	};
 }
