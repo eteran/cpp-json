@@ -1,29 +1,5 @@
 #include "json.h"
 
-bool json::is_string(const value &v) {
-	return (v.type_ == json_value::string);
-}
-
-bool json::is_number(const value &v) {
-	return (v.type_ == json_value::number);
-}
-
-bool json::is_object(const value &v) {
-	return (v.type_ == json_value::object);
-}
-
-bool json::is_array(const value &v) {
-	return (v.type_ == json_value::array);
-}
-
-bool json::is_null(const value &v) {
-	return (v.type_ == json_value::null);
-}
-
-bool json::is_bool(const value &v) {
-	return (v.type_ == json_value::boolean);
-}
-
 std::string json::to_string(const value &v) {
 	if(!is_string(v) && !is_bool(v) && !is_number(v)) {
 		throw invalid_type_cast();
