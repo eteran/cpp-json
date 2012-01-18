@@ -1,7 +1,6 @@
 
 #include "json_value.h"
-#include "json_object.h"
-#include "json_array.h"
+#include "json.h"
 
 json::json_value json::json_value::operator[](const std::string &key) const {
 	if(!is_object(*this)) {

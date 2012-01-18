@@ -31,12 +31,12 @@ namespace json {
 	
 	value parse(const std::string &s);
 	
-	bool is_string(const value &v);
-	bool is_bool(const value &v);
-	bool is_number(const value &v);
-	bool is_object(const value &v);
-	bool is_array(const value &v);
-	bool is_null(const value &v);
+	inline bool is_string(const value &v) { return (v.type_ == json_value::string); }
+	inline bool is_bool(const value &v)   { return (v.type_ == json_value::boolean); }
+	inline bool is_number(const value &v) { return (v.type_ == json_value::number); }
+	inline bool is_object(const value &v) { return (v.type_ == json_value::object); }
+	inline bool is_array(const value &v)  { return (v.type_ == json_value::array); }
+	inline bool is_null(const value &v)   { return (v.type_ == json_value::null); }
 	
 	std::string to_string(const value &v);
 	bool to_bool(const value &v);
@@ -48,7 +48,6 @@ namespace json {
 }
 
 #include "json.tcc"
-
 
 #endif
 
