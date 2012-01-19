@@ -18,11 +18,12 @@
 #include "json_value.h"
 
 #include <string>
-#include <boost/shared_ptr.hpp>
 
 namespace json {
 
-	typedef json_value value;	
+	typedef json_value  value;
+	typedef json_array  array;
+	typedef json_object object;
 		
 	template <class In>
 	value parse(In first, In last);
@@ -38,6 +39,7 @@ namespace json {
 	inline bool is_array(const value &v)  { return (v.type_ == json_value::array); }
 	inline bool is_null(const value &v)   { return (v.type_ == json_value::null); }
 	
+	std::string to_string(const null_t &);
 	std::string to_string(const value &v);
 	bool to_bool(const value &v);
 	double to_number(const value &v);
@@ -45,6 +47,8 @@ namespace json {
 	size_t size(const value &v);
 	boost::unordered_set<std::string> keys(const value &v);
 	bool has_key(const value &v, const std::string &key);
+	
+	std::string to_json_string(const value &v);
 }
 
 #include "json.tcc"

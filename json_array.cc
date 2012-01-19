@@ -9,3 +9,8 @@ json::json_value json::json_array::operator[](std::size_t n) const {
 	
 	return values_[n];
 }
+
+json::json_array &json::json_array::append(const json_value &value) {
+	values_.push_back(value);
+	return *this;
+}

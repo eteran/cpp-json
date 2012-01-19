@@ -1,1 +1,7 @@
-{"web-app": "test\u00a2blahblah" }
+{
+	"web-app": "test\u00a2blahblah",
+	"test": [2, 3, 5, 7],
+	"test2":true,
+	"test3":false,
+	"test4":null,
+}
