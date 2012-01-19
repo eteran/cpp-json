@@ -10,3 +10,8 @@ json::json_value json::json_object::operator[](const std::string &key) const {
 
 	return json_value();
 }
+
+json::json_object &json::json_object::append(const std::string &key, const json_value &value) {
+	values_.insert(std::make_pair(key, value));
+	return *this;
+}

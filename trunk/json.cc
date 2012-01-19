@@ -1,10 +1,16 @@
+
 #include "json.h"
+#include <sstream>
 
 std::string json::to_string(const value &v) {
 	if(!is_string(v) && !is_bool(v) && !is_number(v)) {
 		throw invalid_type_cast();
 	}
 	return v.string_;
+}
+
+std::string json::to_string(const json::null_t &) {
+	return "null";
 }
 
 bool json::to_bool(const value &v) {
@@ -24,6 +30,10 @@ double json::to_number(const value &v) {
 size_t json::size(const value &v) {
 	if(is_array(v)) {
 		return v.array_->values_.size();
+	}
+	
+	if(is_object(v)) {
+		return v.object_->values_.size();
 	}
 	
 	return 0;
@@ -82,4 +92,57 @@ std::vector<uint8_t> json::detail::ucs2_to_utf8(uint16_t cp) {
 	}
 	
 	return utf8;
+}
+
+std::string json::to_json_string(const value &v) {
+	std::stringstream ss;
+	
+	if(is_string(v)) {
+		ss << '"' << to_string(v) << '"';
+	}
+	
+	if(is_number(v)) {
+		ss << to_string(v);
+	}
+	
+	if(is_null(v)) {
+		ss << "null";
+	}
+	
+	if(is_bool(v)) {
+		ss << (to_bool(v) ? "true" : "false");
+	}
+	
+	if(is_object(v)) {
+		ss << "{";
+		boost::unordered_set<std::string> k = keys(v);
+		if(!k.empty()) {
+			boost::unordered_set<std::string>::const_iterator it = k.begin();
+			
+			ss << '"' << *it << '"' << ':' << to_json_string(v[*it]);
+			++it;
+			for(;it != k.end(); ++it) {
+				ss << ',' << '"' << *it << '"' << ':' << to_json_string(v[*it]);
+			}
+			
+		}
+		ss << "}";
+	}
+	
+	if(is_array(v)) {
+		ss << "[";
+		if(size(v) != 0) {
+			size_t i = 0;
+			
+			ss << to_json_string(v[i++]);
+			
+			for(;i != size(v); ++i) {
+				ss << ',' << to_json_string(v[i]);
+			}
+			
+		}
+		ss << "]";
+	}
+
+	return ss.str();
 }

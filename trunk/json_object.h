@@ -7,6 +7,7 @@
 #include <boost/unordered_map.hpp>
 #include <boost/unordered_set.hpp>
 #include <string>
+#include <algorithm>
 
 namespace json {
 
@@ -21,12 +22,33 @@ namespace json {
 		template<class In> friend boost::shared_ptr<json_object> detail::get_object(In &, const In &);
 		friend boost::unordered_set<std::string> json::keys(const json_value &);
 		friend bool json::has_key(const json_value &v, const std::string &key);
+		friend size_t size(const json_value &v);
+		
+	public:
+	
+		json_object() {
+		}
+	
+		json_object(const json_object &other) : values_(other.values_) {
+		}
+		
+		json_object &operator=(const json_object &rhs) {
+			json_object(rhs).swap(*this);
+			return *this;
+		}
 		
 	private:
 		typedef boost::unordered_map<std::string, json_value> map_type;
 		
 	public:
 		json_value operator[](const std::string &key) const;
+		json_object &append(const std::string &key, const json_value &value);
+		
+	public:
+		void swap(json_object &other) {
+			using std::swap;
+			swap(values_, other.values_);
+		}
 		
 	private:
 		map_type values_;

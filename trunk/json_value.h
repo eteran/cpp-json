@@ -7,12 +7,18 @@
 
 #include <boost/shared_ptr.hpp>
 #include <boost/unordered_set.hpp>
+#include <boost/lexical_cast.hpp>
 #include <algorithm>
 
 namespace json {
 
 	class json_array;
 	class json_object;
+	
+	struct null_t {};
+	
+	extern null_t null;
+	
 
 	class json_value {
 		friend bool is_string(const json_value &v);
@@ -30,6 +36,50 @@ namespace json {
 		friend boost::unordered_set<std::string> keys(const json_value &v);
 		friend bool has_key(const json_value &v, const std::string &key);
 		
+	public:
+		explicit json_value(double x) {
+			type_   = number;
+			string_ = boost::lexical_cast<std::string>(x);
+		}
+		
+		explicit json_value(float x) {
+			type_   = number;
+			string_ = boost::lexical_cast<std::string>(x);
+		}
+		
+		explicit json_value(long x) {
+			type_   = number;
+			string_ = boost::lexical_cast<std::string>(x);
+		}
+		
+		explicit json_value(int x) {
+			type_   = number;
+			string_ = boost::lexical_cast<std::string>(x);
+		}
+		
+		explicit json_value(const std::string &s) {
+			type_   = string;
+			string_ = s;
+		}
+		
+		explicit json_value(const char *s) {
+			type_   = string;
+			string_ = s;
+		}
+		
+		explicit json_value(bool b) {
+			type_   = boolean;
+			string_ = (b ? "true" : "false");
+		}
+		
+		explicit json_value(const null_t &) {
+			type_   = null;
+			string_ = "null";
+		}
+		
+		explicit json_value(const json_array &a);
+		explicit json_value(const json_object &o);
+	
 	public:
 		json_value() : type_(invalid) {
 		}
