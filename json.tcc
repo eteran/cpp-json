@@ -80,20 +80,19 @@ namespace json {
 			if(token != json_token("{", json_token::delimeter)) {
 				throw brace_expected();
 			}
-
-			while(true) {
 			
-				// handle empty array			
-				if(peek_char(it, last) == '}') {
-					token = get_token(it, last);
-					break;
-				}
-				
-				object->values_.insert(get_pair(it, last));
-
+			// handle empty object
+			if(peek_char(it, last) == '}') {
 				token = get_token(it, last);
-				if(token != json_token(",", json_token::delimeter)) {
-					break;
+			} else {
+
+				while(true) {
+					object->values_.insert(get_pair(it, last));
+
+					token = get_token(it, last);
+					if(token != json_token(",", json_token::delimeter)) {
+						break;
+					}
 				}
 			}
 
@@ -113,20 +112,18 @@ namespace json {
 			if(token != json_token("[", json_token::delimeter)) {
 				throw bracket_expected();
 			}
-
-			while(true) {
-
-				// handle empty array			
-				if(peek_char(it, last) == ']') {
-					token = get_token(it, last);
-					break;
-				}
-
-				array->values_.push_back(get_value(it, last));
-
+			
+			// handle empty object
+			if(peek_char(it, last) == ']') {
 				token = get_token(it, last);
-				if(token != json_token(",", json_token::delimeter)) {
-					break;
+			} else {
+				while(true) {
+					array->values_.push_back(get_value(it, last));
+
+					token = get_token(it, last);
+					if(token != json_token(",", json_token::delimeter)) {
+						break;
+					}
 				}
 			}
 
