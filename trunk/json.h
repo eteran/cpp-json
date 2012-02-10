@@ -48,7 +48,7 @@ namespace json {
 	boost::unordered_set<std::string> keys(const value &v);
 	bool has_key(const value &v, const std::string &key);
 	
-	std::string to_json_string(const value &v);
+	std::string pretty_print(const value &v);
 }
 
 #include "json.tcc"

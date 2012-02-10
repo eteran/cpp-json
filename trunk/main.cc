@@ -25,12 +25,11 @@ int main(int argc, char *argv[]) {
 		
 		
 		// test outputing the object as a JSON string
-		std::cout << json::to_json_string(json) << std::endl;
+		std::cout << "--------" << std::endl;
+		std::cout << json::pretty_print(json) << std::endl;
 	}
 #else
-	json::object obj2;
-	obj2.append("x", json::value(123.456));
-	
+
 	json::array obj3;
 	obj3.append(json::value(1))
 		.append(json::value(2))
@@ -38,12 +37,12 @@ int main(int argc, char *argv[]) {
 		.append(json::value(4));
 	
 	json::object obj;
-	obj.append("test1", json::value("hello world"))
+	obj1.append("test1", json::value("hello world"))
 		.append("test2", json::value(10))
-		.append("test3", json::value(obj2))
+		.append("test3", json::value(json::object().append("x", json::value(123.456))))
 		.append("test4", json::value(obj3));
 
-	std::cout << json::to_json_string(json::value(obj)) << std::endl;
+	std::cout << json::pretty_print(json::value(obj1)) << std::endl;
 	
 #endif
 }

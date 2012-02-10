@@ -1,7 +1,12 @@
 {
-	"web-app": "test\u00a2blahblah",
-	"test": [2, 3, 5, 7],
-	"test2":true,
-	"test3":false,
-	"test4":null,
+	"test1":1,
+	"object1":{
+		"object2":{
+			"test2":2,
+			"object3":{
+				"test3":3,
+				"test4":[1,2,3,4]
+			}
+		}
+	}
 }
