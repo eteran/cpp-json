@@ -9,8 +9,9 @@ json::json_value json::json_value::operator[](const std::string &key) const {
 	if(!is_object(*this)) {
 		throw invalid_type_cast();
 	}
-
-	return (*object_)[key];
+	
+	boost::shared_ptr<json_object> p = boost::get<boost::shared_ptr<json_object> >(value_);
+	return (*p)[key];
 }
 
 json::json_value json::json_value::operator[](std::size_t n) const {
@@ -18,15 +19,16 @@ json::json_value json::json_value::operator[](std::size_t n) const {
 		throw invalid_type_cast();
 	}
 
-	return (*array_)[n];
+	boost::shared_ptr<json_array> p = boost::get<boost::shared_ptr<json_array> >(value_);
+	return (*p)[n];
 }
 
 json::json_value::json_value(const json::array &a) {
 	type_   = array;
-	array_  = boost::make_shared<json::array>(a);
+	value_  = boost::make_shared<json::array>(a);
 }
 
 json::json_value::json_value(const json::object &a) {
-	type_    = object;
-	object_  = boost::make_shared<json::object>(a);
+	type_   = object;
+	value_  = boost::make_shared<json::object>(a);
 }
