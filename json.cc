@@ -6,7 +6,7 @@ std::string json::to_string(const value &v) {
 	if(!is_string(v) && !is_bool(v) && !is_number(v)) {
 		throw invalid_type_cast();
 	}
-	return v.string_;
+	return boost::get<std::string>(v.value_);
 }
 
 std::string json::to_string(const json::null_t &) {
@@ -17,23 +17,24 @@ bool json::to_bool(const value &v) {
 	if(!is_bool(v)) {
 		throw invalid_type_cast();
 	}
-	return v.string_ == "true";
+	return boost::get<std::string>(v.value_) == "true";
 }
 
 double json::to_number(const value &v) {
 	if(!is_number(v)) {
 		throw invalid_type_cast();
 	}
-	return strtod(v.string_.c_str(), 0);
+	return strtod(boost::get<std::string>(v.value_).c_str(), 0);
 }
 
 size_t json::size(const value &v) {
+
 	if(is_array(v)) {
-		return v.array_->values_.size();
+		return boost::get<boost::shared_ptr<json_array> >(v.value_)->values_.size();
 	}
 	
 	if(is_object(v)) {
-		return v.object_->values_.size();
+		return boost::get<boost::shared_ptr<json_object> >(v.value_)->values_.size();
 	}
 	
 	return 0;
@@ -41,7 +42,7 @@ size_t json::size(const value &v) {
 
 bool json::has_key(const value &v, const std::string &key) {
 	if(is_object(v)) {
-		return v.object_->values_.find(key) != v.object_->values_.end();
+		return boost::get<boost::shared_ptr<json_object> >(v.value_)->values_.find(key) != boost::get<boost::shared_ptr<json_object> >(v.value_)->values_.end();
 	}
 	return false;
 }
@@ -51,7 +52,7 @@ boost::unordered_set<std::string> json::keys(const value &v) {
 	boost::unordered_set<std::string> keys;
 	if(is_object(v)) {
 	
-		const json_object::map_type &map = v.object_->values_;
+		const json_object::map_type &map = boost::get<boost::shared_ptr<json_object> >(v.value_)->values_;
 	
 		for(json_object::map_type::const_iterator it = map.begin(); it != map.end(); ++it) {
 			keys.insert(it->first);

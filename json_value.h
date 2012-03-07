@@ -8,6 +8,8 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/unordered_set.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/variant.hpp>
+#include <boost/variant/get.hpp>
 #include <algorithm>
 
 namespace json {
@@ -38,43 +40,43 @@ namespace json {
 		
 	public:
 		explicit json_value(double x) {
-			type_   = number;
-			string_ = boost::lexical_cast<std::string>(x);
+			type_  = number;
+			value_ = boost::lexical_cast<std::string>(x);
 		}
 		
 		explicit json_value(float x) {
-			type_   = number;
-			string_ = boost::lexical_cast<std::string>(x);
+			type_  = number;
+			value_ = boost::lexical_cast<std::string>(x);
 		}
 		
 		explicit json_value(long x) {
-			type_   = number;
-			string_ = boost::lexical_cast<std::string>(x);
+			type_  = number;
+			value_ = boost::lexical_cast<std::string>(x);
 		}
 		
 		explicit json_value(int x) {
-			type_   = number;
-			string_ = boost::lexical_cast<std::string>(x);
+			type_  = number;
+			value_ = boost::lexical_cast<std::string>(x);
 		}
 		
 		explicit json_value(const std::string &s) {
-			type_   = string;
-			string_ = s;
+			type_  = string;
+			value_ = s;
 		}
 		
 		explicit json_value(const char *s) {
-			type_   = string;
-			string_ = s;
+			type_  = string;
+			value_ = s;
 		}
 		
 		explicit json_value(bool b) {
-			type_   = boolean;
-			string_ = (b ? "true" : "false");
+			type_  = boolean;
+			value_ = (b ? "true" : "false");
 		}
 		
 		explicit json_value(const null_t &) {
-			type_   = null;
-			string_ = "null";
+			type_  = null;
+			value_ = "null";
 		}
 		
 		explicit json_value(const json_array &a);
@@ -84,13 +86,13 @@ namespace json {
 		json_value() : type_(invalid) {
 		}
 
-		explicit json_value(const boost::shared_ptr<json_object> &o) : object_(o), type_(object) {
+		explicit json_value(const boost::shared_ptr<json_object> &o) : value_(o), type_(object) {
 		}
 
-		explicit json_value(const boost::shared_ptr<json_array> &a) : array_(a), type_(array) {
+		explicit json_value(const boost::shared_ptr<json_array> &a) : value_(a), type_(array) {
 		}
 
-		explicit json_value(const json_token &token) : string_(token.string_) {
+		explicit json_value(const json_token &token) : value_(token.string_) {
 		
 			switch(token.type_) {
 			case json_token::string:
@@ -111,7 +113,7 @@ namespace json {
 		}
 
 	public:
-		json_value(const json_value &other) : object_(other.object_), array_(other.array_), string_(other.string_), type_(other.type_) {
+		json_value(const json_value &other) : value_(other.value_), type_(other.type_) {
 		}
 		
 		json_value &operator=(const json_value &rhs) {
@@ -121,10 +123,7 @@ namespace json {
 		
 		void swap(json_value &other) {
 			using std::swap;
-			swap(object_, other.object_);
-			swap(array_, other.array_);
-			swap(string_, other.string_);
-			swap(type_, other.type_);
+			swap(value_, other.value_);
 		}
 		
 	public:
@@ -143,10 +142,8 @@ namespace json {
 		json_value operator[](std::size_t n) const;
 
 	private:
-		boost::shared_ptr<json_object> object_;
-		boost::shared_ptr<json_array>  array_;
-		std::string                    string_; // a string, number, bool or null
-		type                           type_;
+		boost::variant<boost::shared_ptr<json_object>, boost::shared_ptr<json_array>, std::string> value_;
+		type                                                                                       type_;
 	};
 }
 
