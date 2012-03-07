@@ -67,8 +67,8 @@ json_array.o: json_array.cc json_array.h json_value.h json_token.h \
  json_error.h
 json_object.o: json_object.cc json_object.h json_value.h json_token.h \
  json_error.h
-json_value.o: json_value.cc json_value.h json_token.h json_error.h \
- json_object.h json_array.h
+json_value.o: json_value.cc json_value.h json_token.h json_error.h json.h \
+ json_object.h json_array.h json.tcc
 main.o: main.cc json.h json_token.h json_object.h json_value.h \
  json_error.h json_array.h json.tcc
 # DEPENDENCIES MUST END AT END OF FILE
