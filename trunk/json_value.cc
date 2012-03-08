@@ -24,11 +24,11 @@ json::json_value json::json_value::operator[](std::size_t n) const {
 }
 
 json::json_value::json_value(const json::array &a) {
-	type_   = array;
-	value_  = boost::make_shared<json::array>(a);
+	type_  = array;
+	value_ = boost::make_shared<json::array>(a);
 }
 
 json::json_value::json_value(const json::object &a) {
-	type_   = object;
-	value_  = boost::make_shared<json::object>(a);
+	type_  = object;
+	value_ = boost::make_shared<json::object>(a);
 }
