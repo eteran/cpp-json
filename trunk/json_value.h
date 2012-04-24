@@ -4,23 +4,17 @@
 
 #include "json_token.h"
 #include "json_error.h"
-
+#include <boost/lexical_cast.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/unordered_set.hpp>
-#include <boost/lexical_cast.hpp>
 #include <boost/variant.hpp>
 #include <boost/variant/get.hpp>
-#include <algorithm>
+#include <string>
 
 namespace json {
 
 	class json_array;
 	class json_object;
-	
-	struct null_t {};
-	
-	extern null_t null;
-	
 
 	class json_value {
 		friend bool is_string(const json_value &v);
@@ -73,17 +67,12 @@ namespace json {
 			type_  = boolean;
 			value_ = (b ? "true" : "false");
 		}
-		
-		explicit json_value(const null_t &) {
-			type_  = null;
-			value_ = "null";
-		}
-		
+			
 		explicit json_value(const json_array &a);
 		explicit json_value(const json_object &o);
 	
 	public:
-		json_value() : type_(invalid) {
+		json_value() : value_("null"), type_(null) {
 		}
 
 		explicit json_value(const boost::shared_ptr<json_object> &o) : value_(o), type_(object) {

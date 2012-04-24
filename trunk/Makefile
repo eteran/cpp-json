@@ -18,12 +18,12 @@ APPNAME := cpp-json
 
 DEFINES  := 
 INCLUDES := 
-CXXFLAGS := -g -O2 -pedantic -pipe $(INCLUDES) -W -Wall
+CXXFLAGS := -g -O3 -pedantic -pipe $(INCLUDES) -W -Wall
 LDFLAGS  := -g
 
-H_FILES     := json.h json_array.h json_object.h json_token.h json_value.h
-TCC_FILES   := json.tcc
-CXX_FILES   := json.cc json_array.cc json_object.cc json_value.cc main.cc
+H_FILES     := json.h   json_array.h   json_object.h   json_value.h   json_token.h
+TCC_FILES   := json.tcc json_array.tcc json_object.tcc json_value.tcc
+CXX_FILES   := main.cc
 O_FILES     := $(CXX_FILES:.cc=.o)
 SOURCEFILES := $(H_FILES) $(CXX_FILES) $(TCC_FILES)
 .PRECIOUS: $(SOURCEFILES)
@@ -61,16 +61,9 @@ depend:
 #-----------------------------------------------------------------
 # DO NOT DELETE THIS LINE -- make depend uses it
 #-----------------------------------------------------------------
-json.o: json.cc json.h json_token.h json_object.h json_value.h \
- json_error.h json_array.h json.tcc
-json_array.o: json_array.cc json_array.h json_value.h json_token.h \
- json_error.h
-json_object.o: json_object.cc json_object.h json_value.h json_token.h \
- json_error.h
-json_value.o: json_value.cc json_value.h json_token.h json_error.h json.h \
- json_object.h json_array.h json.tcc
-main.o: main.cc json.h json_token.h json_object.h json_value.h \
- json_error.h json_array.h json.tcc
+main.o: main.cc json.h json_token.h json_error.h json_object.h \
+ json_value.h json_array.h json.tcc json_object.tcc json_array.tcc \
+ json_value.tcc
 # DEPENDENCIES MUST END AT END OF FILE
 # IF YOU PUT STUFF HERE IT WILL GO AWAY
 # see make depend above
