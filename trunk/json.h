@@ -29,6 +29,7 @@ namespace json {
 	value parse(std::istream &is);
 	
 	value parse(const std::string &s);
+	value from_string(const std::string &s);
 	
 	inline bool is_string(const value &v);
 	inline bool is_bool(const value &v);

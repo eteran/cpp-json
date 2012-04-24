@@ -452,6 +452,10 @@ inline value parse(const std::string &s) {
 	return parse(s.begin(), s.end());
 }
 
+inline value from_string(const std::string &s) {
+	return parse(s.begin(), s.end());
+}
+
 inline bool is_string(const value &v) { return (v.type_ == json_value::string); }
 inline bool is_bool(const value &v)   { return (v.type_ == json_value::boolean); }
 inline bool is_number(const value &v) { return (v.type_ == json_value::number); }
