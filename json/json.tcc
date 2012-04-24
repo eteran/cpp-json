@@ -480,6 +480,30 @@ inline set_type keys(const json_value &v) {
 	return keys;
 }
 
+inline size_t size(const json_object &o) {
+	return o.values_.size();
+}
+
+inline set_type keys(const json_object &o) {
+	set_type keys;
+
+	const json::map_type &map = o.values_;
+
+	for(json::map_type::const_iterator it = map.begin(); it != map.end(); ++it) {
+		keys.insert(it->first);
+	}		
+	
+	return keys;
+}
+
+inline bool has_key(const json_object &o, const std::string &key) {
+	return o.values_.find(key) != o.values_.end();
+}
+
+inline size_t size(const json_array &a) {
+	return a.values_.size();
+}
+
 inline json_value parse(std::istream &is) {
 	return parse((std::istreambuf_iterator<char>(is)), std::istreambuf_iterator<char>());
 }
@@ -664,7 +688,6 @@ inline std::string json::print(const json_value &v) {
 				ss << ',';
 				ss << '"' << *it << "\":" << print(v[*it]);
 			}
-
 		}
 		ss  << "}";
 	}
@@ -679,7 +702,6 @@ inline std::string json::print(const json_value &v) {
 				ss << ',';
 				ss << print(v[i]);
 			}
-
 		}
 	}
 

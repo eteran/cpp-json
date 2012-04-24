@@ -15,6 +15,7 @@ namespace json {
 	class json_array {
 		 template<class In> friend boost::shared_ptr<json_array> detail::get_array(In &, const In &);
 		 friend size_t size(const json_value &v);
+		 friend size_t size(const json_array &a);
 
 	public:
 		json_array();
