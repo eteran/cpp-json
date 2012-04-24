@@ -66,6 +66,12 @@ namespace json {
 	set_type keys(const json_value &v);
 	bool has_key(const json_value &v, const std::string &key);
 	
+	size_t size(const json_object &o);
+	set_type keys(const json_object &o);
+	bool has_key(const json_object &o, const std::string &key);
+	
+	size_t size(const json_array &a);
+	
 	std::string pretty_print(const json_value &v);
 	std::string pretty_print(const json_array &a);
 	std::string pretty_print(const json_object &o);

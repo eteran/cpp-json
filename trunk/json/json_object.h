@@ -14,10 +14,14 @@ namespace json {
 
 	class json_object {
 		template<class In> friend boost::shared_ptr<json_object> detail::get_object(In &, const In &);
-		friend set_type json::keys(const json_value &);
-		friend bool json::has_key(const json_value &v, const std::string &key);
-		friend size_t size(const json_value &v);
 		
+		friend bool has_key(const json_object &o, const std::string &key);
+		friend bool has_key(const json_value &v, const std::string &key);
+		friend set_type keys(const json_value &v);
+		friend set_type keys(const json_object &o);
+		friend size_t size(const json_object &o);
+		friend size_t size(const json_value &v);		
+
 	public:
 		json_object();
 		json_object(const json_object &other);
