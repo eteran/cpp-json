@@ -5,7 +5,6 @@
 #include "json_value.h"
 #include <boost/shared_ptr.hpp>
 #include <vector>
-#include <algorithm>
 
 namespace json {
 	
@@ -21,26 +20,16 @@ namespace json {
 		 friend size_t size(const json_value &v);
 
 	public:
-		json_array() {
-		}
-	
-		json_array(const json_array &other) : values_(other.values_) {
-		}
-		
-		json_array &operator=(const json_array &rhs) {
-			json_array(rhs).swap(*this);
-			return *this;
-		}
+		json_array();
+		json_array(const json_array &other);
+		json_array &operator=(const json_array &rhs);
 		
 	public:
 		json_value operator[](std::size_t n) const;
 		json_array &append(const json_value &value);
 		
 	public:
-		void swap(json_array &other) {
-			using std::swap;
-			swap(values_, other.values_);
-		}
+		void swap(json_array &other);
 	
 	private:
 		std::vector<json_value> values_;
