@@ -2,14 +2,12 @@
 #ifndef JSON_VALUE_20120424_TCC_
 #define JSON_VALUE_20120424_TCC_
 
-#include <boost/make_shared.hpp>
-
 namespace json {
 
 //------------------------------------------------------------------------------
 // Name: operator[](const std::string &key) const
 //------------------------------------------------------------------------------
-inline json_value json_value::operator[](const std::string &key) const {
+inline const json_value json_value::operator[](const std::string &key) const {
 	if(!is_object(*this)) {
 		throw invalid_type_cast();
 	}
@@ -21,7 +19,7 @@ inline json_value json_value::operator[](const std::string &key) const {
 //------------------------------------------------------------------------------
 // Name: operator[](std::size_t n) const
 //------------------------------------------------------------------------------
-inline json_value json_value::operator[](std::size_t n) const {
+inline const json_value json_value::operator[](std::size_t n) const {
 	if(!is_array(*this)) {
 		throw invalid_type_cast();
 	}

@@ -2,8 +2,6 @@
 #ifndef JSON_OBJECT_20120424_TCC_
 #define JSON_OBJECT_20120424_TCC_
 
-#include <algorithm>
-
 namespace json {
 
 //------------------------------------------------------------------------------
@@ -29,7 +27,7 @@ inline json_object &json_object::operator=(const json_object &rhs) {
 //------------------------------------------------------------------------------
 // Name: operator[](const std::string &key) const
 //------------------------------------------------------------------------------
-inline json_value json_object::operator[](const std::string &key) const {
+inline const json_value json_object::operator[](const std::string &key) const {
 	map_type::const_iterator it = values_.find(key);
 	if(it != values_.end()) {
 		return it->second;

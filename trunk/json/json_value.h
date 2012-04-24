@@ -2,15 +2,6 @@
 #ifndef JSON_VALUE_20110526_H_
 #define JSON_VALUE_20110526_H_
 
-#include "json_token.h"
-#include "json_error.h"
-#include <boost/lexical_cast.hpp>
-#include <boost/shared_ptr.hpp>
-#include <boost/unordered_set.hpp>
-#include <boost/variant.hpp>
-#include <boost/variant/get.hpp>
-#include <string>
-
 namespace json {
 
 	class json_array;
@@ -29,7 +20,7 @@ namespace json {
 		friend double to_number(const json_value &v);
 		
 		friend size_t size(const json_value &v);
-		friend boost::unordered_set<std::string> keys(const json_value &v);
+		friend set_type keys(const json_value &v);
 		friend bool has_key(const json_value &v, const std::string &key);
 		
 	public:
@@ -113,8 +104,8 @@ namespace json {
 		};
 		
 	public:
-		json_value operator[](const std::string &key) const;
-		json_value operator[](std::size_t n) const;
+		const json_value operator[](const std::string &key) const;
+		const json_value operator[](std::size_t n) const;
 
 	private:
 		boost::variant<boost::shared_ptr<json_object>, boost::shared_ptr<json_array>, std::string> value_;

@@ -2,11 +2,6 @@
 #ifndef JSON_20110526_TCC_
 #define JSON_20110526_TCC_
 
-#include <iterator>
-#include <boost/make_shared.hpp>
-#include <boost/cstdint.hpp>
-#include <sstream>
-
 namespace json {
 namespace detail {
 
@@ -20,7 +15,7 @@ void print_exception_details_internal(In first, In current, In last, const Tr&) 
 template <class In>
 void print_exception_details_internal(In first, In current, In last, const std::random_access_iterator_tag &) {
 	(void)last;
-	std::cerr << "an error occured " << current - first << " characters into the stream:" << std::endl;
+	std::cerr << "an error occured " << std::distance(first, current) << " characters into the stream:" << std::endl;
 }
 
 template <class In>
@@ -32,7 +27,7 @@ void print_exception_details(In first, In current, In last) {
 template <class In>
 json_value get_value(In &it, const In &last);
 
-std::vector<uint8_t> ucs2_to_utf8(uint16_t cp);
+std::vector<uint8_t> unicode_escape_to_utf8(uint16_t w1, uint16_t w2);
 
 template <class In>
 typename std::iterator_traits<In>::value_type peek_char(In &it, const In &last);
@@ -243,25 +238,51 @@ json_token get_string(In &it, const In &last) {
 					{
 						// convert \uXXXX escape sequences to UTF-8
 						char hex[4];
-						if(it == last) { throw invalid_string(); } hex[0] = *++it;
-						if(it == last) { throw invalid_string(); } hex[1] = *++it;
-						if(it == last) { throw invalid_string(); } hex[2] = *++it;
-						if(it == last) { throw invalid_string(); } hex[3] = *++it;
+						if(it == last) { throw hex_character_expected(); } hex[0] = *++it;
+						if(it == last) { throw hex_character_expected(); } hex[1] = *++it;
+						if(it == last) { throw hex_character_expected(); } hex[2] = *++it;
+						if(it == last) { throw hex_character_expected(); } hex[3] = *++it;
 
 						if(!is_hexdigit(hex[0])) throw invalid_unicode_character();
 						if(!is_hexdigit(hex[1])) throw invalid_unicode_character();
 						if(!is_hexdigit(hex[2])) throw invalid_unicode_character();
 						if(!is_hexdigit(hex[3])) throw invalid_unicode_character();
 
-						uint16_t ucs2 = 0;
-						ucs2 |= ((is_digit(hex[0]) ? hex[0] - '0' : std::toupper(hex[0]) - 'A' + 10) << 12);
-						ucs2 |= ((is_digit(hex[1]) ? hex[1] - '0' : std::toupper(hex[1]) - 'A' + 10) << 8);
-						ucs2 |= ((is_digit(hex[2]) ? hex[2] - '0' : std::toupper(hex[2]) - 'A' + 10) << 4);
-						ucs2 |= ((is_digit(hex[3]) ? hex[3] - '0' : std::toupper(hex[3]) - 'A' + 10));
+						uint16_t w1 = 0;
+						uint16_t w2 = 0;
+						
+						w1 |= ((is_digit(hex[0]) ? hex[0] - '0' : std::toupper(hex[0]) - 'A' + 10) << 12);
+						w1 |= ((is_digit(hex[1]) ? hex[1] - '0' : std::toupper(hex[1]) - 'A' + 10) << 8);
+						w1 |= ((is_digit(hex[2]) ? hex[2] - '0' : std::toupper(hex[2]) - 'A' + 10) << 4);
+						w1 |= ((is_digit(hex[3]) ? hex[3] - '0' : std::toupper(hex[3]) - 'A' + 10));
+						
+						if((w1 & 0xfc00) == 0xdc00) {
+							throw invalid_unicode_character();
+						}
 
-						// TODO: for proper UTF-16 support, see the notes in the ucs2_to_utf8 function
+						if((w1 & 0xfc00) == 0xd800) {
+							// part of a surrogate pair
+							if(it == last || *++it != '\\') { throw utf16_surrogate_expected(); }
+							if(it == last || *++it != 'u')  { throw utf16_surrogate_expected(); }
+							
+							// convert \uXXXX escape sequences to UTF-8
+							if(it == last) { throw hex_character_expected(); } hex[0] = *++it;
+							if(it == last) { throw hex_character_expected(); } hex[1] = *++it;
+							if(it == last) { throw hex_character_expected(); } hex[2] = *++it;
+							if(it == last) { throw hex_character_expected(); } hex[3] = *++it;
 
-						const std::vector<uint8_t> utf8 = ucs2_to_utf8(ucs2);
+							if(!is_hexdigit(hex[0])) throw invalid_unicode_character();
+							if(!is_hexdigit(hex[1])) throw invalid_unicode_character();
+							if(!is_hexdigit(hex[2])) throw invalid_unicode_character();
+							if(!is_hexdigit(hex[3])) throw invalid_unicode_character();
+							
+							w2 |= ((is_digit(hex[0]) ? hex[0] - '0' : std::toupper(hex[0]) - 'A' + 10) << 12);
+							w2 |= ((is_digit(hex[1]) ? hex[1] - '0' : std::toupper(hex[1]) - 'A' + 10) << 8);
+							w2 |= ((is_digit(hex[2]) ? hex[2] - '0' : std::toupper(hex[2]) - 'A' + 10) << 4);
+							w2 |= ((is_digit(hex[3]) ? hex[3] - '0' : std::toupper(hex[3]) - 'A' + 10));							
+						}
+
+						const std::vector<uint8_t> utf8 = unicode_escape_to_utf8(w1, w2);
 						s.append(utf8.begin(), utf8.end());
 					}
 					break;
@@ -278,7 +299,7 @@ json_token get_string(In &it, const In &last) {
 	}
 
 	if(*it != '"' || it == last) {
-		throw invalid_string();
+		throw quote_expected();
 	}
 
 	++it;
@@ -377,7 +398,7 @@ typename std::iterator_traits<In>::value_type peek_char(In &it, const In &last) 
 	
 	
 template <class In>
-value parse(In first, In last) {
+json_value parse(In first, In last) {
 	const In original_first = first;
 	try {
 		return detail::get_value(first, last);
@@ -387,28 +408,28 @@ value parse(In first, In last) {
 	}
 }
 
-inline std::string to_string(const value &v) {
+inline std::string to_string(const json_value &v) {
 	if(!is_string(v) && !is_bool(v) && !is_number(v)) {
 		throw invalid_type_cast();
 	}
 	return boost::get<std::string>(v.value_);
 }
 
-inline bool to_bool(const value &v) {
+inline bool to_bool(const json_value &v) {
 	if(!is_bool(v)) {
 		throw invalid_type_cast();
 	}
 	return boost::get<std::string>(v.value_) == "true";
 }
 
-inline double to_number(const value &v) {
+inline double to_number(const json_value &v) {
 	if(!is_number(v)) {
 		throw invalid_type_cast();
 	}
 	return strtod(boost::get<std::string>(v.value_).c_str(), 0);
 }
 
-inline size_t size(const value &v) {
+inline size_t size(const json_value &v) {
 
 	if(is_array(v)) {
 		return boost::get<boost::shared_ptr<json_array> >(v.value_)->values_.size();
@@ -421,21 +442,21 @@ inline size_t size(const value &v) {
 	return 0;
 }
 
-inline bool has_key(const value &v, const std::string &key) {
+inline bool has_key(const json_value &v, const std::string &key) {
 	if(is_object(v)) {
 		return boost::get<boost::shared_ptr<json_object> >(v.value_)->values_.find(key) != boost::get<boost::shared_ptr<json_object> >(v.value_)->values_.end();
 	}
 	return false;
 }
 
-inline boost::unordered_set<std::string> keys(const value &v) {
+inline set_type keys(const json_value &v) {
 	
-	boost::unordered_set<std::string> keys;
+	set_type keys;
 	if(is_object(v)) {
 	
-		const json_object::map_type &map = boost::get<boost::shared_ptr<json_object> >(v.value_)->values_;
+		const json::map_type &map = boost::get<boost::shared_ptr<json_object> >(v.value_)->values_;
 	
-		for(json_object::map_type::const_iterator it = map.begin(); it != map.end(); ++it) {
+		for(json::map_type::const_iterator it = map.begin(); it != map.end(); ++it) {
 			keys.insert(it->first);
 		}		
 	}
@@ -443,37 +464,40 @@ inline boost::unordered_set<std::string> keys(const value &v) {
 	return keys;
 }
 
-
-inline value parse(std::istream &is) {
+inline json_value parse(std::istream &is) {
 	return parse((std::istreambuf_iterator<char>(is)), std::istreambuf_iterator<char>());
 }
 
-inline value parse(const std::string &s) {
+inline json_value parse(const std::string &s) {
 	return parse(s.begin(), s.end());
 }
 
-inline value from_string(const std::string &s) {
+inline json_value from_string(const std::string &s) {
 	return parse(s.begin(), s.end());
 }
 
-inline bool is_string(const value &v) { return (v.type_ == json_value::string); }
-inline bool is_bool(const value &v)   { return (v.type_ == json_value::boolean); }
-inline bool is_number(const value &v) { return (v.type_ == json_value::number); }
-inline bool is_object(const value &v) { return (v.type_ == json_value::object); }
-inline bool is_array(const value &v)  { return (v.type_ == json_value::array); }
-inline bool is_null(const value &v)   { return (v.type_ == json_value::null); }
+inline bool is_string(const json_value &v) { return (v.type_ == json_value::string); }
+inline bool is_bool(const json_value &v)   { return (v.type_ == json_value::boolean); }
+inline bool is_number(const json_value &v) { return (v.type_ == json_value::number); }
+inline bool is_object(const json_value &v) { return (v.type_ == json_value::object); }
+inline bool is_array(const json_value &v)  { return (v.type_ == json_value::array); }
+inline bool is_null(const json_value &v)   { return (v.type_ == json_value::null); }
+
+}
+
+inline std::vector<uint8_t> json::detail::unicode_escape_to_utf8(uint16_t w1, uint16_t w2) {
+
+	uint32_t cp;
+	if((w1 & 0xfc00) == 0xd800) {
+		if((w2 & 0xfc00) == 0xdc00) {
+			cp = 0x10000 + (((static_cast<uint32_t>(w1) & 0x3ff) << 10) | (w2 & 0x3ff));
+		} else {
+			throw invalid_unicode_character();
+		}
+	} else {
+		cp = w1;
+	}
 	
-}
-
-inline std::vector<uint8_t> json::detail::ucs2_to_utf8(uint16_t cp) {
-
-	// TODO: in order to make this function "utf16_to_utf8"
-	// we need to handle surrogate pairs properly.
-	// this basically means detection of values in the range
-	// 0xdb00 - 0xdfff
-	// this can be detected by doing "(cp & 0xdb00) == 0xdb00"
-	//
-
 	std::vector<uint8_t> utf8;
 	
 	if(cp < 0x80) {
@@ -484,7 +508,7 @@ inline std::vector<uint8_t> json::detail::ucs2_to_utf8(uint16_t cp) {
 		ch[1] = 0x80 | (cp & 0x3f);
 		utf8.push_back(static_cast<uint8_t>(ch[0]));
 		utf8.push_back(static_cast<uint8_t>(ch[1]));
-	} else {
+	} else if(cp < 0x10000) {
 		uint8_t ch[3];
 		ch[0] = 0xe0 | ((cp >> 6) & 0x0f);
 		ch[1] = 0x80 | ((cp >> 6) & 0x3f);
@@ -492,22 +516,28 @@ inline std::vector<uint8_t> json::detail::ucs2_to_utf8(uint16_t cp) {
 		utf8.push_back(static_cast<uint8_t>(ch[0]));
 		utf8.push_back(static_cast<uint8_t>(ch[1]));
 		utf8.push_back(static_cast<uint8_t>(ch[2]));
+	} else if(cp < 0x1fffff) {
+		uint8_t ch[4];
+		ch[0] = 0xf0 | ((cp >> 18) & 0x07);
+		ch[1] = 0x80 | ((cp >> 12) & 0x3f);
+		ch[2] = 0x80 | ((cp >> 6) & 0x3f);
+		ch[3] = 0x80 | (cp & 0x3f);
+		utf8.push_back(static_cast<uint8_t>(ch[0]));
+		utf8.push_back(static_cast<uint8_t>(ch[1]));
+		utf8.push_back(static_cast<uint8_t>(ch[2]));
+		utf8.push_back(static_cast<uint8_t>(ch[3]));
 	}
 	
 	return utf8;
 }
 
 namespace {
-
-	inline std::string ltrim(std::string s) {
-		s.erase(s.begin(), std::find_if(s.begin(), s.end(), std::not1(std::ptr_fun<int, int>(std::isspace))));
-		return s;
-	}
-
-	inline std::string value_to_string(const json::value &v, int indent) {
+	inline std::string value_to_string(const json::json_value &v, int indent, bool ignore_ident) {
 		std::stringstream ss;
 		
-		ss << std::string(indent * 2, ' ');
+		if(!ignore_ident) {
+			ss << std::string(indent * 2, ' ');
+		}
 		
 
 		if(is_string(v)) {
@@ -528,16 +558,16 @@ namespace {
 
 		if(is_object(v)) {
 			ss << "{\n";
-			boost::unordered_set<std::string> k = keys(v);
+			json::set_type k = keys(v);
 			if(!k.empty()) {
-				boost::unordered_set<std::string>::const_iterator it = k.begin();
+				json::set_type::const_iterator it = k.begin();
 				++indent;
-				ss << std::string(indent * 2, ' ') << '"' << *it << "\" : " << ltrim(value_to_string(v[*it], indent));
+				ss << std::string(indent * 2, ' ') << '"' << *it << "\" : " << value_to_string(v[*it], indent, true);
 				++it;
 				for(;it != k.end(); ++it) {
 					ss << ',';
 					ss << '\n';
-					ss << std::string(indent * 2, ' ') << '"' << *it << "\" : " << ltrim(value_to_string(v[*it], indent));
+					ss << std::string(indent * 2, ' ') << '"' << *it << "\" : " << value_to_string(v[*it], indent, true);
 				}
 				--indent;
 
@@ -551,12 +581,12 @@ namespace {
 			if(size(v) != 0) {
 				size_t i = 0;
 				++indent;
-				ss << value_to_string(v[i++], indent);
+				ss << value_to_string(v[i++], indent, false);
 
 				for(;i != size(v); ++i) {
 					ss << ',';
 					ss << '\n';
-					ss << value_to_string(v[i], indent);
+					ss << value_to_string(v[i], indent, false);
 				}
 				--indent;
 
@@ -569,15 +599,15 @@ namespace {
 	}
 }
 
-inline std::string json::pretty_print(const value &v) {
-	return value_to_string(v, 0);
+inline std::string json::pretty_print(const json_value &v) {
+	return value_to_string(v, 0, false);
 }
 
-inline std::string json::pretty_print(const array &a) {
+inline std::string json::pretty_print(const json_array &a) {
 	return pretty_print(json_value(a));
 }
 
-inline std::string json::pretty_print(const object &o) {
+inline std::string json::pretty_print(const json_object &o) {
 	return pretty_print(json_value(o));
 }
 
