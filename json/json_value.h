@@ -18,6 +18,8 @@ namespace json {
 		friend std::string to_string(const json_value &v);
 		friend bool to_bool(const json_value &v);
 		friend double to_number(const json_value &v);
+		friend json_object to_object(const json_value &v);
+		friend json_array to_array(const json_value &v);
 		
 		friend size_t size(const json_value &v);
 		friend set_type keys(const json_value &v);
