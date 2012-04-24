@@ -59,6 +59,8 @@ namespace json {
 	std::string to_string(const json_value &v);
 	bool        to_bool(const json_value &v);
 	double      to_number(const json_value &v);
+	json_object to_object(const json_value &v);
+	json_array  to_array(const json_value &v);
 	
 	size_t size(const json_value &v);
 	set_type keys(const json_value &v);
@@ -67,6 +69,10 @@ namespace json {
 	std::string pretty_print(const json_value &v);
 	std::string pretty_print(const json_array &a);
 	std::string pretty_print(const json_object &o);
+	
+	std::string print(const json_value &v);
+	std::string print(const json_array &a);
+	std::string print(const json_object &o);
 	
 	template <class In>
 	json_value parse(In first, In last);

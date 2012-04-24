@@ -429,6 +429,22 @@ inline double to_number(const json_value &v) {
 	return strtod(boost::get<std::string>(v.value_).c_str(), 0);
 }
 
+inline json_object to_object(const json_value &v) {
+	if(!is_object(v)) {
+		throw invalid_type_cast();
+	}
+	
+	return *boost::get<boost::shared_ptr<json_object> >(v.value_);
+}
+
+inline json_array to_array(const json_value &v) {
+	if(!is_array(v)) {
+		throw invalid_type_cast();
+	}
+	
+	return *boost::get<boost::shared_ptr<json_array> >(v.value_);
+}
+
 inline size_t size(const json_value &v) {
 
 	if(is_array(v)) {
@@ -532,14 +548,13 @@ inline std::vector<uint8_t> json::detail::unicode_escape_to_utf8(uint16_t w1, ui
 }
 
 namespace {
-	inline std::string value_to_string(const json::json_value &v, int indent, bool ignore_ident) {
+	inline std::string value_to_string(const json::json_value &v, int indent, bool ignore_initial_ident) {
 		std::stringstream ss;
 		
-		if(!ignore_ident) {
+		if(!ignore_initial_ident) {
 			ss << std::string(indent * 2, ' ');
 		}
 		
-
 		if(is_string(v)) {
 			ss << '"' << to_string(v) << '"';
 		}
@@ -604,11 +619,71 @@ inline std::string json::pretty_print(const json_value &v) {
 }
 
 inline std::string json::pretty_print(const json_array &a) {
-	return pretty_print(json_value(a));
+	return value_to_string(json_value(a), 0, false);
 }
 
 inline std::string json::pretty_print(const json_object &o) {
-	return pretty_print(json_value(o));
+	return value_to_string(json_value(o), 0, false);
+}
+
+inline std::string json::print(const json_object &o) {
+	return value_to_string(json_value(o), 0, false);
+}
+
+inline std::string json::print(const json_array &o) {
+	return value_to_string(json_value(o), 0, false);
+}
+
+inline std::string json::print(const json_value &v) {
+	std::stringstream ss;
+
+	if(is_string(v)) {
+		ss << '"' << to_string(v) << '"';
+	}
+
+	if(is_number(v)) {
+		ss << to_string(v);
+	}
+
+	if(is_null(v)) {
+		ss << "null";
+	}
+
+	if(is_bool(v)) {
+		ss << (to_bool(v) ? "true" : "false");
+	}
+
+	if(is_object(v)) {
+		ss << "{";
+		json::set_type k = keys(v);
+		if(!k.empty()) {
+			json::set_type::const_iterator it = k.begin();
+			ss << '"' << *it << "\":" << print(v[*it]);
+			++it;
+			for(;it != k.end(); ++it) {
+				ss << ',';
+				ss << '"' << *it << "\":" << print(v[*it]);
+			}
+
+		}
+		ss  << "}";
+	}
+
+	if(is_array(v)) {
+		ss << "[";
+		if(size(v) != 0) {
+			size_t i = 0;
+			ss << print(v[i++]);
+
+			for(;i != size(v); ++i) {
+				ss << ',';
+				ss << print(v[i]);
+			}
+
+		}
+	}
+
+	return ss.str();
 }
 
 #endif

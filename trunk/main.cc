@@ -29,4 +29,6 @@ int main(int /*argc*/, char */*argv*/[]) {
 	// get a specific value
 	json::value z = v["test4"][3]["z"];
 	std::cout << json::to_number(z) << std::endl;
+	
+	std::cout << json::print(v) << std::endl;
 }
