@@ -26,7 +26,9 @@ namespace json {
 		
 	public:
 		json_value operator[](std::size_t n) const;
-		json_array &append(const json_value &value);
+		
+		template <class T>
+		json_array &append(const T &value);
 		
 	public:
 		void swap(json_array &other);

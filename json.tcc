@@ -569,4 +569,12 @@ inline std::string json::pretty_print(const value &v) {
 	return value_to_string(v, 0);
 }
 
+inline std::string json::pretty_print(const array &a) {
+	return pretty_print(json_value(a));
+}
+
+inline std::string json::pretty_print(const object &o) {
+	return pretty_print(json_value(o));
+}
+
 #endif
