@@ -10,11 +10,11 @@
 	xx xx xx xx  UTF-8
 */
 
-#include "json_token.h"
-#include "json_error.h"
-#include "json_object.h"
-#include "json_array.h"
-#include "json_value.h"
+#include "json/json_token.h"
+#include "json/json_error.h"
+#include "json/json_object.h"
+#include "json/json_array.h"
+#include "json/json_value.h"
 #include <string>
 
 namespace json {
@@ -50,10 +50,10 @@ namespace json {
 	std::string pretty_print(const object &o);
 }
 
-#include "json.tcc"
-#include "json_object.tcc"
-#include "json_array.tcc"
-#include "json_value.tcc"
+#include "json/json.tcc"
+#include "json/json_object.tcc"
+#include "json/json_array.tcc"
+#include "json/json_value.tcc"
 
 #endif
 
