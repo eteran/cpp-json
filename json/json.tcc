@@ -651,11 +651,11 @@ inline std::string json::pretty_print(const json_object &o) {
 }
 
 inline std::string json::print(const json_object &o) {
-	return value_to_string(json_value(o), 0, false);
+	return print(json_value(o));
 }
 
 inline std::string json::print(const json_array &o) {
-	return value_to_string(json_value(o), 0, false);
+	return print(json_value(o));
 }
 
 inline std::string json::print(const json_value &v) {
