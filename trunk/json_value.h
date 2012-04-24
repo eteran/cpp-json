@@ -33,39 +33,25 @@ namespace json {
 		friend bool has_key(const json_value &v, const std::string &key);
 		
 	public:
-		explicit json_value(double x) {
-			type_  = number;
-			value_ = boost::lexical_cast<std::string>(x);
+		explicit json_value(double x) : value_(boost::lexical_cast<std::string>(x)), type_(number) {
 		}
 		
-		explicit json_value(float x) {
-			type_  = number;
-			value_ = boost::lexical_cast<std::string>(x);
+		explicit json_value(float x) : value_(boost::lexical_cast<std::string>(x)), type_(number) {
 		}
 		
-		explicit json_value(long x) {
-			type_  = number;
-			value_ = boost::lexical_cast<std::string>(x);
+		explicit json_value(long x) : value_(boost::lexical_cast<std::string>(x)), type_(number) {
 		}
 		
-		explicit json_value(int x) {
-			type_  = number;
-			value_ = boost::lexical_cast<std::string>(x);
+		explicit json_value(int x) : value_(boost::lexical_cast<std::string>(x)), type_(number) {
 		}
 		
-		explicit json_value(const std::string &s) {
-			type_  = string;
-			value_ = s;
+		explicit json_value(const std::string &s) : value_(s), type_(string) {
 		}
 		
-		explicit json_value(const char *s) {
-			type_  = string;
-			value_ = s;
+		explicit json_value(const char *s) : value_(s), type_(string) {
 		}
 		
-		explicit json_value(bool b) {
-			type_  = boolean;
-			value_ = (b ? "true" : "false");
+		explicit json_value(bool b) : value_(b ? "true" : "false"), type_(boolean) {
 		}
 			
 		explicit json_value(const json_array &a);

@@ -6,6 +6,9 @@
 
 namespace json {
 
+//------------------------------------------------------------------------------
+// Name: operator[](const std::string &key) const
+//------------------------------------------------------------------------------
 inline json_value json_value::operator[](const std::string &key) const {
 	if(!is_object(*this)) {
 		throw invalid_type_cast();
@@ -15,6 +18,9 @@ inline json_value json_value::operator[](const std::string &key) const {
 	return (*p)[key];
 }
 
+//------------------------------------------------------------------------------
+// Name: operator[](std::size_t n) const
+//------------------------------------------------------------------------------
 inline json_value json_value::operator[](std::size_t n) const {
 	if(!is_array(*this)) {
 		throw invalid_type_cast();
@@ -24,14 +30,20 @@ inline json_value json_value::operator[](std::size_t n) const {
 	return (*p)[n];
 }
 
+//------------------------------------------------------------------------------
+// Name: json_value(const json_array &a)
+//------------------------------------------------------------------------------
 inline json_value::json_value(const json_array &a) {
 	type_  = array;
 	value_ = boost::make_shared<json_array>(a);
 }
 
-inline json_value::json_value(const json_object &a) {
+//------------------------------------------------------------------------------
+// Name: json_value(const json_object &o)
+//------------------------------------------------------------------------------
+inline json_value::json_value(const json_object &o) {
 	type_  = object;
-	value_ = boost::make_shared<json_object>(a);
+	value_ = boost::make_shared<json_object>(o);
 }
 
 }

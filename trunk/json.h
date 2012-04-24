@@ -3,12 +3,11 @@
 #define JSON_20110525_H_
 
 /* TODO: support unicode
-
-           00 00 00 xx  UTF-32BE
-           00 xx 00 xx  UTF-16BE
-           xx 00 00 00  UTF-32LE
-           xx 00 xx 00  UTF-16LE
-           xx xx xx xx  UTF-8
+	00 00 00 xx  UTF-32BE
+	00 xx 00 xx  UTF-16BE
+	xx 00 00 00  UTF-32LE
+	xx 00 xx 00  UTF-16LE
+	xx xx xx xx  UTF-8
 */
 
 #include "json_token.h"
@@ -47,6 +46,8 @@ namespace json {
 	bool has_key(const value &v, const std::string &key);
 	
 	std::string pretty_print(const value &v);
+	std::string pretty_print(const array &a);
+	std::string pretty_print(const object &o);
 }
 
 #include "json.tcc"

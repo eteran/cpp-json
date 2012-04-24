@@ -33,7 +33,9 @@ namespace json {
 		
 	public:
 		json_value operator[](const std::string &key) const;
-		json_object &append(const std::string &key, const json_value &value);
+		
+		template <class T>
+		json_object &append(const std::string &key, const T &value);
 		
 	public:
 		void swap(json_object &other);
