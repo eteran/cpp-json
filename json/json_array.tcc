@@ -2,8 +2,6 @@
 #ifndef JSON_ARRAY_20120424_TCC_
 #define JSON_ARRAY_20120424_TCC_
 
-#include <algorithm>
-
 namespace json {
 
 //------------------------------------------------------------------------------
@@ -29,7 +27,7 @@ inline json_array &json_array::operator=(const json_array &rhs) {
 //------------------------------------------------------------------------------
 // Name: operator[](std::size_t n) const
 //------------------------------------------------------------------------------
-inline json_value json_array::operator[](std::size_t n) const {
+inline const json_value json_array::operator[](std::size_t n) const {
 	if(n >= values_.size()) {
 		return json_value();
 	}

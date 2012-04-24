@@ -11,6 +11,7 @@ SHELL = /bin/sh
 	
 
 CXX    := g++ -march=native -ansi
+LD     := g++
 RM     := rm -f
 ED     := ed
 
@@ -29,19 +30,19 @@ SOURCEFILES := $(H_FILES) $(CXX_FILES)
 .PHONY:    clean distclean mrproper
 
 # main targets
-all:	$(APPNAME)
+all: $(APPNAME)
 
-$(APPNAME):	$(O_FILES)
+$(APPNAME): $(O_FILES)
 	@echo linking $@ ...
-	@$(CXX) $(LDFLAGS) $(O_FILES) -o $@ 1>/dev/null
+	@$(LD) $(LDFLAGS) $(O_FILES) -o $@ 1>/dev/null
 
 mrproper: clean
 	$(RM) makedep
 
 clean:
-	$(RM) $(O_FILES) $(APPNAME) core *~  2> /dev/null
+	$(RM) $(O_FILES) $(APPNAME) core *~ 2> /dev/null
 
-distclean:	mrproper
+distclean: mrproper
 	
 depend:
 	@echo "Building Dependency Information..."
@@ -61,9 +62,8 @@ depend:
 # DO NOT DELETE THIS LINE -- make depend uses it
 #-----------------------------------------------------------------
 main.o: main.cc json.h json/json_token.h json/json_error.h \
- json/json_object.h json/json_value.h json/json_token.h json/json_error.h \
- json/json_array.h json/json_value.h json/json.tcc json/json_object.tcc \
- json/json_array.tcc json/json_value.tcc
+ json/json_object.h json/json_array.h json/json_value.h json/json.tcc \
+ json/json_object.tcc json/json_array.tcc json/json_value.tcc
 # DEPENDENCIES MUST END AT END OF FILE
 # IF YOU PUT STUFF HERE IT WILL GO AWAY
 # see make depend above

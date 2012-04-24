@@ -2,8 +2,6 @@
 #ifndef JSON_TOKEN_20110526_H_
 #define JSON_TOKEN_20110526_H_
 
-#include <string>
-
 namespace json {
 	class json_token {
 	public:
