@@ -1,53 +1,64 @@
 
-#ifndef JSON_ARRAY_20120424_TCC_
-#define JSON_ARRAY_20120424_TCC_
+#ifndef ARRAY_20120424_TCC_
+#define ARRAY_20120424_TCC_
 
 namespace json {
 
 //------------------------------------------------------------------------------
 // Name: son_array()
 //------------------------------------------------------------------------------
-inline json_array::json_array() {
+inline array::array() {
 }
 
 //------------------------------------------------------------------------------
-// Name: json_array(const json_array &other)
+// Name: array(const array &other)
 //------------------------------------------------------------------------------
-inline json_array::json_array(const json_array &other) : values_(other.values_) {
+inline array::array(const array &other) : values_(other.values_) {
 }
 
 //------------------------------------------------------------------------------
-// Name: json_array::operator=(const json_array &rhs)
+// Name: array::operator=(const array &rhs)
 //------------------------------------------------------------------------------
-inline json_array &json_array::operator=(const json_array &rhs) {
-	json_array(rhs).swap(*this);
+inline array &array::operator=(const array &rhs) {
+	array(rhs).swap(*this);
 	return *this;
 }
 
 //------------------------------------------------------------------------------
 // Name: operator[](std::size_t n) const
 //------------------------------------------------------------------------------
-inline const json_value json_array::operator[](std::size_t n) const {
-	if(n >= values_.size()) {
-		return json_value();
+inline const value array::operator[](std::size_t n) const {
+	if(n < values_.size()) {
+		return values_[n];
 	}
 	
-	return values_[n];
+	throw invalid_index();
 }
 
 //------------------------------------------------------------------------------
-// Name: append(const T &value)
+// Name: 
+//------------------------------------------------------------------------------
+inline value &array::operator[](std::size_t n) {
+	if(n < values_.size()) {
+		return values_[n];
+	}
+	
+	throw invalid_index();
+}
+
+//------------------------------------------------------------------------------
+// Name: append(const T &v)
 //------------------------------------------------------------------------------
 template <class T>
-inline json_array &json_array::append(const T &value) {
-	values_.push_back(json_value(value));
+inline array &array::append(const T &v) {
+	values_.push_back(value(v));
 	return *this;
 }
 
 //------------------------------------------------------------------------------
-// Name: swap(json_array &other)
+// Name: swap(array &other)
 //------------------------------------------------------------------------------
-inline void json_array::swap(json_array &other) {
+inline void array::swap(array &other) {
 	using std::swap;
 	swap(values_, other.values_);
 }
