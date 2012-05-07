@@ -1,54 +1,66 @@
 
-#ifndef JSON_OBJECT_20120424_TCC_
-#define JSON_OBJECT_20120424_TCC_
+#ifndef OBJECT_20120424_TCC_
+#define OBJECT_20120424_TCC_
 
 namespace json {
 
 //------------------------------------------------------------------------------
-// Name: json_object()
+// Name: object()
 //------------------------------------------------------------------------------
-inline json_object::json_object() {
+inline object::object() {
 }
 
 //------------------------------------------------------------------------------
-// Name: json_object(const json_object &other)
+// Name: object(const object &other)
 //------------------------------------------------------------------------------
-inline json_object::json_object(const json_object &other) : values_(other.values_) {
+inline object::object(const object &other) : values_(other.values_) {
 }
 
 //------------------------------------------------------------------------------
-// Name: operator=(const json_object &rhs)
+// Name: operator=(const object &rhs)
 //------------------------------------------------------------------------------
-inline json_object &json_object::operator=(const json_object &rhs) {
-	json_object(rhs).swap(*this);
+inline object &object::operator=(const object &rhs) {
+	object(rhs).swap(*this);
 	return *this;
 }
 
 //------------------------------------------------------------------------------
 // Name: operator[](const std::string &key) const
 //------------------------------------------------------------------------------
-inline const json_value json_object::operator[](const std::string &key) const {
+inline const value object::operator[](const std::string &key) const {
 	map_type::const_iterator it = values_.find(key);
 	if(it != values_.end()) {
 		return it->second;
 	}
 
-	return json_value();
+	throw invalid_index();
 }
 
 //------------------------------------------------------------------------------
-// Name: append(const std::string &key, const T &value)
+// Name: 
+//------------------------------------------------------------------------------
+inline value &object::operator[](const std::string &key) {
+	map_type::iterator it = values_.find(key);
+	if(it != values_.end()) {
+		return it->second;
+	}
+
+	throw invalid_index();
+}
+
+//------------------------------------------------------------------------------
+// Name: append(const std::string &key, const T &v)
 //------------------------------------------------------------------------------
 template <class T>
-inline json_object &json_object::append(const std::string &key, const T &value) {
-	values_.insert(std::make_pair(key, json_value(value)));
+inline object &object::append(const std::string &key, const T &v) {
+	values_.insert(std::make_pair(key, value(v)));
 	return *this;
 }
 
 //------------------------------------------------------------------------------
-// Name: swap(json_object &other)
+// Name: swap(object &other)
 //------------------------------------------------------------------------------
-inline void json_object::swap(json_object &other) {
+inline void object::swap(object &other) {
 	using std::swap;
 	swap(values_, other.values_);
 }

@@ -2,7 +2,7 @@
 #ifndef JSON_20110525_H_
 #define JSON_20110525_H_
 
-#define USE_BOOST_UNORDERED
+//#define USE_BOOST_UNORDERED
 
 /* TODO: support unicode
 	00 00 00 xx  UTF-32BE
@@ -25,7 +25,6 @@
 #else
 #include <map>
 #include <set>
-
 #endif
 
 #include <algorithm>
@@ -34,78 +33,84 @@
 #include <sstream>
 #include <string>
 #include <vector>
-#include <cstdio>
 
 namespace json {
-	class json_value;
-	class json_array;
-	class json_object;
+	class value;
+	class array;
+	class object;
 
 #ifdef USE_BOOST_UNORDERED
-	typedef boost::unordered_map<std::string, json_value> map_type;
-	typedef boost::unordered_set<std::string>             set_type;
+	typedef boost::unordered_map<std::string, value> map_type;
+	typedef boost::unordered_set<std::string>        set_type;
 #else
-	typedef std::map<std::string, json_value> map_type;
-	typedef std::set<std::string>             set_type;
+	typedef std::map<std::string, value> map_type;
+	typedef std::set<std::string>        set_type;
 #endif
 	
-	inline bool is_string(const json_value &v);
-	inline bool is_bool(const json_value &v);
-	inline bool is_number(const json_value &v);
-	inline bool is_object(const json_value &v);
-	inline bool is_array(const json_value &v); 
-	inline bool is_null(const json_value &v);
+	// type testing
+	inline bool is_string(const value &v);
+	inline bool is_bool(const value &v);
+	inline bool is_number(const value &v);
+	inline bool is_object(const value &v);
+	inline bool is_array(const value &v); 
+	inline bool is_null(const value &v);
 	
-	std::string to_string(const json_value &v);
-	bool        to_bool(const json_value &v);
-	double      to_number(const json_value &v);
-	json_object to_object(const json_value &v);
-	json_array  to_array(const json_value &v);
+	// conversion
+	std::string to_string(const value &v);
+	bool        to_bool(const value &v);
+	double      to_number(const value &v);
+	object      to_object(const value &v);
+	array       to_array(const value &v);
 	
-	size_t size(const json_value &v);
-	set_type keys(const json_value &v);
-	bool has_key(const json_value &v, const std::string &key);
+	//
+	size_t size(const value &v);
+	set_type keys(const value &v);
+	bool has_key(const value &v, const std::string &key);
 	
-	size_t size(const json_object &o);
-	set_type keys(const json_object &o);
-	bool has_key(const json_object &o, const std::string &key);
+	size_t size(const object &o);
+	set_type keys(const object &o);
+	bool has_key(const object &o, const std::string &key);
 	
-	size_t size(const json_array &a);
+	size_t size(const array &a);
 	
-	std::string pretty_print(const json_value &v);
-	std::string pretty_print(const json_array &a);
-	std::string pretty_print(const json_object &o);
-	
-	std::string print(const json_value &v);
-	std::string print(const json_array &a);
-	std::string print(const json_object &o);
-	
+	std::string pretty_print(const value &v);
+	std::string pretty_print(const array &a);
+	std::string pretty_print(const object &o);
+		
 	template <class In>
-	json_value parse(In first, In last);
+	value parse(In first, In last);
+	value parse(std::istream &is);
+	value parse(std::wistream &is);
+	value parse(const std::string &s);
+	value parse(const std::wstring &s);
 	
-	json_value parse(std::istream &is);
 	
-	json_value parse(const std::string &s);
-	json_value from_string(const std::string &s);
+	value decode(const std::string &s);
+	
+	enum {
+		JSON_ESCAPE_UNICODE = 0x01
+	};
+	
+	std::string encode(const value &v, int options);
+	std::string encode(const array &a, int options);
+	std::string encode(const object &o, int options);
+	
+	std::string encode(const value &v);
+	std::string encode(const array &a);
+	std::string encode(const object &o);
 }
 
-#include "json/json_token.h"
-#include "json/json_error.h"
-#include "json/json_object.h"
-#include "json/json_array.h"
-#include "json/json_value.h"
+#include "json/token.h"
+#include "json/exception.h"
 
-namespace json {
-
-	typedef json_value  value;
-	typedef json_array  array;
-	typedef json_object object;
-}
+#include "json/object.h"
+#include "json/array.h"
+#include "json/value.h"
 
 #include "json/json.tcc"
-#include "json/json_object.tcc"
-#include "json/json_array.tcc"
-#include "json/json_value.tcc"
+#include "json/object.tcc"
+#include "json/array.tcc"
+#include "json/value.tcc"
 
 #endif
 

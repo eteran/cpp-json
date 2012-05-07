@@ -19,7 +19,7 @@ APPNAME := cpp-json
 
 DEFINES  := 
 INCLUDES := 
-CXXFLAGS := -g -O3 -pedantic -pipe $(INCLUDES) -W -Wall
+CXXFLAGS := -g -O2 -pedantic -pipe $(INCLUDES) -W -Wall
 LDFLAGS  := -g
 
 H_FILES     := 
@@ -61,9 +61,9 @@ depend:
 #-----------------------------------------------------------------
 # DO NOT DELETE THIS LINE -- make depend uses it
 #-----------------------------------------------------------------
-main.o: main.cc json.h json/json_token.h json/json_error.h \
- json/json_object.h json/json_array.h json/json_value.h json/json.tcc \
- json/json_object.tcc json/json_array.tcc json/json_value.tcc
+main.o: main.cc json.h json/token.h json/exception.h json/object.h \
+ json/array.h json/value.h json/json.tcc json/object.tcc json/array.tcc \
+ json/value.tcc
 # DEPENDENCIES MUST END AT END OF FILE
 # IF YOU PUT STUFF HERE IT WILL GO AWAY
 # see make depend above
