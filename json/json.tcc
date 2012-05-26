@@ -575,6 +575,8 @@ namespace {
 
 	inline std::string escape_string(const std::string &s) {
 		std::string r;
+		r.reserve(s.size());
+		
 		for(std::string::const_iterator it = s.begin(); it != s.end(); ++it) {
 			
 			switch(*it) {
@@ -750,11 +752,5 @@ inline std::string encode(const value &v) {
 }
 
 }
-
-
-
-
-
-
 
 #endif
