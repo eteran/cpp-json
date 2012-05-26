@@ -2,7 +2,7 @@
 #ifndef JSON_20110525_H_
 #define JSON_20110525_H_
 
-//#define USE_BOOST_UNORDERED
+#define USE_BOOST_UNORDERED
 
 /* TODO: support unicode
 	00 00 00 xx  UTF-32BE
@@ -87,6 +87,7 @@ namespace json {
 	
 	value decode(const std::string &s);
 	
+	// these flags are not functional yet...
 	enum {
 		JSON_ESCAPE_UNICODE = 0x01
 	};
