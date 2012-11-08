@@ -3,14 +3,24 @@
 #include <iostream>
 #include <fstream>
 
-int main(int /*argc*/, char */*argv*/[]) {
+int main(int argc, char *argv[]) {
+
+	for(int i = 1; i < argc; ++i) {
+		std::ifstream file(argv[i]);
+		if(file) {
+			json::value v1 = json::parse(file);
+			std::cout << json::pretty_print(v1) << std::endl;
+			std::cout << "----------" << std::endl;
+		}
+	}
 	
+#if 0
 	// construct from a file
 	std::ifstream file("test.json");
 	json::value v1 = json::parse(file);
 	std::cout << json::pretty_print(v1) << std::endl;
 	std::cout << "----------" << std::endl;
-#if 0
+
 	// construct programatically
 	json::object obj1;
 	obj1.append("test1", "hello world")
