@@ -220,20 +220,21 @@ detail::token get_string(In &it, const In &last) {
 
 
 	std::string s;
+	std::back_insert_iterator<std::string> out = back_inserter(s);
 
 	while(it != last && *it != '"' && *it != '\n') {
 		if(*it == '\\') {
 			++it;
 			if(it != last) {
 				switch(*it) {
-				case '"': s += '"'; break;
-				case '\\': s += '\\'; break;
-				case '/': s += '/'; break;
-				case 'b': s += '\b'; break;
-				case 'f': s += '\f'; break;
-				case 'n': s += '\n'; break;
-				case 'r': s += '\r'; break;
-				case 't': s += '\t'; break;
+				case '"':  *out++ = '"'; break;
+				case '\\': *out++ = '\\'; break;
+				case '/':  *out++ = '/'; break;
+				case 'b':  *out++ = '\b'; break;
+				case 'f':  *out++ = '\f'; break;
+				case 'n':  *out++ = '\n'; break;
+				case 'r':  *out++ = '\r'; break;
+				case 't':  *out++ = '\t'; break;
 				case 'u':
 					{
 						// convert \uXXXX escape sequences to UTF-8
@@ -283,17 +284,17 @@ detail::token get_string(In &it, const In &last) {
 						}
 
 						const std::vector<uint8_t> utf8 = unicode_escape_to_utf8(w1, w2);
-						s.append(utf8.begin(), utf8.end());
+						std::copy(utf8.begin(), utf8.end(), out);
 					}
 					break;
 
 				default:
-					s += '\\';
+					*out++ = '\\';
 					break;
 				}
 			}
 		} else {
-			s += *it;
+			*out++ = *it;
 		}
 		++it;
 	}
@@ -310,40 +311,49 @@ detail::token get_string(In &it, const In &last) {
 template <class In>
 detail::token get_number(In &it, const In &last) {
 	std::string s;
+	std::back_insert_iterator<std::string> out = back_inserter(s);
+	
+	// JSON numbers fit the regex: -?(0|[1-9][0-9]*)(\.[0-9]+)?([eE][+-]?[0-9]+)?
 
+	// -?
 	if(it != last && *it == '-') {
-		s += *it++;
+		*out++ = *it++;
 	}
 
-	if(*it >= '1' && *it <= '9') {
-		while(it != last && is_digit(*it)) {
-			s += *it++;
+	// (0|[1-9][0-9]*)
+	if(it != last) {
+		if(*it >= '1' && *it <= '9') {
+			while(it != last && is_digit(*it)) {
+				*out++ = *it++;
+			}
+		} else if(*it == '0') {
+			*out++ = *it++;
 		}
-	} else if(*it == '0') {
-		s += *it++;
 	}
 
+	// (\.[0-9]+)?
 	if(it != last && *it == '.') {
-		s += *it++;
+		*out++ = *it++;
 		if(!is_digit(*it)) {
-			return detail::token();
+			throw invalid_number();
 		}
 
 		while(it != last && is_digit(*it)) {
-			s += *it++;
+			*out++ = *it++;
 		}
 	}
 
+	// ([eE][+-]?[0-9]+)?
 	if(it != last && (*it == 'e' || *it == 'E')) {
-		s += *it++;
+		*out++ = *it++;
 		if(it != last && (*it == '+' || *it == '-')) {
-			s += *it++;
+			*out++ = *it++;
 		}
 		if(!is_digit(*it)) {
-			return detail::token();
+			throw invalid_number();
 		}
 		while(it != last && is_digit(*it)) {
-			s += *it++;
+			*out++ = *it++;
 		}
 	}
 

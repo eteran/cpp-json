@@ -9,5 +9,6 @@
 			}
 		}
 	},
-	"test\nreturn":"hello\tworld"
+	"test\nreturn":"hello\tworld",
+	"u":"\u1234"
 }
