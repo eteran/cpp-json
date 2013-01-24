@@ -1,5 +1,3 @@
-# cpp-json functions.
-
 = Introduction =
 
 Here is a list of all functions found in the cpp-json library:
