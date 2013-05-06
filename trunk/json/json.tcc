@@ -70,8 +70,23 @@ bool is_space(Ch ch) {
 
 template <class Ch>
 unsigned int to_hex(Ch ch) {
-	return (is_digit(ch) ? ch - '0' : std::toupper(ch) - 'A' + 10);
 
+
+	static const int hexval[256] = {
+		0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 
+		0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+		0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+		0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+		0x0, 0xa, 0xb, 0xc, 0xd, 0xe, 0xf, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+		0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+		0x0, 0xa, 0xb, 0xc, 0xd, 0xe, 0xf, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0
+	};
+
+	if(static_cast<unsigned int>(ch) < 256) {
+		return hexval[static_cast<unsigned int>(ch)];
+	} else {
+		return 0;
+	}
 }
 
 template <class In>
@@ -584,29 +599,134 @@ inline std::vector<uint8_t> detail::unicode_escape_to_utf8(uint16_t w1, uint16_t
 
 namespace {
 
-	inline std::string escape_string(const std::string &s) {
+	inline std::string escape_string(const std::string &s, int options) {
+	
+	
 		std::string r;
 		r.reserve(s.size());
-		
-		for(std::string::const_iterator it = s.begin(); it != s.end(); ++it) {
-			
-			switch(*it) {
-			case '\"': r += "\\\""; break;
-			case '\\': r += "\\\\"; break;
-//			case '/':  r += "\\/"; break;
-			case '\b': r += "\\b"; break;
-			case '\f': r += "\\f"; break;
-			case '\n': r += "\\n"; break;
-			case '\r': r += "\\r"; break;
-			case '\t': r += "\\t"; break;
-			default:
-				r += *it;
+	
+		if(options & ESCAPE_UNICODE) {
+			typedef struct {
+				unsigned int expected : 4,
+                			 seen     : 4,
+                			 reserved : 12;
+			} state_t;
+
+			state_t shift_state = {0,0,0};
+			uint32_t result     = 0;
+
+			for(std::string::const_iterator it = s.begin(); it != s.end(); ++it) {
+
+				const unsigned char ch = *it;
+
+				if(shift_state.seen == 0) {
+
+					if((ch & 0x80) == 0) {
+						switch(*it) {
+						case '\"': r += "\\\""; break;
+						case '\\': r += "\\\\"; break;
+			//			case '/':  r += "\\/"; break;
+						case '\b': r += "\\b"; break;
+						case '\f': r += "\\f"; break;
+						case '\n': r += "\\n"; break;
+						case '\r': r += "\\r"; break;
+						case '\t': r += "\\t"; break;
+						default:
+							r += *it;
+							break;
+						} 
+					}else if((ch & 0xe0) == 0xc0) {
+						// 2 byte
+						result = ch & 0x1f;
+						shift_state.expected = 2;
+						shift_state.seen     = 1;
+					} else if((ch & 0xf0) == 0xe0) {
+						// 3 byte
+						result = ch & 0x0f;
+						shift_state.expected = 3;
+						shift_state.seen     = 1;
+					} else if((ch & 0xf8) == 0xf0) {
+						// 4 byte
+						result = ch & 0x07;
+						shift_state.expected = 4;
+						shift_state.seen     = 1;
+					} else if((ch & 0xfc) == 0xf8) {
+						// 5 byte
+						throw invalid_utf8_string(); // Restricted by RFC 3629
+					} else if((ch & 0xfe) == 0xfc) {
+						// 6 byte
+						throw invalid_utf8_string(); // Restricted by RFC 3629
+					} else {
+						throw invalid_utf8_string(); // should never happen
+					}
+				} else if(shift_state.seen < shift_state.expected) {
+					if((ch & 0xc0) == 0x80) {
+						result <<= 6;
+						result |= ch & 0x3f;
+						// increment the shift state
+						++shift_state.seen;
+
+						if(shift_state.seen == shift_state.expected) {
+							// done with this character
+
+							char buf[5];
+
+
+							if(result < 0xd800 || (result >= 0xe000 && result < 0x10000)) {
+								r += "\\u";					
+								snprintf(buf, sizeof(buf), "%04X", result);
+								r += buf;
+							} else {
+								result = (result - 0x10000);
+
+								r += "\\u";
+								snprintf(buf, sizeof(buf), "%04X", 0xd800 + ((result >> 10) & 0x3ff));
+								r += buf;
+
+								r += "\\u";
+								snprintf(buf, sizeof(buf), "%04X", 0xdc00 + (result & 0x3ff));
+								r += buf;
+							}
+
+							shift_state.seen     = 0;
+							shift_state.expected = 0;						
+							result = 0;
+						}
+
+					} else {
+						throw invalid_utf8_string(); // should never happen
+					}
+				} else {
+					throw invalid_utf8_string(); // should never happen
+				}
+			}
+		} else {
+
+			for(std::string::const_iterator it = s.begin(); it != s.end(); ++it) {
+
+				switch(*it) {
+				case '\"': r += "\\\""; break;
+				case '\\': r += "\\\\"; break;
+	//			case '/':  r += "\\/"; break;
+				case '\b': r += "\\b"; break;
+				case '\f': r += "\\f"; break;
+				case '\n': r += "\\n"; break;
+				case '\r': r += "\\r"; break;
+				case '\t': r += "\\t"; break;
+				default:
+					r += *it;
+					break;
+				}
 			}
 		}
 		return r;
 	}
+	
+	inline std::string escape_string(const std::string &s) {
+		return escape_string(s, 0);
+	}
 
-	inline std::string value_to_string(const json::value &v, int indent, bool ignore_initial_ident) {
+	inline std::string value_to_string(const json::value &v, int indent, bool ignore_initial_ident, int options) {
 		std::stringstream ss;
 		
 		if(!ignore_initial_ident) {
@@ -614,7 +734,7 @@ namespace {
 		}
 		
 		if(is_string(v)) {
-			ss << '"' << escape_string(to_string(v)) << '"';
+			ss << '"' << escape_string(to_string(v), options) << '"';
 		}
 
 		if(is_number(v)) {
@@ -635,12 +755,12 @@ namespace {
 			if(!k.empty()) {
 				json::set_type::const_iterator it = k.begin();
 				++indent;
-				ss << std::string(indent * 2, ' ') << '"' << escape_string(*it) << "\" : " << value_to_string(v[*it], indent, true);
+				ss << std::string(indent * 2, ' ') << '"' << escape_string(*it, options) << "\" : " << value_to_string(v[*it], indent, true, options);
 				++it;
 				for(;it != k.end(); ++it) {
 					ss << ',';
 					ss << '\n';
-					ss << std::string(indent * 2, ' ') << '"' << escape_string(*it) << "\" : " << value_to_string(v[*it], indent, true);
+					ss << std::string(indent * 2, ' ') << '"' << escape_string(*it, options) << "\" : " << value_to_string(v[*it], indent, true, options);
 				}
 				--indent;
 
@@ -654,12 +774,12 @@ namespace {
 			if(size(v) != 0) {
 				size_t i = 0;
 				++indent;
-				ss << value_to_string(v[i++], indent, false);
+				ss << value_to_string(v[i++], indent, false, options);
 
 				for(;i != size(v); ++i) {
 					ss << ',';
 					ss << '\n';
-					ss << value_to_string(v[i], indent, false);
+					ss << value_to_string(v[i], indent, false, options);
 				}
 				--indent;
 
@@ -672,30 +792,36 @@ namespace {
 	}
 }
 
+inline std::string pretty_print(const value &v, int options) {
+	return value_to_string(v, 0, false, options);
+}
+
+inline std::string pretty_print(const array &a, int options) {
+	return value_to_string(value(a), 0, false, options);
+}
+
+inline std::string pretty_print(const object &o, int options) {
+	return value_to_string(value(o), 0, false, options);
+}
+
 inline std::string pretty_print(const value &v) {
-	return value_to_string(v, 0, false);
+	return pretty_print(v, 0);
 }
 
 inline std::string pretty_print(const array &a) {
-	return value_to_string(value(a), 0, false);
+	return pretty_print(a, 0);
 }
 
 inline std::string pretty_print(const object &o) {
-	return value_to_string(value(o), 0, false);
+	return pretty_print(o, 0);
 }
 
 inline std::string serialize(const value &v, int options) {
-
-	// TODO: implement some options, such as JSON_ESCAPE_UNICODE
-	// the goal with that one is the serialize all characters > 0x7f
-	// as \uXXXX sequences
 	
-	(void)options;
-
 	std::stringstream ss;
 
 	if(is_string(v)) {
-		ss << '"' << escape_string(to_string(v)) << '"';
+		ss << '"' << escape_string(to_string(v), options) << '"';
 	}
 
 	if(is_number(v)) {
@@ -715,11 +841,11 @@ inline std::string serialize(const value &v, int options) {
 		set_type k = keys(v);
 		if(!k.empty()) {
 			set_type::const_iterator it = k.begin();
-			ss << '"' << escape_string(*it) << "\":" << serialize(v[*it]);
+			ss << '"' << escape_string(*it, options) << "\":" << serialize(v[*it], options);
 			++it;
 			for(;it != k.end(); ++it) {
 				ss << ',';
-				ss << '"' << escape_string(*it) << "\":" << serialize(v[*it]);
+				ss << '"' << escape_string(*it, options) << "\":" << serialize(v[*it], options);
 			}
 		}
 		ss  << "}";
@@ -729,11 +855,11 @@ inline std::string serialize(const value &v, int options) {
 		ss << "[";
 		if(size(v) != 0) {
 			size_t i = 0;
-			ss << serialize(v[i++]);
+			ss << serialize(v[i++], options);
 
 			for(;i != size(v); ++i) {
 				ss << ',';
-				ss << serialize(v[i]);
+				ss << serialize(v[i], options);
 			}
 		}
 		ss << "]";
