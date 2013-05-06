@@ -4,6 +4,8 @@
 
 namespace json {
 
+	struct null {};
+
 	class array;
 	class object;
 
@@ -27,7 +29,7 @@ namespace json {
 		
 	public:
 		// intialize from basic types
-		value();
+		explicit value(const null &);
 		explicit value(bool b);
 		explicit value(const array &a);
 		explicit value(const char *s);
