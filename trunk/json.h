@@ -2,8 +2,6 @@
 #ifndef JSON_20110525_H_
 #define JSON_20110525_H_
 
-#define USE_BOOST_UNORDERED
-
 /* TODO: support unicode
 	00 00 00 xx  UTF-32BE
 	00 xx 00 xx  UTF-16BE
@@ -18,14 +16,9 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/variant.hpp>
 #include <boost/variant/get.hpp>
-
-#ifdef USE_BOOST_UNORDERED
 #include <boost/unordered_map.hpp>
 #include <boost/unordered_set.hpp>
-#else
-#include <map>
-#include <set>
-#endif
+
 
 #include <algorithm>
 #include <exception>
@@ -39,13 +32,8 @@ namespace json {
 	class array;
 	class object;
 
-#ifdef USE_BOOST_UNORDERED
 	typedef boost::unordered_map<std::string, value> map_type;
 	typedef boost::unordered_set<std::string>        set_type;
-#else
-	typedef std::map<std::string, value> map_type;
-	typedef std::set<std::string>        set_type;
-#endif
 	
 	// type testing
 	inline bool is_string(const value &v);
