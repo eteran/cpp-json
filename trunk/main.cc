@@ -28,7 +28,7 @@ int main(int argc, char *argv[]) {
 	json::object obj1;
 	obj1.insert("test1", "hello world")
 		.insert("test2", 10)
-		.insert("test3", json::object().insert("x", 123.456))
+		.insert("test3", json::object().insert("x", json::null()))
 		.insert("test4", json::array().append(1).append(2).append(3).append(4));
 
 	std::cout << json::pretty_print(obj1) << std::endl;
