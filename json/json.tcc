@@ -529,10 +529,6 @@ inline value parse(const std::wstring &s) {
 	return parse(s.begin(), s.end());
 }
 
-inline value decode(const std::string &s) {
-	return parse(s.begin(), s.end());
-}
-
 inline bool is_string(const value &v) { return (v.type_ == value::type_string); }
 inline bool is_bool(const value &v)   { return (v.type_ == value::type_boolean); }
 inline bool is_number(const value &v) { return (v.type_ == value::type_number); }
@@ -688,10 +684,10 @@ inline std::string pretty_print(const object &o) {
 	return value_to_string(value(o), 0, false);
 }
 
-inline std::string encode(const value &v, int options) {
+inline std::string serialize(const value &v, int options) {
 
 	// TODO: implement some options, such as JSON_ESCAPE_UNICODE
-	// the goal with that one is the encode all characters > 0x7f
+	// the goal with that one is the serialize all characters > 0x7f
 	// as \uXXXX sequences
 	
 	(void)options;
@@ -719,11 +715,11 @@ inline std::string encode(const value &v, int options) {
 		set_type k = keys(v);
 		if(!k.empty()) {
 			set_type::const_iterator it = k.begin();
-			ss << '"' << escape_string(*it) << "\":" << encode(v[*it]);
+			ss << '"' << escape_string(*it) << "\":" << serialize(v[*it]);
 			++it;
 			for(;it != k.end(); ++it) {
 				ss << ',';
-				ss << '"' << escape_string(*it) << "\":" << encode(v[*it]);
+				ss << '"' << escape_string(*it) << "\":" << serialize(v[*it]);
 			}
 		}
 		ss  << "}";
@@ -733,11 +729,11 @@ inline std::string encode(const value &v, int options) {
 		ss << "[";
 		if(size(v) != 0) {
 			size_t i = 0;
-			ss << encode(v[i++]);
+			ss << serialize(v[i++]);
 
 			for(;i != size(v); ++i) {
 				ss << ',';
-				ss << encode(v[i]);
+				ss << serialize(v[i]);
 			}
 		}
 		ss << "]";
@@ -746,24 +742,24 @@ inline std::string encode(const value &v, int options) {
 	return ss.str();
 }
 
-inline std::string encode(const array &a, int options) {
-	return encode(value(a), options);
+inline std::string serialize(const array &a, int options) {
+	return serialize(value(a), options);
 }
 
-inline std::string encode(const object &o, int options) {
-	return encode(value(o), options);
+inline std::string serialize(const object &o, int options) {
+	return serialize(value(o), options);
 }
 
-inline std::string encode(const object &o) {
-	return encode(o, 0);
+inline std::string serialize(const object &o) {
+	return serialize(o, 0);
 }
 
-inline std::string encode(const array &a) {
-	return encode(a, 0);	
+inline std::string serialize(const array &a) {
+	return serialize(a, 0);	
 }
 
-inline std::string encode(const value &v) {
-	return encode(v, 0);
+inline std::string serialize(const value &v) {
+	return serialize(v, 0);
 }
 
 }

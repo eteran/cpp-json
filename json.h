@@ -84,21 +84,18 @@ namespace json {
 	value parse(const std::string &s);
 	value parse(const std::wstring &s);
 	
-	
-	value decode(const std::string &s);
-	
 	// these flags are not functional yet...
 	enum {
 		JSON_ESCAPE_UNICODE = 0x01
 	};
 	
-	std::string encode(const value &v, int options);
-	std::string encode(const array &a, int options);
-	std::string encode(const object &o, int options);
+	std::string serialize(const value &v, int options);
+	std::string serialize(const array &a, int options);
+	std::string serialize(const object &o, int options);
 	
-	std::string encode(const value &v);
-	std::string encode(const array &a);
-	std::string encode(const object &o);
+	std::string serialize(const value &v);
+	std::string serialize(const array &a);
+	std::string serialize(const object &o);
 }
 
 #include "json/token.h"

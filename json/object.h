@@ -29,7 +29,7 @@ namespace json {
 		value &operator[](const std::string &key);
 		
 		template <class T>
-		object &append(const std::string &key, const T &v);
+		object &insert(const std::string &key, const T &v);
 		
 	public:
 		void swap(object &other);
