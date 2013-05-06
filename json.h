@@ -61,10 +61,14 @@ namespace json {
 	
 	size_t size(const array &a);
 	
+	std::string pretty_print(const value &v, int options);
+	std::string pretty_print(const array &a, int options);
+	std::string pretty_print(const object &o, int options);
+			
 	std::string pretty_print(const value &v);
 	std::string pretty_print(const array &a);
 	std::string pretty_print(const object &o);
-		
+	
 	template <class In>
 	value parse(In first, In last);
 	value parse(std::istream &is);
@@ -72,9 +76,8 @@ namespace json {
 	value parse(const std::string &s);
 	value parse(const std::wstring &s);
 	
-	// these flags are not functional yet...
 	enum {
-		JSON_ESCAPE_UNICODE = 0x01
+		ESCAPE_UNICODE = 0x01
 	};
 	
 	std::string serialize(const value &v, int options);

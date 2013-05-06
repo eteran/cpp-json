@@ -19,6 +19,7 @@ namespace json {
 	class value_expected            : public exception {};
 	class utf16_surrogate_expected  : public exception {};
 	class invalid_number            : public exception {};
+	class invalid_utf8_string       : public exception {};
 
 	// usage errors
 	class invalid_type_cast         : public exception {};
