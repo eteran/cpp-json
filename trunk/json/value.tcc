@@ -5,25 +5,25 @@
 namespace json {
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name: value
 //------------------------------------------------------------------------------
 inline value::value() : value_("null"), type_(type_null) {
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name: value
 //------------------------------------------------------------------------------
 inline value::value(const boost::shared_ptr<object> &o) : value_(o), type_(type_object) {
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name: value
 //------------------------------------------------------------------------------
 inline value::value(const boost::shared_ptr<array> &a) : value_(a), type_(type_array) {
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name: value
 //------------------------------------------------------------------------------
 inline value::value(const detail::token &token) : value_(token.string_) {
 
@@ -46,55 +46,55 @@ inline value::value(const detail::token &token) : value_(token.string_) {
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name: value
 //------------------------------------------------------------------------------
 inline value::value(double x) : value_(boost::lexical_cast<std::string>(x)), type_(type_number) {
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name: value
 //------------------------------------------------------------------------------
 inline value::value(float x) : value_(boost::lexical_cast<std::string>(x)), type_(type_number) {
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name: value
 //------------------------------------------------------------------------------
 inline value::value(long x) : value_(boost::lexical_cast<std::string>(x)), type_(type_number) {
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name: value
 //------------------------------------------------------------------------------
 inline value::value(int x) : value_(boost::lexical_cast<std::string>(x)), type_(type_number) {
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name: value
 //------------------------------------------------------------------------------
 inline value::value(const std::string &s) : value_(s), type_(type_string) {
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name: value
 //------------------------------------------------------------------------------
 inline value::value(const char *s) : value_(s), type_(type_string) {
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name: value
 //------------------------------------------------------------------------------
 inline value::value(bool b) : value_(b ? "true" : "false"), type_(type_boolean) {
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name: value
 //------------------------------------------------------------------------------
 inline value::value(const value &other) : value_(other.value_), type_(other.type_) {
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name: operator=
 //------------------------------------------------------------------------------
 inline value &value::operator=(const value &rhs) {
 	value(rhs).swap(*this);
@@ -102,7 +102,7 @@ inline value &value::operator=(const value &rhs) {
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name: swap
 //------------------------------------------------------------------------------
 inline void value::swap(value &other) {
 	using std::swap;
@@ -111,7 +111,7 @@ inline void value::swap(value &other) {
 }
 
 //------------------------------------------------------------------------------
-// Name: operator[](const std::string &key) const
+// Name: operator[]
 //------------------------------------------------------------------------------
 inline const value value::operator[](const std::string &key) const {
 	if(!is_object(*this)) {
@@ -123,7 +123,7 @@ inline const value value::operator[](const std::string &key) const {
 }
 
 //------------------------------------------------------------------------------
-// Name: operator[](std::size_t n) const
+// Name: operator[]
 //------------------------------------------------------------------------------
 inline const value value::operator[](std::size_t n) const {
 	if(!is_array(*this)) {
@@ -135,7 +135,7 @@ inline const value value::operator[](std::size_t n) const {
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name: operator[]
 //------------------------------------------------------------------------------
 inline value &value::operator[](const std::string &key) {
 	if(!is_object(*this)) {
@@ -147,7 +147,7 @@ inline value &value::operator[](const std::string &key) {
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name: operator[]
 //------------------------------------------------------------------------------
 inline value &value::operator[](std::size_t n) {
 	if(!is_array(*this)) {
@@ -159,19 +159,19 @@ inline value &value::operator[](std::size_t n) {
 }
 
 //------------------------------------------------------------------------------
-// Name: value(const array &a)
+// Name: value
 //------------------------------------------------------------------------------
 inline value::value(const array &a) : value_(boost::make_shared<array>(a)), type_(type_array) {
 }
 
 //------------------------------------------------------------------------------
-// Name: value(const object &o)
+// Name: value
 //------------------------------------------------------------------------------
 inline value::value(const object &o) : value_(boost::make_shared<object>(o)), type_(type_object) {
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name: operator==
 //------------------------------------------------------------------------------
 inline bool value::operator==(const value &rhs) const {
 	if(type_ == rhs.type_) {
@@ -196,7 +196,7 @@ inline bool value::operator==(const value &rhs) const {
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name: operator!=
 //------------------------------------------------------------------------------
 inline bool value::operator!=(const value &rhs) const {
 	return !(*this == rhs);

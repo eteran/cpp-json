@@ -5,19 +5,19 @@
 namespace json {
 
 //------------------------------------------------------------------------------
-// Name: son_array()
+// Name: array
 //------------------------------------------------------------------------------
 inline array::array() {
 }
 
 //------------------------------------------------------------------------------
-// Name: array(const array &other)
+// Name: array
 //------------------------------------------------------------------------------
 inline array::array(const array &other) : values_(other.values_) {
 }
 
 //------------------------------------------------------------------------------
-// Name: array::operator=(const array &rhs)
+// Name: array::operator=
 //------------------------------------------------------------------------------
 inline array &array::operator=(const array &rhs) {
 	array(rhs).swap(*this);
@@ -25,7 +25,7 @@ inline array &array::operator=(const array &rhs) {
 }
 
 //------------------------------------------------------------------------------
-// Name: operator[](std::size_t n) const
+// Name: operator[]
 //------------------------------------------------------------------------------
 inline const value array::operator[](std::size_t n) const {
 	if(n < values_.size()) {
@@ -36,7 +36,7 @@ inline const value array::operator[](std::size_t n) const {
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name: operator[]
 //------------------------------------------------------------------------------
 inline value &array::operator[](std::size_t n) {
 	if(n < values_.size()) {
@@ -47,7 +47,7 @@ inline value &array::operator[](std::size_t n) {
 }
 
 //------------------------------------------------------------------------------
-// Name: append(const T &v)
+// Name: append
 //------------------------------------------------------------------------------
 template <class T>
 inline array &array::append(const T &v) {
@@ -56,7 +56,7 @@ inline array &array::append(const T &v) {
 }
 
 //------------------------------------------------------------------------------
-// Name: swap(array &other)
+// Name: swap
 //------------------------------------------------------------------------------
 inline void array::swap(array &other) {
 	using std::swap;

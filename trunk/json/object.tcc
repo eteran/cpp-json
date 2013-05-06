@@ -5,19 +5,19 @@
 namespace json {
 
 //------------------------------------------------------------------------------
-// Name: object()
+// Name: object
 //------------------------------------------------------------------------------
 inline object::object() {
 }
 
 //------------------------------------------------------------------------------
-// Name: object(const object &other)
+// Name: object
 //------------------------------------------------------------------------------
 inline object::object(const object &other) : values_(other.values_) {
 }
 
 //------------------------------------------------------------------------------
-// Name: operator=(const object &rhs)
+// Name: operator=
 //------------------------------------------------------------------------------
 inline object &object::operator=(const object &rhs) {
 	object(rhs).swap(*this);
@@ -25,7 +25,7 @@ inline object &object::operator=(const object &rhs) {
 }
 
 //------------------------------------------------------------------------------
-// Name: operator[](const std::string &key) const
+// Name: operator[]
 //------------------------------------------------------------------------------
 inline const value object::operator[](const std::string &key) const {
 	map_type::const_iterator it = values_.find(key);
@@ -37,7 +37,7 @@ inline const value object::operator[](const std::string &key) const {
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name: operator[]
 //------------------------------------------------------------------------------
 inline value &object::operator[](const std::string &key) {
 	map_type::iterator it = values_.find(key);
@@ -49,16 +49,16 @@ inline value &object::operator[](const std::string &key) {
 }
 
 //------------------------------------------------------------------------------
-// Name: append(const std::string &key, const T &v)
+// Name: insert
 //------------------------------------------------------------------------------
 template <class T>
-inline object &object::append(const std::string &key, const T &v) {
+inline object &object::insert(const std::string &key, const T &v) {
 	values_.insert(std::make_pair(key, value(v)));
 	return *this;
 }
 
 //------------------------------------------------------------------------------
-// Name: swap(object &other)
+// Name: swap
 //------------------------------------------------------------------------------
 inline void object::swap(object &other) {
 	using std::swap;
