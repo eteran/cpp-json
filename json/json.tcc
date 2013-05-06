@@ -68,6 +68,12 @@ bool is_space(Ch ch) {
 	return std::isspace(ch);
 }
 
+template <class Ch>
+unsigned int to_hex(Ch ch) {
+	return (is_digit(ch) ? ch - '0' : std::toupper(ch) - 'A' + 10);
+
+}
+
 template <class In>
 boost::shared_ptr<object> get_object(In &it, const In &last) {
 	boost::shared_ptr<object> obj = boost::make_shared<object>();
@@ -218,7 +224,6 @@ detail::token get_string(In &it, const In &last) {
 	}
 	++it;
 
-
 	std::string s;
 	std::back_insert_iterator<std::string> out = back_inserter(s);
 
@@ -252,10 +257,10 @@ detail::token get_string(In &it, const In &last) {
 						uint16_t w1 = 0;
 						uint16_t w2 = 0;
 						
-						w1 |= ((is_digit(hex[0]) ? hex[0] - '0' : std::toupper(hex[0]) - 'A' + 10) << 12);
-						w1 |= ((is_digit(hex[1]) ? hex[1] - '0' : std::toupper(hex[1]) - 'A' + 10) << 8);
-						w1 |= ((is_digit(hex[2]) ? hex[2] - '0' : std::toupper(hex[2]) - 'A' + 10) << 4);
-						w1 |= ((is_digit(hex[3]) ? hex[3] - '0' : std::toupper(hex[3]) - 'A' + 10));
+						w1 |= (to_hex(hex[0]) << 12);
+						w1 |= (to_hex(hex[1]) << 8);
+						w1 |= (to_hex(hex[2]) << 4);
+						w1 |= (to_hex(hex[3]));
 						
 						if((w1 & 0xfc00) == 0xdc00) {
 							throw invalid_unicode_character();
@@ -277,10 +282,10 @@ detail::token get_string(In &it, const In &last) {
 							if(!is_hexdigit(hex[2])) throw invalid_unicode_character();
 							if(!is_hexdigit(hex[3])) throw invalid_unicode_character();
 							
-							w2 |= ((is_digit(hex[0]) ? hex[0] - '0' : std::toupper(hex[0]) - 'A' + 10) << 12);
-							w2 |= ((is_digit(hex[1]) ? hex[1] - '0' : std::toupper(hex[1]) - 'A' + 10) << 8);
-							w2 |= ((is_digit(hex[2]) ? hex[2] - '0' : std::toupper(hex[2]) - 'A' + 10) << 4);
-							w2 |= ((is_digit(hex[3]) ? hex[3] - '0' : std::toupper(hex[3]) - 'A' + 10));							
+							w2 |= (to_hex(hex[0]) << 12);
+							w2 |= (to_hex(hex[1]) << 8);
+							w2 |= (to_hex(hex[2]) << 4);
+							w2 |= (to_hex(hex[3]));							
 						}
 
 						const std::vector<uint8_t> utf8 = unicode_escape_to_utf8(w1, w2);
