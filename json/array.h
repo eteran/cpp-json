@@ -20,24 +20,16 @@ class array {
 public:
 	array();
 	array(const array &other);
-#if __cplusplus >= 201103L
-	template <class... Args>
-    array(Args &&...args);
-#endif
 	array &operator=(const array &rhs);
-
-private:
-#if __cplusplus >= 201103L
-	template <class T, class... Args>
-    void array_init(const T &value, Args &&...args);
-
-	template <class T>
-    void array_init(const T &value);
-#endif
 
 public:
 	const value operator[](std::size_t n) const;
 	value &operator[](std::size_t n);
+
+#if __cplusplus >= 201103L
+	template <class T, class... Args>
+    array &append(const T &v, Args &&...args);
+#endif
 
 	template <class T>
 	array &append(const T &v);

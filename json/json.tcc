@@ -601,7 +601,6 @@ namespace {
 
 	inline std::string escape_string(const std::string &s, int options) {
 	
-	
 		std::string r;
 		r.reserve(s.size());
 	
@@ -728,7 +727,7 @@ namespace {
 		return escape_string(s, 0);
 	}
 
-	inline std::string value_to_string(const json::value &v, int indent, bool ignore_initial_ident, int options) {
+	inline std::string value_to_string(const json::value &v, int options, int indent, bool ignore_initial_ident) {
 		std::stringstream ss;
 		
 		if(!ignore_initial_ident) {
@@ -757,12 +756,12 @@ namespace {
 			if(!k.empty()) {
 				json::set_type::const_iterator it = k.begin();
 				++indent;
-				ss << std::string(indent * 2, ' ') << '"' << escape_string(*it, options) << "\" : " << value_to_string(v[*it], indent, true, options);
+				ss << std::string(indent * 2, ' ') << '"' << escape_string(*it, options) << "\" : " << value_to_string(v[*it], options, indent, true);
 				++it;
 				for(;it != k.end(); ++it) {
 					ss << ',';
 					ss << '\n';
-					ss << std::string(indent * 2, ' ') << '"' << escape_string(*it, options) << "\" : " << value_to_string(v[*it], indent, true, options);
+					ss << std::string(indent * 2, ' ') << '"' << escape_string(*it, options) << "\" : " << value_to_string(v[*it], options, indent, true);
 				}
 				--indent;
 
@@ -776,12 +775,12 @@ namespace {
 			if(size(v) != 0) {
 				size_t i = 0;
 				++indent;
-				ss << value_to_string(v[i++], indent, false, options);
+				ss << value_to_string(v[i++], options, indent, false);
 
 				for(;i != size(v); ++i) {
 					ss << ',';
 					ss << '\n';
-					ss << value_to_string(v[i], indent, false, options);
+					ss << value_to_string(v[i], options, indent, false);
 				}
 				--indent;
 
@@ -792,102 +791,117 @@ namespace {
 
 		return ss.str();
 	}
-}
-
-inline std::string pretty_print(const value &v, int options) {
-	return value_to_string(v, 0, false, options);
-}
-
-inline std::string pretty_print(const array &a, int options) {
-	return value_to_string(value(a), 0, false, options);
-}
-
-inline std::string pretty_print(const object &o, int options) {
-	return value_to_string(value(o), 0, false, options);
-}
-
-inline std::string pretty_print(const value &v) {
-	return pretty_print(v, 0);
-}
-
-inline std::string pretty_print(const array &a) {
-	return pretty_print(a, 0);
-}
-
-inline std::string pretty_print(const object &o) {
-	return pretty_print(o, 0);
-}
-
-inline std::string serialize(const value &v, int options) {
 	
-	std::stringstream ss;
+	inline std::string serialize(const value &v, int options) {
 
-	if(is_string(v)) {
-		ss << '"' << escape_string(to_string(v), options) << '"';
-	}
+		std::stringstream ss;
 
-	if(is_number(v)) {
-		ss << to_string(v);
-	}
+		if(is_string(v)) {
+			ss << '"' << escape_string(to_string(v), options) << '"';
+		}
 
-	if(is_null(v)) {
-		ss << "null";
-	}
+		if(is_number(v)) {
+			ss << to_string(v);
+		}
 
-	if(is_bool(v)) {
-		ss << (to_bool(v) ? "true" : "false");
-	}
+		if(is_null(v)) {
+			ss << "null";
+		}
 
-	if(is_object(v)) {
-		ss << "{";
-		set_type k = keys(v);
-		if(!k.empty()) {
-			set_type::const_iterator it = k.begin();
-			ss << '"' << escape_string(*it, options) << "\":" << serialize(v[*it], options);
-			++it;
-			for(;it != k.end(); ++it) {
-				ss << ',';
+		if(is_bool(v)) {
+			ss << (to_bool(v) ? "true" : "false");
+		}
+
+		if(is_object(v)) {
+			ss << "{";
+			set_type k = keys(v);
+			if(!k.empty()) {
+				set_type::const_iterator it = k.begin();
 				ss << '"' << escape_string(*it, options) << "\":" << serialize(v[*it], options);
+				++it;
+				for(;it != k.end(); ++it) {
+					ss << ',';
+					ss << '"' << escape_string(*it, options) << "\":" << serialize(v[*it], options);
+				}
 			}
+			ss  << "}";
 		}
-		ss  << "}";
+
+		if(is_array(v)) {
+			ss << "[";
+			if(size(v) != 0) {
+				size_t i = 0;
+				ss << serialize(v[i++], options);
+
+				for(;i != size(v); ++i) {
+					ss << ',';
+					ss << serialize(v[i], options);
+				}
+			}
+			ss << "]";
+		}
+
+		return ss.str();
 	}
 
-	if(is_array(v)) {
-		ss << "[";
-		if(size(v) != 0) {
-			size_t i = 0;
-			ss << serialize(v[i++], options);
-
-			for(;i != size(v); ++i) {
-				ss << ',';
-				ss << serialize(v[i], options);
-			}
-		}
-		ss << "]";
+	inline std::string serialize(const array &a, int options) {
+		return serialize(value(a), options);
 	}
 
-	return ss.str();
+	inline std::string serialize(const object &o, int options) {
+		return serialize(value(o), options);
+	}
+
+	inline std::string pretty_print(const value &v, int options) {
+		return value_to_string(v, options, 0, false);
+	}
+
+	inline std::string pretty_print(const array &a, int options) {
+		return value_to_string(value(a), options, 0, false);
+	}
+
+	inline std::string pretty_print(const object &o, int options) {
+		return value_to_string(value(o), options, 0, false);
+	}
+	
 }
 
-inline std::string serialize(const array &a, int options) {
-	return serialize(value(a), options);
+
+
+inline std::string print(const value &v, int options) {
+	if(options & PRETTY_PRINT) {
+		return pretty_print(v, options);
+	} else {
+		return serialize(v, options);
+	}
 }
 
-inline std::string serialize(const object &o, int options) {
-	return serialize(value(o), options);
+inline std::string print(const array &a, int options) {
+	if(options & PRETTY_PRINT) {
+		return pretty_print(a, options);
+	} else {
+		return serialize(a, options);
+	}
 }
 
-inline std::string serialize(const object &o) {
-	return serialize(o, 0);
+inline std::string print(const object &o, int options) {
+	if(options & PRETTY_PRINT) {
+		return pretty_print(o, options);
+	} else {
+		return serialize(o, options);
+	}
 }
 
-inline std::string serialize(const array &a) {
-	return serialize(a, 0);	
+inline std::string print(const value &v) {
+	return print(v, 0);
 }
 
-inline std::string serialize(const value &v) {
-	return serialize(v, 0);
+inline std::string print(const array &a) {
+	return print(a, 0);
+}
+
+inline std::string print(const object &o) {
+	return print(o, 0);
 }
 
 }
