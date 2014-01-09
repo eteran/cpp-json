@@ -63,7 +63,6 @@ inline object &object::insert(const std::pair<std::string, T> &p) {
 template <class T>
 inline object &object::insert(const std::string &key, const T &v) {
 	return insert(std::make_pair(key, value(v)));
-	return *this;
 }
 
 //------------------------------------------------------------------------------

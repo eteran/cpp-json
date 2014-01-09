@@ -62,14 +62,6 @@ bool has_key(const object &o, const std::string &key);
 
 size_t size(const array &a);
 
-std::string pretty_print(const value &v, int options);
-std::string pretty_print(const array &a, int options);
-std::string pretty_print(const object &o, int options);
-
-std::string pretty_print(const value &v);
-std::string pretty_print(const array &a);
-std::string pretty_print(const object &o);
-
 template <class In>
 value parse(In first, In last);
 value parse(std::istream &is);
@@ -78,16 +70,18 @@ value parse(const std::string &s);
 value parse(const std::wstring &s);
 
 enum {
-	ESCAPE_UNICODE = 0x01
+	ESCAPE_UNICODE = 0x01,
+	PRETTY_PRINT   = 0x02
 };
 
-std::string serialize(const value &v, int options);
-std::string serialize(const array &a, int options);
-std::string serialize(const object &o, int options);
 
-std::string serialize(const value &v);
-std::string serialize(const array &a);
-std::string serialize(const object &o);
+std::string print(const value &v, int options);
+std::string print(const array &a, int options);
+std::string print(const object &o, int options);
+
+std::string print(const value &v);
+std::string print(const array &a);
+std::string print(const object &o);
 
 }
 
