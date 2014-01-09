@@ -707,7 +707,9 @@ namespace {
 				switch(*it) {
 				case '\"': r += "\\\""; break;
 				case '\\': r += "\\\\"; break;
-	//			case '/':  r += "\\/"; break;
+			#if 0
+				case '/':  r += "\\/"; break;
+			#endif
 				case '\b': r += "\\b"; break;
 				case '\f': r += "\\f"; break;
 				case '\n': r += "\\n"; break;

@@ -52,8 +52,17 @@ inline value &object::operator[](const std::string &key) {
 // Name: insert
 //------------------------------------------------------------------------------
 template <class T>
+inline object &object::insert(const std::pair<std::string, T> &p) {
+	values_.insert(p);
+	return *this;
+}
+
+//------------------------------------------------------------------------------
+// Name: insert
+//------------------------------------------------------------------------------
+template <class T>
 inline object &object::insert(const std::string &key, const T &v) {
-	values_.insert(std::make_pair(key, value(v)));
+	return insert(std::make_pair(key, value(v)));
 	return *this;
 }
 
