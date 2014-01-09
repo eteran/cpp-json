@@ -16,6 +16,28 @@ inline array::array() {
 inline array::array(const array &other) : values_(other.values_) {
 }
 
+#if __cplusplus >= 201103L
+//------------------------------------------------------------------------------
+// Name: array
+//------------------------------------------------------------------------------
+template <class... Args>
+array::array(Args &&...args) {
+	values_.reserve(sizeof...(Args));
+	array_init(std::forward<Args>(args)...);
+}
+
+template <class T, class... Args>
+void array::array_init(const T &value, Args &&...args) {
+	values_.push_back(json::value(value));
+	array_init(args...);
+}
+
+template <class T>
+void array::array_init(const T &value) {
+	values_.push_back(json::value(value));
+}
+#endif
+
 //------------------------------------------------------------------------------
 // Name: array::operator=
 //------------------------------------------------------------------------------
