@@ -1,69 +1,44 @@
 
-SHELL = /bin/sh
+SHELL=/bin/sh
 
-# suffix Definitions
-.SUFFIXES:                # Delete the default suffixes
-.SUFFIXES: .cc .o .h .tcc # Define our suffix list
-	
-.cc.o:
-	@echo compiling $< ...
-	@$(CXX) $(CXXFLAGS) $(DEFINES) -c $< -o $@ 1>/dev/null
-	
+CXX     := g++
+LD      := g++
+MKDIR   := mkdir -p
+OBJ_DIR := .obj
 
-CXX    := g++ -march=native -ansi
-LD     := g++
-RM     := rm -f
-ED     := ed
+.SUFFIXES:
 
-APPNAME := cpp-json
+$(OBJ_DIR)/%.o: %.cc
+	$(CXX) $(CXXFLAGS) -MMD -c $< -o $@
 
-DEFINES  := 
-INCLUDES := 
-CXXFLAGS := -g -O2 -pedantic -pipe $(INCLUDES) -W -Wall
-LDFLAGS  := -g
+TARGET = cpp-json
 
-H_FILES     := 
-CXX_FILES   := main.cc
-O_FILES     := $(CXX_FILES:.cc=.o)
-SOURCEFILES := $(H_FILES) $(CXX_FILES)
-.PRECIOUS: $(SOURCEFILES)
-.PHONY:    clean distclean mrproper
+CXXFLAGS  := -ansi -pedantic -Wextra -Wall -O2
+LDFLAGS   := 
+H_FILES   :=
+CXX_FILES := main.cc
 
-# main targets
-all: $(APPNAME)
+O_FILES := $(patsubst %.cc, $(OBJ_DIR)/%.o, $(CXX_FILES))
+D_FILES := $(O_FILES:.o=.d)
 
-$(APPNAME): $(O_FILES)
-	@echo linking $@ ...
-	@$(LD) $(LDFLAGS) $(O_FILES) -o $@ 1>/dev/null
+SOURCEFILES :=	$(H_FILES) $(CXX_FILES)
+.PRECIOUS:	$(SOURCEFILES)
+.PHONY:     all clean
 
-mrproper: clean
-	$(RM) makedep
+all: $(TARGET)
+
+$(O_FILES): | $(OBJ_DIR) 
+
+$(D_FILES): | $(OBJ_DIR)
+
+$(OBJ_DIR) :
+	@$(MKDIR) $@
+
+$(TARGET): $(O_FILES) 
+	$(LD) $^ -o $@
 
 clean:
-	$(RM) $(O_FILES) $(APPNAME) core *~ 2> /dev/null
+	$(RM) $(O_FILES) $(D_FILES) $(TARGET)
 
-distclean: mrproper
-	
-depend:
-	@echo "Building Dependency Information..."
-	@$(RM) makedep
-	@$(CXX) $(DEFINES) $(INCLUDES) -MM $(CXX_FILES) 2>/dev/null >> makedep || true
-	@echo '/^# DO NOT DELETE THIS LINE/+2,$$d' >eddep
-	@echo '$$r makedep' >>eddep
-	@echo 'w' >>eddep
-	@$(ED) - Makefile < eddep
-	@$(RM) eddep makedep 
-	@echo '# DEPENDENCIES MUST END AT END OF FILE' >> Makefile
-	@echo '# IF YOU PUT STUFF HERE IT WILL GO AWAY' >> Makefile
-	@echo '# see make depend above' >> Makefile
-	@echo "Done"
-        
-#-----------------------------------------------------------------
-# DO NOT DELETE THIS LINE -- make depend uses it
-#-----------------------------------------------------------------
-main.o: main.cc json.h json/token.h json/exception.h json/object.h \
- json/array.h json/value.h json/json.tcc json/object.tcc json/array.tcc \
- json/value.tcc
-# DEPENDENCIES MUST END AT END OF FILE
-# IF YOU PUT STUFF HERE IT WILL GO AWAY
-# see make depend above
+-include $(D_FILES)
+
