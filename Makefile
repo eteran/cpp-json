@@ -13,7 +13,7 @@ $(OBJ_DIR)/%.o: %.cc
 
 TARGET = cpp-json
 
-CXXFLAGS  := -std=c++11 -pedantic -Wextra -Wall -O2
+CXXFLAGS  := -std=c++11 -pedantic -Wextra -Wall -O2 -g3
 LDFLAGS   := 
 H_FILES   :=
 CXX_FILES := main.cc
@@ -35,7 +35,7 @@ $(OBJ_DIR) :
 	@$(MKDIR) $@
 
 $(TARGET): $(O_FILES) 
-	$(LD) $^ -o $@
+	$(LD) $(LDFLAGS) $^ -o $@
 
 clean:
 	$(RM) $(O_FILES) $(D_FILES) $(TARGET)

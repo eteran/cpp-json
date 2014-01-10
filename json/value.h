@@ -4,7 +4,7 @@
 
 namespace json {
 
-struct null {};
+static const struct null_t {} null;
 
 class array;
 class object;
@@ -23,8 +23,6 @@ class value {
 	friend object to_object(const value &v);
 	friend array to_array(const value &v);
 
-	friend size_t size(const value &v);
-	friend set_type keys(const value &v);
 	friend bool has_key(const value &v, const std::string &key);
 	
 	friend bool operator==(const value &lhs, const value &rhs);
@@ -32,7 +30,7 @@ class value {
 
 public:
 	// intialize from basic types
-	explicit value(const null &);
+	explicit value(const null_t &);
 	explicit value(bool b);
 	explicit value(const array &a);
 	explicit value(const char *s);

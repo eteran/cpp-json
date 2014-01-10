@@ -112,7 +112,6 @@ boost::shared_ptr<object> get_object(In &it, const In &last) {
 		}
 	}
 
-
 	if(tok != detail::token("}", detail::token::type_delimeter)) {
 		throw brace_expected();
 	}
@@ -474,57 +473,15 @@ inline array to_array(const value &v) {
 	return *boost::get<boost::shared_ptr<array> >(v.value_);
 }
 
-inline size_t size(const value &v) {
-
-	if(is_array(v)) {
-		return size(*boost::get<boost::shared_ptr<array> >(v.value_));
-	}
-	
-	if(is_object(v)) {
-		return size(*boost::get<boost::shared_ptr<object> >(v.value_));
-	}
-	
-	return 0;
-}
-
 inline bool has_key(const value &v, const std::string &key) {
 	if(is_object(v)) {
-		return has_key(*boost::get<boost::shared_ptr<object> >(v.value_), key);
+		return has_key(to_object(v), key);
 	}
 	return false;
 }
 
-inline set_type keys(const value &v) {
-	
-	if(is_object(v)) {
-		return keys(*boost::get<boost::shared_ptr<object> >(v.value_));		
-	}
-	
-	return set_type();
-}
-
-inline size_t size(const object &o) {
-	return o.values_.size();
-}
-
-inline set_type keys(const object &o) {
-	set_type keys;
-
-	const map_type &map = o.values_;
-
-	for(map_type::const_iterator it = map.begin(); it != map.end(); ++it) {
-		keys.insert(it->first);
-	}		
-	
-	return keys;
-}
-
 inline bool has_key(const object &o, const std::string &key) {
-	return o.values_.find(key) != o.values_.end();
-}
-
-inline size_t size(const array &a) {
-	return a.values_.size();
+	return o.find(key) != o.end();
 }
 
 inline value parse(std::istream &is) {
@@ -598,7 +555,7 @@ inline std::vector<uint8_t> detail::unicode_escape_to_utf8(uint16_t w1, uint16_t
 
 namespace {
 
-	inline std::string escape_string(const std::string &s, int options) {
+	inline std::string escape_string(const std::string &s, unsigned options) {
 	
 		std::string r;
 		r.reserve(s.size());
@@ -623,7 +580,9 @@ namespace {
 						switch(*it) {
 						case '\"': r += "\\\""; break;
 						case '\\': r += "\\\\"; break;
-			//			case '/':  r += "\\/"; break;
+					#if 0
+						case '/':  r += "\\/"; break;
+					#endif
 						case '\b': r += "\\b"; break;
 						case '\f': r += "\\f"; break;
 						case '\n': r += "\\n"; break;
@@ -668,7 +627,6 @@ namespace {
 							// done with this character
 
 							char buf[5];
-
 
 							if(result < 0xd800 || (result >= 0xe000 && result < 0x10000)) {
 								r += "\\u";					
@@ -726,7 +684,7 @@ namespace {
 		return escape_string(s, 0);
 	}
 
-	inline std::string value_to_string(const json::value &v, int options, int indent, bool ignore_initial_ident) {
+	inline std::string value_to_string(const json::value &v, unsigned options, int indent, bool ignore_initial_ident) {
 		std::stringstream ss;
 		
 		if(!ignore_initial_ident) {
@@ -750,17 +708,22 @@ namespace {
 		}
 
 		if(is_object(v)) {
+		
+			const object o = to_object(v);
+		
 			ss << "{\n";
-			json::set_type k = keys(v);
-			if(!k.empty()) {
-				json::set_type::const_iterator it = k.begin();
+			if(!o.empty()) {
+			
+				object::const_iterator it = o.begin();
+				object::const_iterator e  = o.end();
+					
 				++indent;
-				ss << std::string(indent * 2, ' ') << '"' << escape_string(*it, options) << "\" : " << value_to_string(v[*it], options, indent, true);
+				ss << std::string(indent * 2, ' ') << '"' << escape_string(it->first, options) << "\" : " << value_to_string(it->second, options, indent, true);
 				++it;
-				for(;it != k.end(); ++it) {
+				for(;it != e; ++it) {
 					ss << ',';
 					ss << '\n';
-					ss << std::string(indent * 2, ' ') << '"' << escape_string(*it, options) << "\" : " << value_to_string(v[*it], options, indent, true);
+					ss << std::string(indent * 2, ' ') << '"' << escape_string(it->first, options) << "\" : " << value_to_string(it->second, options, indent, true);
 				}
 				--indent;
 
@@ -770,16 +733,22 @@ namespace {
 		}
 
 		if(is_array(v)) {
+		
+			const array a = to_array(v);
+		
 			ss << "[\n";
-			if(size(v) != 0) {
-				size_t i = 0;
+			if(!a.empty()) {
+				
+				array::const_iterator it = a.begin();
+				array::const_iterator e  = a.end();
+			
 				++indent;
-				ss << value_to_string(v[i++], options, indent, false);
-
-				for(;i != size(v); ++i) {
+				ss << value_to_string(*it++, options, indent, false);
+				
+				for(;it != e; ++it) {
 					ss << ',';
 					ss << '\n';
-					ss << value_to_string(v[i], options, indent, false);
+					ss << value_to_string(*it, options, indent, false);
 				}
 				--indent;
 
@@ -791,7 +760,11 @@ namespace {
 		return ss.str();
 	}
 	
-	inline std::string serialize(const value &v, int options) {
+	inline std::string value_to_string(const json::value &v, unsigned options) {
+		return value_to_string(v, options, 0, false);
+	}
+	
+	inline std::string serialize(const value &v, unsigned options) {
 
 		std::stringstream ss;
 
@@ -812,29 +785,35 @@ namespace {
 		}
 
 		if(is_object(v)) {
+			const object o = to_object(v);
 			ss << "{";
-			set_type k = keys(v);
-			if(!k.empty()) {
-				set_type::const_iterator it = k.begin();
-				ss << '"' << escape_string(*it, options) << "\":" << serialize(v[*it], options);
+			if(!o.empty()) {
+				object::const_iterator it = o.begin();
+				object::const_iterator e  = o.end();
+				
+				ss << '"' << escape_string(it->first, options) << "\":" << serialize(it->second, options);
 				++it;
-				for(;it != k.end(); ++it) {
+				for(;it != e; ++it) {
 					ss << ',';
-					ss << '"' << escape_string(*it, options) << "\":" << serialize(v[*it], options);
+					ss << '"' << escape_string(it->first, options) << "\":" << serialize(it->second, options);
 				}
 			}
 			ss  << "}";
 		}
 
 		if(is_array(v)) {
+			const array a = to_array(v);
+		
 			ss << "[";
-			if(size(v) != 0) {
-				size_t i = 0;
-				ss << serialize(v[i++], options);
+			if(!a.empty()) {
+				array::const_iterator it = a.begin();
+				array::const_iterator e  = a.end();
+				
+				ss << serialize(*it++, options);
 
-				for(;i != size(v); ++i) {
+				for(;it != e; ++it) {
 					ss << ',';
-					ss << serialize(v[i], options);
+					ss << serialize(*it, options);
 				}
 			}
 			ss << "]";
@@ -843,31 +822,28 @@ namespace {
 		return ss.str();
 	}
 
-	inline std::string serialize(const array &a, int options) {
+	inline std::string serialize(const array &a, unsigned options) {
 		return serialize(value(a), options);
 	}
 
-	inline std::string serialize(const object &o, int options) {
+	inline std::string serialize(const object &o, unsigned options) {
 		return serialize(value(o), options);
 	}
 
-	inline std::string pretty_print(const value &v, int options) {
-		return value_to_string(v, options, 0, false);
+	inline std::string pretty_print(const value &v, unsigned options) {
+		return value_to_string(v, options);
 	}
 
-	inline std::string pretty_print(const array &a, int options) {
-		return value_to_string(value(a), options, 0, false);
+	inline std::string pretty_print(const array &a, unsigned options) {
+		return value_to_string(value(a), options);
 	}
 
-	inline std::string pretty_print(const object &o, int options) {
-		return value_to_string(value(o), options, 0, false);
+	inline std::string pretty_print(const object &o, unsigned options) {
+		return value_to_string(value(o), options);
 	}
-	
 }
 
-
-
-inline std::string print(const value &v, int options) {
+inline std::string print(const value &v, unsigned options) {
 	if(options & PRETTY_PRINT) {
 		return pretty_print(v, options);
 	} else {
@@ -875,7 +851,7 @@ inline std::string print(const value &v, int options) {
 	}
 }
 
-inline std::string print(const array &a, int options) {
+inline std::string print(const array &a, unsigned options) {
 	if(options & PRETTY_PRINT) {
 		return pretty_print(a, options);
 	} else {
@@ -883,7 +859,7 @@ inline std::string print(const array &a, int options) {
 	}
 }
 
-inline std::string print(const object &o, int options) {
+inline std::string print(const object &o, unsigned options) {
 	if(options & PRETTY_PRINT) {
 		return pretty_print(o, options);
 	} else {
