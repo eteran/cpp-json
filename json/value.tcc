@@ -170,7 +170,6 @@ inline value::value(const array &a) : value_(boost::make_shared<array>(a)), type
 inline value::value(const object &o) : value_(boost::make_shared<object>(o)), type_(type_object) {
 }
 
-
 //------------------------------------------------------------------------------
 // Name: operator==
 //------------------------------------------------------------------------------
