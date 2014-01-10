@@ -73,6 +73,23 @@ inline void object::swap(object &other) {
 	swap(values_, other.values_);
 }
 
+//------------------------------------------------------------------------------
+// Name: operator==
+//------------------------------------------------------------------------------
+inline bool operator==(const object &lhs, const object &rhs) {
+	if(lhs.values_.size() == rhs.values_.size()) {
+		return lhs.values_ == rhs.values_;
+	}
+	return false;
+}
+
+//------------------------------------------------------------------------------
+// Name: operator!=
+//------------------------------------------------------------------------------
+inline bool operator!=(const object &lhs, const object &rhs) {
+	return !(lhs == rhs);
+}
+
 }
 
 #endif

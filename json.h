@@ -19,7 +19,6 @@
 #include <boost/unordered_map.hpp>
 #include <boost/unordered_set.hpp>
 
-
 #include <algorithm>
 #include <exception>
 #include <iterator>
@@ -73,7 +72,6 @@ enum {
 	ESCAPE_UNICODE = 0x01,
 	PRETTY_PRINT   = 0x02
 };
-
 
 std::string print(const value &v, int options);
 std::string print(const array &a, int options);

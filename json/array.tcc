@@ -74,6 +74,23 @@ inline void array::swap(array &other) {
 	swap(values_, other.values_);
 }
 
+//------------------------------------------------------------------------------
+// Name: operator==
+//------------------------------------------------------------------------------
+inline bool operator==(const array &lhs, const array &rhs) {
+	if(lhs.values_.size() == rhs.values_.size()) {
+		return lhs.values_ == rhs.values_;
+	}
+	return false;
+}
+
+//------------------------------------------------------------------------------
+// Name: operator!=
+//------------------------------------------------------------------------------
+inline bool operator!=(const array &lhs, const array &rhs) {
+	return !(lhs == rhs);
+}
+
 }
 
 #endif
