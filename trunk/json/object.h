@@ -19,6 +19,8 @@ class object {
 	friend bool has_key(const object &o, const std::string &key);
 	friend set_type keys(const object &o);
 	friend size_t size(const object &o);
+	friend bool operator==(const object &lhs, const object &rhs);
+	friend bool operator!=(const object &lhs, const object &rhs);
 
 public:
 	object();
@@ -41,6 +43,9 @@ public:
 private:
 	map_type values_;
 };
+
+bool operator==(const object &lhs, const object &rhs);
+bool operator!=(const object &lhs, const object &rhs);
 	
 }
 

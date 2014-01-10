@@ -171,25 +171,26 @@ inline value::value(const array &a) : value_(boost::make_shared<array>(a)), type
 inline value::value(const object &o) : value_(boost::make_shared<object>(o)), type_(type_object) {
 }
 
+
 //------------------------------------------------------------------------------
 // Name: operator==
 //------------------------------------------------------------------------------
-inline bool value::operator==(const value &rhs) const {
-	if(type_ == rhs.type_) {
-		switch(type_) {
-		case type_string:
-			return to_string(*this) == to_string(rhs);
-		case type_number:
-			return to_number(*this) == to_number(rhs);
-		case type_null:
+inline bool operator==(const value &lhs, const value &rhs) {
+	if(lhs.type_ == rhs.type_) {
+		switch(lhs.type_) {
+		case value::type_string:
+			return to_string(lhs) == to_string(rhs);
+		case value::type_number:
+			return to_number(lhs) == to_number(rhs);
+		case value::type_null:
 			return true;
-		case type_boolean:
-			return to_bool(*this) == to_bool(rhs);
-		case type_array:
-			assert(0);
-		case type_object:
-			assert(0);
-		case type_invalid:
+		case value::type_boolean:
+			return to_bool(lhs) == to_bool(rhs);
+		case value::type_array:
+			return to_array(lhs) == to_array(rhs);
+		case value::type_object:
+			return to_object(lhs) == to_object(rhs);
+		case value::type_invalid:
 			break;
 		}
 	}
@@ -199,8 +200,8 @@ inline bool value::operator==(const value &rhs) const {
 //------------------------------------------------------------------------------
 // Name: operator!=
 //------------------------------------------------------------------------------
-inline bool value::operator!=(const value &rhs) const {
-	return !(*this == rhs);
+inline bool operator!=(const value &lhs, const value &rhs) {
+	return !(lhs == rhs);
 }
 
 }

@@ -26,6 +26,9 @@ class value {
 	friend size_t size(const value &v);
 	friend set_type keys(const value &v);
 	friend bool has_key(const value &v, const std::string &key);
+	
+	friend bool operator==(const value &lhs, const value &rhs);
+	friend bool operator!=(const value &lhs, const value &rhs);
 
 public:
 	// intialize from basic types
@@ -69,14 +72,13 @@ public:
 	value &operator[](const std::string &key);
 	value &operator[](std::size_t n);
 
-public:
-	bool operator==(const value &rhs) const;
-	bool operator!=(const value &rhs) const;
-
 private:
 	boost::variant<boost::shared_ptr<object>, boost::shared_ptr<array>, std::string> value_;
 	type                                                                             type_;
 };
+
+bool operator==(const value &lhs, const value &rhs);
+bool operator!=(const value &lhs, const value &rhs);
 	
 }
 

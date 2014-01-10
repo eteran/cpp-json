@@ -13,9 +13,11 @@ namespace detail {
 }
 
 class array {
-	 template<class In>
-	 friend boost::shared_ptr<array> detail::get_array(In &, const In &);
-	 friend size_t size(const array &a);
+	template<class In>
+	friend boost::shared_ptr<array> detail::get_array(In &, const In &);
+	friend size_t size(const array &a);
+	friend bool operator==(const array &lhs, const array &rhs);
+	friend bool operator!=(const array &lhs, const array &rhs);
 
 public:
 	array();
