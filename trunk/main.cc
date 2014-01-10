@@ -6,29 +6,21 @@
 //------------------------------------------------------------------------------
 // Name: main
 //------------------------------------------------------------------------------
-int main(int argc, char *argv[]) {
+int main() {
 
-	for(int i = 1; i < argc; ++i) {
-		std::ifstream file(argv[i]);
-		if(file) {
-			json::value v1 = json::parse(file);
-			std::cout << print(v1, json::PRETTY_PRINT) << std::endl;
-			std::cout << "----------" << std::endl;
-		}
-	}
-	
-#if 1
 	// construct from a file
 	std::ifstream file("test.json");
-	json::value v1 = json::parse(file);
-	std::cout << print(v1, json::PRETTY_PRINT | json::ESCAPE_UNICODE) << std::endl;
-	std::cout << "----------" << std::endl;
+	if(file) {
+		json::value v1 = json::parse(file);
+		std::cout << print(v1, json::PRETTY_PRINT | json::ESCAPE_UNICODE) << std::endl;
+		std::cout << "----------" << std::endl;
+	}
 
 	// construct programatically
 	json::object obj1;
 	obj1.insert("test1", "hello world")
 		.insert("test2", 10)
-		.insert("test3", json::object().insert("x", json::null()))
+		.insert("test3", json::object().insert("x", json::null))
 		
 		// if we are using C++11, we have a MUCH more elegant array initializer option
 	#if __cplusplus >= 201103L 
@@ -54,5 +46,4 @@ int main(int argc, char *argv[]) {
 	std::cout << to_number(z) << std::endl;
 	
 	std::cout << print(v, json::ESCAPE_UNICODE) << std::endl;
-#endif
 }

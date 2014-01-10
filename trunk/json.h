@@ -17,7 +17,6 @@
 #include <boost/variant.hpp>
 #include <boost/variant/get.hpp>
 #include <boost/unordered_map.hpp>
-#include <boost/unordered_set.hpp>
 
 #include <algorithm>
 #include <exception>
@@ -33,7 +32,6 @@ class array;
 class object;
 
 typedef boost::unordered_map<std::string, value> map_type;
-typedef boost::unordered_set<std::string>        set_type;
 
 // type testing
 inline bool is_string(const value &v);
@@ -51,15 +49,8 @@ object      to_object(const value &v);
 array       to_array(const value &v);
 
 //
-size_t size(const value &v);
-set_type keys(const value &v);
 bool has_key(const value &v, const std::string &key);
-
-size_t size(const object &o);
-set_type keys(const object &o);
 bool has_key(const object &o, const std::string &key);
-
-size_t size(const array &a);
 
 template <class In>
 value parse(In first, In last);
@@ -73,9 +64,9 @@ enum {
 	PRETTY_PRINT   = 0x02
 };
 
-std::string print(const value &v, int options);
-std::string print(const array &a, int options);
-std::string print(const object &o, int options);
+std::string print(const value &v, unsigned options);
+std::string print(const array &a, unsigned options);
+std::string print(const object &o, unsigned options);
 
 std::string print(const value &v);
 std::string print(const array &a);
