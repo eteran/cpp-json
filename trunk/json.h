@@ -48,10 +48,11 @@ double      to_number(const value &v);
 object      to_object(const value &v);
 array       to_array(const value &v);
 
-//
+// does the given object have a given key?
 bool has_key(const value &v, const std::string &key);
 bool has_key(const object &o, const std::string &key);
 
+// create a value from some JSON
 template <class In>
 value parse(In first, In last);
 value parse(std::istream &is);
@@ -59,6 +60,7 @@ value parse(std::wistream &is);
 value parse(const std::string &s);
 value parse(const std::wstring &s);
 
+// conert a value to a JSON string
 enum {
 	ESCAPE_UNICODE = 0x01,
 	PRETTY_PRINT   = 0x02

@@ -39,12 +39,12 @@ public:
 	object &operator=(const object &rhs);
 
 public:
-	iterator begin()                       { return values_.begin(); }
-	iterator end()                         { return values_.end(); }
-	const_iterator begin() const           { return values_.begin(); }
-	const_iterator end() const             { return values_.end(); }
-	const_iterator cbegin() const          { return values_.begin(); }
-	const_iterator cend() const            { return values_.end(); }
+	iterator begin()              { return values_.begin(); }
+	iterator end()                { return values_.end(); }
+	const_iterator begin() const  { return values_.begin(); }
+	const_iterator end() const    { return values_.end(); }
+	const_iterator cbegin() const { return values_.begin(); }
+	const_iterator cend() const   { return values_.end(); }
 	
 public:
 	iterator find(const std::string &s)             { return values_.find(s); }
@@ -69,7 +69,7 @@ public:
 	void swap(object &other);
 
 private:
-	map_type values_;
+	C values_;
 };
 
 bool operator==(const object &lhs, const object &rhs);
