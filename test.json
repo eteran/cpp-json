@@ -10,5 +10,11 @@
 		}
 	},
 	"test\nreturn":"hello\tworld",
-	"u":"\u1234"
+	"u":"\u1234",
+	"b1":true,
+	"b2":false,
+	"n1":null,
+	"n2":-1234
+	
 }
+

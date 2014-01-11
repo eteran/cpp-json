@@ -76,7 +76,6 @@ std::string print(const object &o);
 
 }
 
-#include "json/token.h"
 #include "json/exception.h"
 
 #include "json/object.h"

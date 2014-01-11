@@ -10,6 +10,14 @@ namespace json {
 inline value::value(const null_t &) : value_("null"), type_(type_null) {
 }
 
+#if __cplusplus >= 201103L
+//------------------------------------------------------------------------------
+// Name: value
+//------------------------------------------------------------------------------
+inline value::value(const std::nullptr_t &): value_("null"), type_(type_null) {
+}
+#endif
+
 //------------------------------------------------------------------------------
 // Name: value
 //------------------------------------------------------------------------------
@@ -25,24 +33,7 @@ inline value::value(const boost::shared_ptr<array> &a) : value_(a), type_(type_a
 //------------------------------------------------------------------------------
 // Name: value
 //------------------------------------------------------------------------------
-inline value::value(const detail::token &token) : value_(token.string_) {
-
-	switch(token.type_) {
-	case detail::token::type_string:
-		type_ = type_string;
-		break;
-	case detail::token::type_number:
-		type_ = type_number;
-		break;
-	case detail::token::type_boolean:
-		type_ = type_boolean;
-		break;
-	case detail::token::type_null:
-		type_ = type_null;
-		break;
-	default:
-		type_ = type_invalid;
-	}
+inline value::value(const std::string &s, const numeric_t &) : value_(s), type_(type_number) {
 }
 
 //------------------------------------------------------------------------------

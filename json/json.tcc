@@ -33,25 +33,22 @@ template <class In>
 typename std::iterator_traits<In>::value_type peek_char(In &it, const In &last);
 
 template <class In>
-detail::token get_number(In &it, const In &last);
+std::string get_number(In &it, const In &last);
 
 template <class In>
 std::pair<std::string, value> get_pair(In &it, const In &last);
 
 template <class In>
-detail::token get_token(In &it, const In &last);
+std::string get_string(In &it, const In &last);
 
 template <class In>
-detail::token get_string(In &it, const In &last);
+null_t get_null(In &it, const In &last);
 
 template <class In>
-detail::token get_null(In &it, const In &last);
+bool get_true(In &it, const In &last);
 
 template <class In>
-detail::token get_true(In &it, const In &last);
-
-template <class In>
-detail::token get_false(In &it, const In &last);
+bool get_false(In &it, const In &last);
 
 template <class Ch>
 bool is_digit(Ch ch) {
@@ -92,27 +89,30 @@ template <class In>
 boost::shared_ptr<object> get_object(In &it, const In &last) {
 	boost::shared_ptr<object> obj = boost::make_shared<object>();
 
-	detail::token tok = get_token(it, last);
-	if(tok != detail::token("{", detail::token::type_delimeter)) {
+	char tok = peek_char(it, last); ++it;
+	if(tok != '{') {
 		throw brace_expected();
 	}
 
 	// handle empty object
 	if(peek_char(it, last) == '}') {
-		tok = get_token(it, last);
+		tok = '}';
+		++it;
 	} else {
 
 		while(true) {
 			obj->values_.insert(get_pair(it, last));
 
-			tok = get_token(it, last);
-			if(tok != detail::token(",", detail::token::type_delimeter)) {
+			tok = peek_char(it, last);
+			++it;
+			
+			if(tok != ',') {
 				break;
 			}
 		}
 	}
 
-	if(tok != detail::token("}", detail::token::type_delimeter)) {
+	if(tok != '}') {
 		throw brace_expected();
 	}
 
@@ -123,26 +123,31 @@ template <class In>
 boost::shared_ptr<array> get_array(In &it, const In &last) {
 	boost::shared_ptr<array> arr = boost::make_shared<array>();
 
-	detail::token tok = get_token(it, last);
-	if(tok != detail::token("[", detail::token::type_delimeter)) {
+	char tok = peek_char(it, last);
+	++it;
+	
+	if(tok != '[') {
 		throw bracket_expected();
 	}
 
 	// handle empty object
 	if(peek_char(it, last) == ']') {
-		tok = get_token(it, last);
+		tok = ']';
+		++it;
 	} else {
 		while(true) {
 			arr->values_.push_back(get_value(it, last));
 
-			tok = get_token(it, last);
-			if(tok != detail::token(",", detail::token::type_delimeter)) {
+			tok = peek_char(it, last);
+			++it;
+			
+			if(tok != ',') {
 				break;
 			}
 		}
 	}
 
-	if(tok != detail::token("]", detail::token::type_delimeter)) {
+	if(tok != ']') {
 		throw bracket_expected();
 	}
 
@@ -165,7 +170,7 @@ value get_value(In &it, const In &last) {
 	case '8':
 	case '9':
 	case '-':
-		return value(get_number(it, last));
+		return value(get_number(it, last), value::numeric_t());
 	case '"':
 		return value(get_string(it, last));
 	case 't':
@@ -181,58 +186,21 @@ value get_value(In &it, const In &last) {
 
 template <class In>
 std::pair<std::string, value> get_pair(In &it, const In &last) {
-	detail::token tok = get_token(it, last);
-	if(tok.type_ != detail::token::type_string) {
-		throw string_expected();
-	}
+	
+	const std::string key = get_string(it, last);
 
-	const std::string key = tok.string_;
-
-	tok = get_token(it, last);
-	if(tok != detail::token(":", detail::token::type_delimeter)) {
+	if(peek_char(it, last) != ':') {
 		throw colon_expected();
 	}
+	++it;
 
 	return std::make_pair(key, get_value(it, last));
 }
 
 template <class In>
-detail::token get_token(In &it, const In &last) {
-	if(it != last) {
-		switch(peek_char(it, last)) {
-		case '{': ++it; return detail::token("{", detail::token::type_delimeter);
-		case '}': ++it; return detail::token("}", detail::token::type_delimeter);
-		case '[': ++it; return detail::token("[", detail::token::type_delimeter);
-		case ']': ++it; return detail::token("]", detail::token::type_delimeter);
-		case ':': ++it; return detail::token(":", detail::token::type_delimeter);
-		case ',': ++it; return detail::token(",", detail::token::type_delimeter);
-		case '"': return get_string(it, last);
-		case '0':
-		case '1':
-		case '2':
-		case '3':
-		case '4':
-		case '5':
-		case '6':
-		case '7':
-		case '8':
-		case '9':
-		case '-':
-			return get_number(it, last);
-		case 't':
-			return get_true(it, last);
-		case 'f':
-			return get_false(it, last);
-		default:
-			throw keyword_expected();
-		}
-	}
-	return detail::token();
-}
+std::string get_string(In &it, const In &last) {
 
-template <class In>
-detail::token get_string(In &it, const In &last) {
-	if(*it != '"') {
+	if(peek_char(it, last) != '"') {
 		throw string_expected();
 	}
 	++it;
@@ -323,11 +291,14 @@ detail::token get_string(In &it, const In &last) {
 
 	++it;
 
-	return detail::token(s, detail::token::type_string);
+	return s;
 }
 
 template <class In>
-detail::token get_number(In &it, const In &last) {
+std::string get_number(In &it, const In &last) {
+	
+	// TODO: convert to number as we go to be more efficient
+	
 	std::string s;
 	std::back_insert_iterator<std::string> out = back_inserter(s);
 	
@@ -346,6 +317,8 @@ detail::token get_number(In &it, const In &last) {
 			}
 		} else if(*it == '0') {
 			*out++ = *it++;
+		} else {
+			throw invalid_number();
 		}
 	}
 
@@ -375,33 +348,33 @@ detail::token get_number(In &it, const In &last) {
 		}
 	}
 
-	return detail::token(s, detail::token::type_number);
+	return s;
 }
 
 template <class In>
-detail::token get_null(In &it, const In &last) {
+null_t get_null(In &it, const In &last) {
 
 	if(it == last || *it++ != 'n') { throw keyword_expected(); }
 	if(it == last || *it++ != 'u') { throw keyword_expected(); }
 	if(it == last || *it++ != 'l') { throw keyword_expected(); }
 	if(it == last || *it++ != 'l') { throw keyword_expected(); }
 
-	return detail::token("null", detail::token::type_null);	
+	return null;
 }
 
 template <class In>
-detail::token get_true(In &it, const In &last) {
+bool get_true(In &it, const In &last) {
 
 	if(it == last || *it++ != 't') { throw boolean_expected(); }
 	if(it == last || *it++ != 'r') { throw boolean_expected(); }
 	if(it == last || *it++ != 'u') { throw boolean_expected(); }
 	if(it == last || *it++ != 'e') { throw boolean_expected(); }
 
-	return detail::token("true", detail::token::type_boolean);	
+	return true;
 }
 
 template <class In>
-detail::token get_false(In &it, const In &last) {
+bool get_false(In &it, const In &last) {
 
 	if(it == last || *it++ != 'f') { throw boolean_expected(); }
 	if(it == last || *it++ != 'a') { throw boolean_expected(); }
@@ -409,7 +382,7 @@ detail::token get_false(In &it, const In &last) {
 	if(it == last || *it++ != 's') { throw boolean_expected(); }
 	if(it == last || *it++ != 'e') { throw boolean_expected(); }
 
-	return detail::token("false", detail::token::type_boolean);	
+	return false;
 }
 
 template <class In>
