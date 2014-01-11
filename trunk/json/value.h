@@ -9,6 +9,11 @@ static const struct null_t {} null;
 class array;
 class object;
 
+namespace detail {		
+	template <class In>
+	value get_value(In &it, const In &last);
+}
+
 class value {
 	friend bool is_string(const value &v);
 	friend bool is_bool(const value &v);
@@ -27,10 +32,21 @@ class value {
 	
 	friend bool operator==(const value &lhs, const value &rhs);
 	friend bool operator!=(const value &lhs, const value &rhs);
+	
+	template <class In>
+	friend value detail::get_value(In &it, const In &last);
+	
+private:
+	struct numeric_t {};
+	// create a value from a numeric string, internal use only!
+	value(const std::string &s, const numeric_t &); 
 
 public:
 	// intialize from basic types
 	explicit value(const null_t &);
+#if __cplusplus >= 201103L
+	explicit value(const std::nullptr_t &);
+#endif
 	explicit value(bool b);
 	explicit value(const array &a);
 	explicit value(const char *s);
@@ -44,7 +60,6 @@ public:
 public:
 	explicit value(const boost::shared_ptr<object> &o);
 	explicit value(const boost::shared_ptr<array> &a);
-	explicit value(const detail::token &token);
 
 public:
 	value(const value &other);
