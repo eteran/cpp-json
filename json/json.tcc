@@ -658,10 +658,13 @@ namespace {
 	}
 
 	inline std::string value_to_string(const json::value &v, unsigned options, int indent, bool ignore_initial_ident) {
+		
+		static const int indent_width = 2;
+		
 		std::stringstream ss;
 		
 		if(!ignore_initial_ident) {
-			ss << std::string(indent * 2, ' ');
+			ss << std::string(indent * indent_width, ' ');
 		}
 		
 		if(is_string(v)) {
@@ -691,18 +694,18 @@ namespace {
 				object::const_iterator e  = o.end();
 					
 				++indent;
-				ss << std::string(indent * 2, ' ') << '"' << escape_string(it->first, options) << "\" : " << value_to_string(it->second, options, indent, true);
+				ss << std::string(indent * indent_width, ' ') << '"' << escape_string(it->first, options) << "\" : " << value_to_string(it->second, options, indent, true);
 				++it;
 				for(;it != e; ++it) {
 					ss << ',';
 					ss << '\n';
-					ss << std::string(indent * 2, ' ') << '"' << escape_string(it->first, options) << "\" : " << value_to_string(it->second, options, indent, true);
+					ss << std::string(indent * indent_width, ' ') << '"' << escape_string(it->first, options) << "\" : " << value_to_string(it->second, options, indent, true);
 				}
 				--indent;
 
 			}
 			ss << "\n";
-			ss << std::string(indent * 2, ' ') << "}";
+			ss << std::string(indent * indent_width, ' ') << "}";
 		}
 
 		if(is_array(v)) {
@@ -727,7 +730,7 @@ namespace {
 
 			}
 			ss << "\n";
-			ss << std::string(indent * 2, ' ') << "]";
+			ss << std::string(indent * indent_width, ' ') << "]";
 		}
 
 		return ss.str();
