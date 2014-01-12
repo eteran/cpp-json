@@ -157,8 +157,10 @@ boost::shared_ptr<array> get_array(In &it, const In &last) {
 template <class In>
 value get_value(In &it, const In &last) {
 	switch(peek_char(it, last)) {
-	case '{': return value(get_object(it, last));
-	case '[': return value(get_array(it, last));
+	case '{':
+		return value(get_object(it, last));
+	case '[':
+		return value(get_array(it, last));
 	case '0':
 	case '1':
 	case '2':
@@ -410,7 +412,7 @@ value parse(In first, In last) {
 }
 
 inline std::string to_string(const value &v) {
-	if(!is_string(v) && !is_bool(v) && !is_number(v)) {
+	if(!is_string(v) && !is_bool(v) && !is_number(v) && !is_null(v)) {
 		throw invalid_type_cast();
 	}
 	return boost::get<std::string>(v.value_);
@@ -537,7 +539,7 @@ namespace {
 			typedef struct {
 				unsigned int expected : 4,
                 			 seen     : 4,
-                			 reserved : 12;
+                			 reserved : 24;
 			} state_t;
 
 			state_t shift_state = {0,0,0};
@@ -676,7 +678,7 @@ namespace {
 		}
 
 		if(is_null(v)) {
-			ss << "null";
+			ss << to_string(v);
 		}
 
 		if(is_bool(v)) {
@@ -753,7 +755,7 @@ namespace {
 		}
 
 		if(is_null(v)) {
-			ss << "null";
+			ss << to_string(v);
 		}
 
 		if(is_bool(v)) {

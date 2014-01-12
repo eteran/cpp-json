@@ -58,6 +58,9 @@ public:
 public:
 	const value operator[](const std::string &key) const;
 	value &operator[](const std::string &key);
+	
+	const value at(const std::string &key) const;
+	value &at(const std::string &key);
 
 	template <class T>
 	object &insert(const std::string &key, const T &v);
