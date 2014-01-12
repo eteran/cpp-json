@@ -6,14 +6,16 @@
 //------------------------------------------------------------------------------
 // Name: main
 //------------------------------------------------------------------------------
-int main() {
+int main(int argc, char *argv[]) {
 
 	// construct from a file
-	std::ifstream file("test.json");
-	if(file) {
-		json::value v1 = json::parse(file);
-		std::cout << stringify(v1, json::PRETTY_PRINT | json::ESCAPE_UNICODE) << std::endl;
-		std::cout << "----------" << std::endl;
+	if(argc == 2) {
+		std::ifstream file(argv[1]);
+		if(file) {
+			json::value v1 = json::parse(file);
+			std::cout << stringify(v1, json::PRETTY_PRINT | json::ESCAPE_UNICODE) << std::endl;
+			std::cout << "----------" << std::endl;
+		}
 	}
 
 	// construct programatically
