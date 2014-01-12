@@ -4,7 +4,7 @@
 
 namespace json {
 
-static const struct null_t {} null;
+static const struct null_t { null_t() {} } null;
 
 class array;
 class object;
