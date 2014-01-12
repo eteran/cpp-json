@@ -66,13 +66,13 @@ enum {
 	PRETTY_PRINT   = 0x02
 };
 
-std::string print(const value &v, unsigned options);
-std::string print(const array &a, unsigned options);
-std::string print(const object &o, unsigned options);
+std::string stringify(const value &v, unsigned options);
+std::string stringify(const array &a, unsigned options);
+std::string stringify(const object &o, unsigned options);
 
-std::string print(const value &v);
-std::string print(const array &a);
-std::string print(const object &o);
+std::string stringify(const value &v);
+std::string stringify(const array &a);
+std::string stringify(const object &o);
 
 }
 

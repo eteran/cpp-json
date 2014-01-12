@@ -821,7 +821,7 @@ namespace {
 	}
 }
 
-inline std::string print(const value &v, unsigned options) {
+inline std::string stringify(const value &v, unsigned options) {
 	if(options & PRETTY_PRINT) {
 		return pretty_print(v, options);
 	} else {
@@ -829,7 +829,7 @@ inline std::string print(const value &v, unsigned options) {
 	}
 }
 
-inline std::string print(const array &a, unsigned options) {
+inline std::string stringify(const array &a, unsigned options) {
 	if(options & PRETTY_PRINT) {
 		return pretty_print(a, options);
 	} else {
@@ -837,7 +837,7 @@ inline std::string print(const array &a, unsigned options) {
 	}
 }
 
-inline std::string print(const object &o, unsigned options) {
+inline std::string stringify(const object &o, unsigned options) {
 	if(options & PRETTY_PRINT) {
 		return pretty_print(o, options);
 	} else {
@@ -845,16 +845,16 @@ inline std::string print(const object &o, unsigned options) {
 	}
 }
 
-inline std::string print(const value &v) {
-	return print(v, 0);
+inline std::string stringify(const value &v) {
+	return stringify(v, 0);
 }
 
-inline std::string print(const array &a) {
-	return print(a, 0);
+inline std::string stringify(const array &a) {
+	return stringify(a, 0);
 }
 
-inline std::string print(const object &o) {
-	return print(o, 0);
+inline std::string stringify(const object &o) {
+	return stringify(o, 0);
 }
 
 }
