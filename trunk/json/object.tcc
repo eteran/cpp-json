@@ -28,6 +28,20 @@ inline object &object::operator=(const object &rhs) {
 // Name: operator[]
 //------------------------------------------------------------------------------
 inline const value object::operator[](const std::string &key) const {
+	return at(key);
+}
+
+//------------------------------------------------------------------------------
+// Name: operator[]
+//------------------------------------------------------------------------------
+inline value &object::operator[](const std::string &key) {
+	return at(key);
+}
+
+//------------------------------------------------------------------------------
+// Name: at
+//------------------------------------------------------------------------------
+inline const value object::at(const std::string &key) const {
 	map_type::const_iterator it = values_.find(key);
 	if(it != values_.end()) {
 		return it->second;
@@ -37,9 +51,9 @@ inline const value object::operator[](const std::string &key) const {
 }
 
 //------------------------------------------------------------------------------
-// Name: operator[]
+// Name: at
 //------------------------------------------------------------------------------
-inline value &object::operator[](const std::string &key) {
+inline value &object::at(const std::string &key) {
 	map_type::iterator it = values_.find(key);
 	if(it != values_.end()) {
 		return it->second;

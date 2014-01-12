@@ -61,6 +61,9 @@ public:
 public:
 	const value operator[](std::size_t n) const;
 	value &operator[](std::size_t n);
+	
+	const value at(std::size_t n) const;
+	value &at(std::size_t n);
 
 public:
 #if __cplusplus >= 201103L

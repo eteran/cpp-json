@@ -28,6 +28,20 @@ inline array &array::operator=(const array &rhs) {
 // Name: operator[]
 //------------------------------------------------------------------------------
 inline const value array::operator[](std::size_t n) const {
+	return at(n);
+}
+
+//------------------------------------------------------------------------------
+// Name: operator[]
+//------------------------------------------------------------------------------
+inline value &array::operator[](std::size_t n) {
+	return at(n);
+}
+
+//------------------------------------------------------------------------------
+// Name: at
+//------------------------------------------------------------------------------
+inline const value array::at(std::size_t n) const {
 	if(n < values_.size()) {
 		return values_[n];
 	}
@@ -36,9 +50,9 @@ inline const value array::operator[](std::size_t n) const {
 }
 
 //------------------------------------------------------------------------------
-// Name: operator[]
+// Name: at
 //------------------------------------------------------------------------------
-inline value &array::operator[](std::size_t n) {
+inline value &array::at(std::size_t n) {
 	if(n < values_.size()) {
 		return values_[n];
 	}
