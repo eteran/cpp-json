@@ -38,6 +38,12 @@ public:
 	object(const object &other);
 	object &operator=(const object &rhs);
 
+#if __cplusplus >= 201103L
+public:
+	object(object &&other);
+	object &operator=(object &&rhs);
+#endif
+
 public:
 	iterator begin()              { return values_.begin(); }
 	iterator end()                { return values_.end(); }

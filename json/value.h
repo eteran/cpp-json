@@ -65,6 +65,12 @@ public:
 	value(const value &other);
 	value &operator=(const value &rhs);
 
+#if __cplusplus >= 201103L
+public:
+	value(value &&other);
+	value &operator=(value &&rhs);
+#endif
+
 public:
 	void swap(value &other);
 
@@ -86,8 +92,8 @@ public:
 	value &operator[](std::size_t n);
 
 private:
-	boost::variant<boost::shared_ptr<object>, boost::shared_ptr<array>, std::string> value_;
-	type                                                                             type_;
+	boost::variant<boost::blank, boost::shared_ptr<object>, boost::shared_ptr<array>, std::string> value_;
+	type                                                                                           type_;
 };
 
 bool operator==(const value &lhs, const value &rhs);

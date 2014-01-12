@@ -16,6 +16,29 @@ inline value::value(const null_t &) : value_("null"), type_(type_null) {
 //------------------------------------------------------------------------------
 inline value::value(const std::nullptr_t &): value_("null"), type_(type_null) {
 }
+
+//------------------------------------------------------------------------------
+// Name: array
+//------------------------------------------------------------------------------
+inline value::value(value &&other) {
+	value_       = other.value_;
+	type_        = other.type_;
+	other.value_ = boost::blank();
+	other.type_  = type_invalid;
+}
+
+//------------------------------------------------------------------------------
+// Name: operator=
+//------------------------------------------------------------------------------
+inline value &value::operator=(value &&rhs) {
+	if(this != &rhs) {
+		value_     = rhs.value_;
+		type_      = rhs.type_;
+		rhs.value_ = boost::blank();
+		rhs.type_  = type_invalid;
+	}
+	return *this;
+}
 #endif
 
 //------------------------------------------------------------------------------
