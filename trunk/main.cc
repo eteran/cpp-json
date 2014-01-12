@@ -46,4 +46,10 @@ int main() {
 	std::cout << to_number(z) << std::endl;
 	
 	std::cout << print(v, json::ESCAPE_UNICODE) << std::endl;
+	
+	
+	auto x = std::move(v);
+	std::cout << "V:" << print(v, json::ESCAPE_UNICODE) << std::endl;
+	std::cout << "X:" << print(x, json::ESCAPE_UNICODE) << std::endl;
+
 }

@@ -39,6 +39,12 @@ public:
 	array(const array &other);
 	array &operator=(const array &rhs);
 
+#if __cplusplus >= 201103L
+public:
+	array(array &&other);
+	array &operator=(array &&rhs);
+#endif
+
 public:
 	iterator begin()                       { return values_.begin();  }
 	iterator end()                         { return values_.end();    }

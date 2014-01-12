@@ -189,7 +189,7 @@ value get_value(In &it, const In &last) {
 template <class In>
 std::pair<std::string, value> get_pair(In &it, const In &last) {
 	
-	const std::string key = get_string(it, last);
+	std::string key = get_string(it, last);
 
 	if(peek_char(it, last) != ':') {
 		throw colon_expected();
