@@ -100,16 +100,13 @@ boost::shared_ptr<object> get_object(In &it, const In &last) {
 		++it;
 	} else {
 
-		while(true) {
+		do {
 			obj->values_.insert(get_pair(it, last));
 
 			tok = peek_char(it, last);
 			++it;
-			
-			if(tok != ',') {
-				break;
-			}
-		}
+
+		} while(tok == ',');
 	}
 
 	if(tok != '}') {
@@ -135,16 +132,13 @@ boost::shared_ptr<array> get_array(In &it, const In &last) {
 		tok = ']';
 		++it;
 	} else {
-		while(true) {
+		do {
 			arr->values_.push_back(get_value(it, last));
 
 			tok = peek_char(it, last);
 			++it;
 			
-			if(tok != ',') {
-				break;
-			}
-		}
+		} while(tok == ',');
 	}
 
 	if(tok != ']') {
