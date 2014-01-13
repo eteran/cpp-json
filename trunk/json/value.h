@@ -48,21 +48,20 @@ private:
 public:
 	// intialize from basic types
 	explicit value(const null_t &);
-#if __cplusplus >= 201103L
-	explicit value(const std::nullptr_t &);
-#endif
+
 	explicit value(bool b);
 	explicit value(const array &a);
 	explicit value(const char *s);
 	explicit value(const object &o);
 	explicit value(const std::string &s);
-#if __cplusplus >= 201103L
-	explicit value(std::string &&s);
-#endif
 	explicit value(double x);
 	explicit value(float x);
 	explicit value(int x);
 	explicit value(long x);
+#if __cplusplus >= 201103L
+	explicit value(const std::nullptr_t &);
+	explicit value(std::string &&s);
+#endif
 
 public:
 	explicit value(const object_pointer &o);
