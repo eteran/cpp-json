@@ -9,12 +9,12 @@ class value;
 
 namespace detail {
 	template <class In>
-	boost::shared_ptr<array> get_array(In &it, const In &last);
+	array_pointer get_array(In &it, const In &last);
 }
 
 class array {
 	template<class In>
-	friend boost::shared_ptr<array> detail::get_array(In &, const In &);
+	friend array_pointer detail::get_array(In &, const In &);
 	friend bool operator==(const array &lhs, const array &rhs);
 	friend bool operator!=(const array &lhs, const array &rhs);
 

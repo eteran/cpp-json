@@ -32,6 +32,8 @@ class array;
 class object;
 
 typedef boost::unordered_map<std::string, value> map_type;
+typedef boost::shared_ptr<object>                object_pointer;
+typedef boost::shared_ptr<array>                 array_pointer;
 
 // type testing
 inline bool is_string(const value &v);
