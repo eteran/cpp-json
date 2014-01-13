@@ -9,12 +9,12 @@ class value;
 
 namespace detail {		
 	template <class In>
-	boost::shared_ptr<object> get_object(In &it, const In &last);
+	object_pointer get_object(In &it, const In &last);
 }
 
 class object {
 	template<class In>
-	friend boost::shared_ptr<object> detail::get_object(In &, const In &);
+	friend object_pointer detail::get_object(In &, const In &);
 
 	friend bool operator==(const object &lhs, const object &rhs);
 	friend bool operator!=(const object &lhs, const object &rhs);

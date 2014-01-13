@@ -44,13 +44,13 @@ inline value &value::operator=(value &&rhs) {
 //------------------------------------------------------------------------------
 // Name: value
 //------------------------------------------------------------------------------
-inline value::value(const boost::shared_ptr<object> &o) : value_(o), type_(type_object) {
+inline value::value(const object_pointer &o) : value_(o), type_(type_object) {
 }
 
 //------------------------------------------------------------------------------
 // Name: value
 //------------------------------------------------------------------------------
-inline value::value(const boost::shared_ptr<array> &a) : value_(a), type_(type_array) {
+inline value::value(const array_pointer &a) : value_(a), type_(type_array) {
 }
 
 //------------------------------------------------------------------------------
@@ -58,6 +58,14 @@ inline value::value(const boost::shared_ptr<array> &a) : value_(a), type_(type_a
 //------------------------------------------------------------------------------
 inline value::value(const std::string &s, const numeric_t &) : value_(s), type_(type_number) {
 }
+
+#if __cplusplus >= 201103L
+//------------------------------------------------------------------------------
+// Name: value
+//------------------------------------------------------------------------------
+inline value::value(std::string &&s, const numeric_t &) : value_(std::move(s)), type_(type_number) {
+}
+#endif
 
 //------------------------------------------------------------------------------
 // Name: value
@@ -88,6 +96,14 @@ inline value::value(int x) : value_(boost::lexical_cast<std::string>(x)), type_(
 //------------------------------------------------------------------------------
 inline value::value(const std::string &s) : value_(s), type_(type_string) {
 }
+
+#if __cplusplus >= 201103L
+//------------------------------------------------------------------------------
+// Name: value
+//------------------------------------------------------------------------------
+inline value::value(std::string &&s) : value_(std::move(s)), type_(type_string) {
+}
+#endif
 
 //------------------------------------------------------------------------------
 // Name: value
@@ -132,7 +148,7 @@ inline const value value::operator[](const std::string &key) const {
 		throw invalid_type_cast();
 	}
 	
-	boost::shared_ptr<object> p = boost::get<boost::shared_ptr<object> >(value_);
+	object_pointer p = boost::get<object_pointer >(value_);
 	return (*p)[key];
 }
 
@@ -144,7 +160,7 @@ inline const value value::operator[](std::size_t n) const {
 		throw invalid_type_cast();
 	}
 
-	boost::shared_ptr<array> p = boost::get<boost::shared_ptr<array> >(value_);
+	array_pointer p = boost::get<array_pointer >(value_);
 	return (*p)[n];
 }
 
@@ -156,7 +172,7 @@ inline value &value::operator[](const std::string &key) {
 		throw invalid_type_cast();
 	}
 	
-	boost::shared_ptr<object> p = boost::get<boost::shared_ptr<object> >(value_);
+	object_pointer p = boost::get<object_pointer>(value_);
 	return (*p)[key];
 }
 
@@ -168,7 +184,7 @@ inline value &value::operator[](std::size_t n) {
 		throw invalid_type_cast();
 	}
 
-	boost::shared_ptr<array> p = boost::get<boost::shared_ptr<array> >(value_);
+	array_pointer p = boost::get<array_pointer>(value_);
 	return (*p)[n];
 }
 

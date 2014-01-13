@@ -39,7 +39,11 @@ class value {
 private:
 	struct numeric_t {};
 	// create a value from a numeric string, internal use only!
-	value(const std::string &s, const numeric_t &); 
+	value(const std::string &s, const numeric_t &);
+	
+#if __cplusplus >= 201103L
+	value(std::string &&s, const numeric_t &);
+#endif
 
 public:
 	// intialize from basic types
@@ -52,14 +56,17 @@ public:
 	explicit value(const char *s);
 	explicit value(const object &o);
 	explicit value(const std::string &s);
+#if __cplusplus >= 201103L
+	explicit value(std::string &&s);
+#endif
 	explicit value(double x);
 	explicit value(float x);
 	explicit value(int x);
 	explicit value(long x);
 
 public:
-	explicit value(const boost::shared_ptr<object> &o);
-	explicit value(const boost::shared_ptr<array> &a);
+	explicit value(const object_pointer &o);
+	explicit value(const array_pointer &a);
 
 public:
 	value(const value &other);
@@ -92,8 +99,8 @@ public:
 	value &operator[](std::size_t n);
 
 private:
-	boost::variant<boost::blank, boost::shared_ptr<object>, boost::shared_ptr<array>, std::string> value_;
-	type                                                                                           type_;
+	boost::variant<boost::blank, object_pointer, array_pointer, std::string> value_;
+	type                                                                     type_;
 };
 
 bool operator==(const value &lhs, const value &rhs);

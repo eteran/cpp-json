@@ -86,8 +86,8 @@ unsigned int to_hex(Ch ch) {
 }
 
 template <class In>
-boost::shared_ptr<object> get_object(In &it, const In &last) {
-	boost::shared_ptr<object> obj = boost::make_shared<object>();
+object_pointer get_object(In &it, const In &last) {
+	object_pointer obj = boost::make_shared<object>();
 
 	char tok = peek_char(it, last); ++it;
 	if(tok != '{') {
@@ -117,8 +117,8 @@ boost::shared_ptr<object> get_object(In &it, const In &last) {
 }
 
 template <class In>
-boost::shared_ptr<array> get_array(In &it, const In &last) {
-	boost::shared_ptr<array> arr = boost::make_shared<array>();
+array_pointer get_array(In &it, const In &last) {
+	array_pointer arr = boost::make_shared<array>();
 
 	char tok = peek_char(it, last);
 	++it;
@@ -431,7 +431,7 @@ inline object to_object(const value &v) {
 		throw invalid_type_cast();
 	}
 	
-	return *boost::get<boost::shared_ptr<object> >(v.value_);
+	return *boost::get<object_pointer>(v.value_);
 }
 
 inline array to_array(const value &v) {
@@ -439,7 +439,7 @@ inline array to_array(const value &v) {
 		throw invalid_type_cast();
 	}
 	
-	return *boost::get<boost::shared_ptr<array> >(v.value_);
+	return *boost::get<array_pointer>(v.value_);
 }
 
 inline bool has_key(const value &v, const std::string &key) {
