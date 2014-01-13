@@ -43,12 +43,18 @@ inline bool is_object(const value &v);
 inline bool is_array(const value &v); 
 inline bool is_null(const value &v);
 
-// conversion
+// conversion (you get a copy)
 std::string to_string(const value &v);
 bool        to_bool(const value &v);
 double      to_number(const value &v);
 object      to_object(const value &v);
 array       to_array(const value &v);
+
+// interpretation (you get a reference)
+object       &as_object(value &v);
+array        &as_array(value &v);
+const object &as_object(const value &v);
+const array  &as_array(const value &v);
 
 // does the given object have a given key?
 bool has_key(const value &v, const std::string &key);
