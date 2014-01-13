@@ -63,6 +63,18 @@ inline value::value(const std::string &s, const numeric_t &) : value_(s), type_(
 //------------------------------------------------------------------------------
 // Name: value
 //------------------------------------------------------------------------------
+inline value::value(object_pointer &&o) : value_(std::move(o)), type_(type_object) {
+}
+
+//------------------------------------------------------------------------------
+// Name: value
+//------------------------------------------------------------------------------
+inline value::value(array_pointer &&a) : value_(std::move(a)), type_(type_array) {
+}
+
+//------------------------------------------------------------------------------
+// Name: value
+//------------------------------------------------------------------------------
 inline value::value(std::string &&s, const numeric_t &) : value_(std::move(s)), type_(type_number) {
 }
 #endif

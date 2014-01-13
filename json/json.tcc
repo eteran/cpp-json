@@ -737,7 +737,7 @@ namespace {
 		return escape_string(s, 0);
 	}
 
-	inline std::string value_to_string(const json::value &v, unsigned options, int indent, bool ignore_initial_ident) {
+	inline std::string value_to_string(const value &v, unsigned options, int indent, bool ignore_initial_ident) {
 		
 		static const int indent_width = 2;
 		
@@ -816,7 +816,7 @@ namespace {
 		return ss.str();
 	}
 	
-	inline std::string value_to_string(const json::value &v, unsigned options) {
+	inline std::string value_to_string(const value &v, unsigned options) {
 		return value_to_string(v, options, 0, false);
 	}
 	

@@ -66,7 +66,10 @@ public:
 public:
 	explicit value(const object_pointer &o);
 	explicit value(const array_pointer &a);
-
+#if __cplusplus >= 201103L
+	explicit value(object_pointer &&o);
+	explicit value(array_pointer &&a);
+#endif
 public:
 	value(const value &other);
 	value &operator=(const value &rhs);
