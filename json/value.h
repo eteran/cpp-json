@@ -27,6 +27,11 @@ class value {
 	friend double to_number(const value &v);
 	friend object to_object(const value &v);
 	friend array to_array(const value &v);
+	
+	friend const object &as_object(const value &v);
+	friend object &as_object(value &v);
+	friend const array &as_array(const value &v);
+	friend array &as_array(value &v);
 
 	friend bool has_key(const value &v, const std::string &key);
 	

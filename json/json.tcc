@@ -530,9 +530,41 @@ inline array to_array(const value &v) {
 	return *boost::get<array_pointer>(v.value_);
 }
 
+inline object &as_object(value &v) {
+	if(!is_object(v)) {
+		throw invalid_type_cast();
+	}
+	
+	return *boost::get<object_pointer>(v.value_);
+}
+
+inline const object &as_object(const value &v) {
+	if(!is_object(v)) {
+		throw invalid_type_cast();
+	}
+	
+	return *boost::get<object_pointer>(v.value_);
+}
+
+inline array &as_array(value &v) {
+	if(!is_array(v)) {
+		throw invalid_type_cast();
+	}
+	
+	return *boost::get<array_pointer>(v.value_);
+}
+
+inline const array &as_array(const value &v) {
+	if(!is_array(v)) {
+		throw invalid_type_cast();
+	}
+	
+	return *boost::get<array_pointer>(v.value_);
+}
+
 inline bool has_key(const value &v, const std::string &key) {
 	if(is_object(v)) {
-		return has_key(to_object(v), key);
+		return has_key(as_object(v), key);
 	}
 	return false;
 }
@@ -769,7 +801,7 @@ namespace {
 
 		if(is_object(v)) {
 		
-			const object o = to_object(v);
+			const object &o = as_object(v);
 		
 			ss << "{\n";
 			if(!o.empty()) {
@@ -794,7 +826,7 @@ namespace {
 
 		if(is_array(v)) {
 		
-			const array a = to_array(v);
+			const array &a = as_array(v);
 		
 			ss << "[\n";
 			if(!a.empty()) {
@@ -845,7 +877,7 @@ namespace {
 		}
 
 		if(is_object(v)) {
-			const object o = to_object(v);
+			const object &o = as_object(v);
 			ss << "{";
 			if(!o.empty()) {
 				object::const_iterator it = o.begin();
@@ -862,7 +894,7 @@ namespace {
 		}
 
 		if(is_array(v)) {
-			const array a = to_array(v);
+			const array &a = as_array(v);
 		
 			ss << "[";
 			if(!a.empty()) {
