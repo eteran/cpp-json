@@ -180,6 +180,10 @@ value get_value(In &it, const In &last) {
 	throw value_expected();
 }
 
+//------------------------------------------------------------------------------
+// Name: get_pair
+// Desc: gets a string : value pair (the contents of a JSON object)
+//------------------------------------------------------------------------------
 template <class In>
 std::pair<std::string, value> get_pair(In &it, const In &last) {
 	
@@ -193,6 +197,10 @@ std::pair<std::string, value> get_pair(In &it, const In &last) {
 	return std::make_pair(key, get_value(it, last));
 }
 
+//------------------------------------------------------------------------------
+// Name: get_string
+// Desc: gets a string, processing UTF-8 encoding as needed
+//------------------------------------------------------------------------------
 template <class In>
 std::string get_string(In &it, const In &last) {
 
@@ -290,11 +298,12 @@ std::string get_string(In &it, const In &last) {
 	return s;
 }
 
-template <class In>
-std::string get_number(In &it, const In &last) {
-	
-	// TODO: convert to number as we go to be more efficient
-	
+//------------------------------------------------------------------------------
+// Name: get_number
+// Desc: the usual case, we store the characters as we seem them
+//------------------------------------------------------------------------------
+template <class In, class Tr>
+std::string get_number(In &it, const In &last, const Tr&) {
 	std::string s;
 	std::back_insert_iterator<std::string> out = back_inserter(s);
 	
@@ -345,6 +354,81 @@ std::string get_number(In &it, const In &last) {
 	}
 
 	return s;
+}
+
+//------------------------------------------------------------------------------
+// Name: get_number
+// Desc: if we happen to have a random access iterator, then we just figure out
+//       the begining and end of the valid number string and then construct a
+//       valid string once, this lets us allocate space exactly once for 
+//       (hopefully) a bit win
+//------------------------------------------------------------------------------
+template <class In>
+std::string get_number(In &it, const In &last, const std::random_access_iterator_tag &) {
+
+	// JSON numbers fit the regex: -?(0|[1-9][0-9]*)(\.[0-9]+)?([eE][+-]?[0-9]+)?
+
+	const In first = it;
+
+	// -?
+	if(it != last && *it == '-') {
+		++it;
+	}
+
+	// (0|[1-9][0-9]*)
+	if(it != last) {
+		if(*it >= '1' && *it <= '9') {
+			while(it != last && is_digit(*it)) {
+				++it;
+			}
+		} else if(*it == '0') {
+			++it;
+		} else {
+			throw invalid_number();
+		}
+	}
+
+	// (\.[0-9]+)?
+	if(it != last && *it == '.') {
+		++it;
+		if(!is_digit(*it)) {
+			throw invalid_number();
+		}
+
+		while(it != last && is_digit(*it)) {
+			++it;
+		}
+	}
+
+	// ([eE][+-]?[0-9]+)?
+	if(it != last && (*it == 'e' || *it == 'E')) {
+		++it;
+		if(it != last && (*it == '+' || *it == '-')) {
+			++it;
+		}
+		if(!is_digit(*it)) {
+			throw invalid_number();
+		}
+		while(it != last && is_digit(*it)) {
+			++it;
+		}
+	}
+
+	return std::string(first, it);
+}
+
+//------------------------------------------------------------------------------
+// Name: get_number
+// Desc: dispatch to the appropriate version of this function
+//------------------------------------------------------------------------------
+template <class In>
+std::string get_number(In &it, const In &last) {
+	
+	// TODO: convert to number as we go to be more efficient
+	typedef typename std::iterator_traits<In>::iterator_category Cat;
+	return get_number(it, last, Cat());
+	
+
 }
 
 template <class In>
