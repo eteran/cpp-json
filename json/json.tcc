@@ -473,7 +473,11 @@ typename std::iterator_traits<In>::value_type peek_char(In &it, const In &last) 
 		++it;
 	}
 
-	return *it;
+	if(it != last) {
+		return *it;
+	}
+	
+	return '\0';
 }
 }
 	
