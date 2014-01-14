@@ -43,31 +43,31 @@ inline bool is_array(const value &v);
 inline bool is_null(const value &v);
 
 // conversion (you get a copy)
-std::string to_string(const value &v);
-bool        to_bool(const value &v);
-double      to_number(const value &v);
-object      to_object(const value &v);
-array       to_array(const value &v);
+inline std::string to_string(const value &v);
+inline bool        to_bool(const value &v);
+inline double      to_number(const value &v);
+inline object      to_object(const value &v);
+inline array       to_array(const value &v);
 
 // interpretation (you get a reference)
-object            &as_object(value &v);
-array             &as_array(value &v);
-std::string       &as_string(value &v);
-const object      &as_object(const value &v);
-const array       &as_array(const value &v);
-const std::string &as_string(const value &v);
+inline object            &as_object(value &v);
+inline array             &as_array(value &v);
+inline std::string       &as_string(value &v);
+inline const object      &as_object(const value &v);
+inline const array       &as_array(const value &v);
+inline const std::string &as_string(const value &v);
 
 // does the given object have a given key?
-bool has_key(const value &v, const std::string &key);
-bool has_key(const object &o, const std::string &key);
+inline bool has_key(const value &v, const std::string &key);
+inline bool has_key(const object &o, const std::string &key);
 
 // create a value from some JSON
 template <class In>
-value parse(In first, In last);
-value parse(std::istream &is);
-value parse(std::wistream &is);
-value parse(const std::string &s);
-value parse(const std::wstring &s);
+inline value parse(In first, In last);
+inline value parse(std::istream &is);
+inline value parse(std::wistream &is);
+inline value parse(const std::string &s);
+inline value parse(const std::wstring &s);
 
 // conert a value to a JSON string
 enum {
@@ -75,13 +75,13 @@ enum {
 	PRETTY_PRINT   = 0x02
 };
 
-std::string stringify(const value &v, unsigned options);
-std::string stringify(const array &a, unsigned options);
-std::string stringify(const object &o, unsigned options);
+inline std::string stringify(const value &v, unsigned options);
+inline std::string stringify(const array &a, unsigned options);
+inline std::string stringify(const object &o, unsigned options);
 
-std::string stringify(const value &v);
-std::string stringify(const array &a);
-std::string stringify(const object &o);
+inline std::string stringify(const value &v);
+inline std::string stringify(const array &a);
+inline std::string stringify(const object &o);
 
 }
 
