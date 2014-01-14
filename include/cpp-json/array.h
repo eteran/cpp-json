@@ -7,16 +7,12 @@ namespace json {
 class array;
 class value;
 
-namespace detail {
-	template <class In>
-	array_pointer get_array(In &it, const In &last);
-}
-
 class array {
-	template<class In>
-	friend array_pointer detail::get_array(In &, const In &);
 	friend bool operator==(const array &lhs, const array &rhs);
 	friend bool operator!=(const array &lhs, const array &rhs);
+	
+	template <class In>
+	friend class parser;
 
 private:
 	typedef std::vector<value> C;

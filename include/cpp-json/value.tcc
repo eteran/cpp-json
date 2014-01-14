@@ -57,26 +57,6 @@ inline value::value(const array_pointer &a) : value_(a), type_(type_array) {
 inline value::value(const std::string &s, const numeric_t &) : value_(s), type_(type_number) {
 }
 
-#if __cplusplus >= 201103L
-//------------------------------------------------------------------------------
-// Name: value
-//------------------------------------------------------------------------------
-inline value::value(object_pointer &&o) : value_(std::move(o)), type_(type_object) {
-}
-
-//------------------------------------------------------------------------------
-// Name: value
-//------------------------------------------------------------------------------
-inline value::value(array_pointer &&a) : value_(std::move(a)), type_(type_array) {
-}
-
-//------------------------------------------------------------------------------
-// Name: value
-//------------------------------------------------------------------------------
-inline value::value(std::string &&s, const numeric_t &) : value_(std::move(s)), type_(type_number) {
-}
-#endif
-
 //------------------------------------------------------------------------------
 // Name: value
 //------------------------------------------------------------------------------
@@ -108,6 +88,24 @@ inline value::value(const std::string &s) : value_(s), type_(type_string) {
 }
 
 #if __cplusplus >= 201103L
+//------------------------------------------------------------------------------
+// Name: value
+//------------------------------------------------------------------------------
+inline value::value(object_pointer &&o) : value_(std::move(o)), type_(type_object) {
+}
+
+//------------------------------------------------------------------------------
+// Name: value
+//------------------------------------------------------------------------------
+inline value::value(array_pointer &&a) : value_(std::move(a)), type_(type_array) {
+}
+
+//------------------------------------------------------------------------------
+// Name: value
+//------------------------------------------------------------------------------
+inline value::value(std::string &&s, const numeric_t &) : value_(std::move(s)), type_(type_number) {
+}
+
 //------------------------------------------------------------------------------
 // Name: value
 //------------------------------------------------------------------------------
@@ -154,48 +152,28 @@ inline void value::swap(value &other) {
 // Name: operator[]
 //------------------------------------------------------------------------------
 inline const value value::operator[](const std::string &key) const {
-	if(!is_object(*this)) {
-		throw invalid_type_cast();
-	}
-	
-	object_pointer p = boost::get<object_pointer >(value_);
-	return (*p)[key];
+	return as_object(*this)[key];
 }
 
 //------------------------------------------------------------------------------
 // Name: operator[]
 //------------------------------------------------------------------------------
 inline const value value::operator[](std::size_t n) const {
-	if(!is_array(*this)) {
-		throw invalid_type_cast();
-	}
-
-	array_pointer p = boost::get<array_pointer >(value_);
-	return (*p)[n];
+	return as_array(*this)[n];
 }
 
 //------------------------------------------------------------------------------
 // Name: operator[]
 //------------------------------------------------------------------------------
 inline value &value::operator[](const std::string &key) {
-	if(!is_object(*this)) {
-		throw invalid_type_cast();
-	}
-	
-	object_pointer p = boost::get<object_pointer>(value_);
-	return (*p)[key];
+	return as_object(*this)[key];
 }
 
 //------------------------------------------------------------------------------
 // Name: operator[]
 //------------------------------------------------------------------------------
 inline value &value::operator[](std::size_t n) {
-	if(!is_array(*this)) {
-		throw invalid_type_cast();
-	}
-
-	array_pointer p = boost::get<array_pointer>(value_);
-	return (*p)[n];
+	return as_array(*this)[n];
 }
 
 //------------------------------------------------------------------------------

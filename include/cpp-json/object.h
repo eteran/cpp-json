@@ -7,17 +7,12 @@ namespace json {
 class object;
 class value;
 
-namespace detail {		
-	template <class In>
-	object_pointer get_object(In &it, const In &last);
-}
-
 class object {
-	template<class In>
-	friend object_pointer detail::get_object(In &, const In &);
-
 	friend bool operator==(const object &lhs, const object &rhs);
 	friend bool operator!=(const object &lhs, const object &rhs);
+	
+	template <class In>
+	friend class parser;
 
 private:
 	typedef map_type C;

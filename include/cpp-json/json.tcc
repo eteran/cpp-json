@@ -24,480 +24,23 @@ void print_exception_details(In first, In current, In last) {
 	print_exception_details_internal(first, current, last, Cat());
 }
 
-template <class In>
-value get_value(In &it, const In &last);
-
-std::vector<uint8_t> unicode_escape_to_utf8(uint16_t w1, uint16_t w2);
-
-template <class In>
-typename std::iterator_traits<In>::value_type peek_char(In &it, const In &last);
-
-template <class In>
-std::string get_number(In &it, const In &last);
-
-template <class In>
-std::pair<std::string, value> get_pair(In &it, const In &last);
-
-template <class In>
-std::string get_string(In &it, const In &last);
-
-template <class In>
-null_t get_null(In &it, const In &last);
-
-template <class In>
-bool get_true(In &it, const In &last);
-
-template <class In>
-bool get_false(In &it, const In &last);
-
-template <class Ch>
-bool is_digit(Ch ch) {
-	return std::isdigit(ch);
 }
 
-template <class Ch>
-bool is_hexdigit(Ch ch) {
-	return std::isxdigit(ch);
-}
-
-template <class Ch>
-bool is_space(Ch ch) {
-	return std::isspace(ch);
-}
-
-template <class Ch>
-unsigned int to_hex(Ch ch) {
-
-	static const int hexval[256] = {
-		0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 
-		0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
-		0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
-		0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
-		0x0, 0xa, 0xb, 0xc, 0xd, 0xe, 0xf, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
-		0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
-		0x0, 0xa, 0xb, 0xc, 0xd, 0xe, 0xf, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0
-	};
-
-	if(static_cast<unsigned int>(ch) < 256) {
-		return hexval[static_cast<unsigned int>(ch)];
-	} else {
-		return 0;
-	}
-}
-
-template <class In>
-object_pointer get_object(In &it, const In &last) {
-	object_pointer obj = boost::make_shared<object>();
-
-	char tok = peek_char(it, last); ++it;
-	if(tok != '{') {
-		throw brace_expected();
-	}
-
-	// handle empty object
-	if(peek_char(it, last) == '}') {
-		tok = '}';
-		++it;
-	} else {
-
-		do {
-			obj->values_.insert(get_pair(it, last));
-
-			tok = peek_char(it, last);
-			++it;
-
-		} while(tok == ',');
-	}
-
-	if(tok != '}') {
-		throw brace_expected();
-	}
-
-	return obj;
-}
-
-template <class In>
-array_pointer get_array(In &it, const In &last) {
-	array_pointer arr = boost::make_shared<array>();
-
-	char tok = peek_char(it, last);
-	++it;
-	
-	if(tok != '[') {
-		throw bracket_expected();
-	}
-
-	// handle empty object
-	if(peek_char(it, last) == ']') {
-		tok = ']';
-		++it;
-	} else {
-		do {
-			arr->values_.push_back(get_value(it, last));
-
-			tok = peek_char(it, last);
-			++it;
-			
-		} while(tok == ',');
-	}
-
-	if(tok != ']') {
-		throw bracket_expected();
-	}
-
-	return arr;
-}
-
-template <class In>
-value get_value(In &it, const In &last) {
-	switch(peek_char(it, last)) {
-	case '{':
-		return value(get_object(it, last));
-	case '[':
-		return value(get_array(it, last));
-	case '0':
-	case '1':
-	case '2':
-	case '3':
-	case '4':
-	case '5':
-	case '6':
-	case '7':
-	case '8':
-	case '9':
-	case '-':
-		return value(get_number(it, last), value::numeric_t());
-	case '"':
-		return value(get_string(it, last));
-	case 't':
-		return value(get_true(it, last));
-	case 'f':
-		return value(get_false(it, last));
-	case 'n':
-		return value(get_null(it, last));
-	}
-
-	throw value_expected();
-}
-
-//------------------------------------------------------------------------------
-// Name: get_pair
-// Desc: gets a string : value pair (the contents of a JSON object)
-//------------------------------------------------------------------------------
-template <class In>
-std::pair<std::string, value> get_pair(In &it, const In &last) {
-	
-	std::string key = get_string(it, last);
-
-	if(peek_char(it, last) != ':') {
-		throw colon_expected();
-	}
-	++it;
-
-	return std::make_pair(key, get_value(it, last));
-}
-
-//------------------------------------------------------------------------------
-// Name: get_string
-// Desc: gets a string, processing UTF-8 encoding as needed
-//------------------------------------------------------------------------------
-template <class In>
-std::string get_string(In &it, const In &last) {
-
-	if(peek_char(it, last) != '"') {
-		throw string_expected();
-	}
-	++it;
-
-	std::string s;
-	std::back_insert_iterator<std::string> out = back_inserter(s);
-
-	while(it != last && *it != '"' && *it != '\n') {
-		if(*it == '\\') {
-			++it;
-			if(it != last) {
-				switch(*it) {
-				case '"':  *out++ = '"'; break;
-				case '\\': *out++ = '\\'; break;
-				case '/':  *out++ = '/'; break;
-				case 'b':  *out++ = '\b'; break;
-				case 'f':  *out++ = '\f'; break;
-				case 'n':  *out++ = '\n'; break;
-				case 'r':  *out++ = '\r'; break;
-				case 't':  *out++ = '\t'; break;
-				case 'u':
-					{
-						// convert \uXXXX escape sequences to UTF-8
-						char hex[4];
-						if(it == last) { throw hex_character_expected(); } hex[0] = *++it;
-						if(it == last) { throw hex_character_expected(); } hex[1] = *++it;
-						if(it == last) { throw hex_character_expected(); } hex[2] = *++it;
-						if(it == last) { throw hex_character_expected(); } hex[3] = *++it;
-
-						if(!is_hexdigit(hex[0])) throw invalid_unicode_character();
-						if(!is_hexdigit(hex[1])) throw invalid_unicode_character();
-						if(!is_hexdigit(hex[2])) throw invalid_unicode_character();
-						if(!is_hexdigit(hex[3])) throw invalid_unicode_character();
-
-						uint16_t w1 = 0;
-						uint16_t w2 = 0;
-						
-						w1 |= (to_hex(hex[0]) << 12);
-						w1 |= (to_hex(hex[1]) << 8);
-						w1 |= (to_hex(hex[2]) << 4);
-						w1 |= (to_hex(hex[3]));
-						
-						if((w1 & 0xfc00) == 0xdc00) {
-							throw invalid_unicode_character();
-						}
-
-						if((w1 & 0xfc00) == 0xd800) {
-							// part of a surrogate pair
-							if(it == last || *++it != '\\') { throw utf16_surrogate_expected(); }
-							if(it == last || *++it != 'u')  { throw utf16_surrogate_expected(); }
-							
-							// convert \uXXXX escape sequences to UTF-8
-							if(it == last) { throw hex_character_expected(); } hex[0] = *++it;
-							if(it == last) { throw hex_character_expected(); } hex[1] = *++it;
-							if(it == last) { throw hex_character_expected(); } hex[2] = *++it;
-							if(it == last) { throw hex_character_expected(); } hex[3] = *++it;
-
-							if(!is_hexdigit(hex[0])) throw invalid_unicode_character();
-							if(!is_hexdigit(hex[1])) throw invalid_unicode_character();
-							if(!is_hexdigit(hex[2])) throw invalid_unicode_character();
-							if(!is_hexdigit(hex[3])) throw invalid_unicode_character();
-							
-							w2 |= (to_hex(hex[0]) << 12);
-							w2 |= (to_hex(hex[1]) << 8);
-							w2 |= (to_hex(hex[2]) << 4);
-							w2 |= (to_hex(hex[3]));							
-						}
-
-						const std::vector<uint8_t> utf8 = unicode_escape_to_utf8(w1, w2);
-						std::copy(utf8.begin(), utf8.end(), out);
-					}
-					break;
-
-				default:
-					*out++ = '\\';
-					break;
-				}
-			}
-		} else {
-			*out++ = *it;
-		}
-		++it;
-	}
-
-	if(*it != '"' || it == last) {
-		throw quote_expected();
-	}
-
-	++it;
-
-	return s;
-}
-
-//------------------------------------------------------------------------------
-// Name: get_number
-// Desc: the usual case, we store the characters as we seem them
-//------------------------------------------------------------------------------
-template <class In, class Tr>
-std::string get_number(In &it, const In &last, const Tr&) {
-	std::string s;
-	std::back_insert_iterator<std::string> out = back_inserter(s);
-	
-	// JSON numbers fit the regex: -?(0|[1-9][0-9]*)(\.[0-9]+)?([eE][+-]?[0-9]+)?
-
-	// -?
-	if(it != last && *it == '-') {
-		*out++ = *it++;
-	}
-
-	// (0|[1-9][0-9]*)
-	if(it != last) {
-		if(*it >= '1' && *it <= '9') {
-			while(it != last && is_digit(*it)) {
-				*out++ = *it++;
-			}
-		} else if(*it == '0') {
-			*out++ = *it++;
-		} else {
-			throw invalid_number();
-		}
-	}
-
-	// (\.[0-9]+)?
-	if(it != last && *it == '.') {
-		*out++ = *it++;
-		if(!is_digit(*it)) {
-			throw invalid_number();
-		}
-
-		while(it != last && is_digit(*it)) {
-			*out++ = *it++;
-		}
-	}
-
-	// ([eE][+-]?[0-9]+)?
-	if(it != last && (*it == 'e' || *it == 'E')) {
-		*out++ = *it++;
-		if(it != last && (*it == '+' || *it == '-')) {
-			*out++ = *it++;
-		}
-		if(!is_digit(*it)) {
-			throw invalid_number();
-		}
-		while(it != last && is_digit(*it)) {
-			*out++ = *it++;
-		}
-	}
-
-	return s;
-}
-
-//------------------------------------------------------------------------------
-// Name: get_number
-// Desc: if we happen to have a random access iterator, then we just figure out
-//       the begining and end of the valid number string and then construct a
-//       valid string once, this lets us allocate space exactly once for 
-//       (hopefully) a bit win
-//------------------------------------------------------------------------------
-template <class In>
-std::string get_number(In &it, const In &last, const std::random_access_iterator_tag &) {
-
-	// JSON numbers fit the regex: -?(0|[1-9][0-9]*)(\.[0-9]+)?([eE][+-]?[0-9]+)?
-
-	const In first = it;
-
-	// -?
-	if(it != last && *it == '-') {
-		++it;
-	}
-
-	// (0|[1-9][0-9]*)
-	if(it != last) {
-		if(*it >= '1' && *it <= '9') {
-			while(it != last && is_digit(*it)) {
-				++it;
-			}
-		} else if(*it == '0') {
-			++it;
-		} else {
-			throw invalid_number();
-		}
-	}
-
-	// (\.[0-9]+)?
-	if(it != last && *it == '.') {
-		++it;
-		if(!is_digit(*it)) {
-			throw invalid_number();
-		}
-
-		while(it != last && is_digit(*it)) {
-			++it;
-		}
-	}
-
-	// ([eE][+-]?[0-9]+)?
-	if(it != last && (*it == 'e' || *it == 'E')) {
-		++it;
-		if(it != last && (*it == '+' || *it == '-')) {
-			++it;
-		}
-		if(!is_digit(*it)) {
-			throw invalid_number();
-		}
-		while(it != last && is_digit(*it)) {
-			++it;
-		}
-	}
-
-	return std::string(first, it);
-}
-
-//------------------------------------------------------------------------------
-// Name: get_number
-// Desc: dispatch to the appropriate version of this function
-//------------------------------------------------------------------------------
-template <class In>
-std::string get_number(In &it, const In &last) {
-	
-	// TODO: convert to number as we go to be more efficient
-	typedef typename std::iterator_traits<In>::iterator_category Cat;
-	return get_number(it, last, Cat());
-	
-
-}
-
-template <class In>
-null_t get_null(In &it, const In &last) {
-
-	if(it == last || *it++ != 'n') { throw keyword_expected(); }
-	if(it == last || *it++ != 'u') { throw keyword_expected(); }
-	if(it == last || *it++ != 'l') { throw keyword_expected(); }
-	if(it == last || *it++ != 'l') { throw keyword_expected(); }
-
-	return null;
-}
-
-template <class In>
-bool get_true(In &it, const In &last) {
-
-	if(it == last || *it++ != 't') { throw boolean_expected(); }
-	if(it == last || *it++ != 'r') { throw boolean_expected(); }
-	if(it == last || *it++ != 'u') { throw boolean_expected(); }
-	if(it == last || *it++ != 'e') { throw boolean_expected(); }
-
-	return true;
-}
-
-template <class In>
-bool get_false(In &it, const In &last) {
-
-	if(it == last || *it++ != 'f') { throw boolean_expected(); }
-	if(it == last || *it++ != 'a') { throw boolean_expected(); }
-	if(it == last || *it++ != 'l') { throw boolean_expected(); }
-	if(it == last || *it++ != 's') { throw boolean_expected(); }
-	if(it == last || *it++ != 'e') { throw boolean_expected(); }
-
-	return false;
-}
-
-template <class In>
-typename std::iterator_traits<In>::value_type peek_char(In &it, const In &last) {
-
-	// first eat up some whitespace
-	while(it != last && is_space(*it)) {
-		++it;
-	}
-
-	if(it != last) {
-		return *it;
-	}
-	
-	return '\0';
-}
-}
-	
-	
 template <class In>
 value parse(In first, In last) {
-	const In original_first = first;
+
+	parser<In> p(first, last);
+
 	try {
-		return detail::get_value(first, last);
+		return p.parse();
 	} catch(const exception &e) {
-		detail::print_exception_details(original_first, first, last);	
+		detail::print_exception_details(p.begin(), p.current(), p.end());	
 		throw;
 	}
 }
 
 inline std::string to_string(const value &v) {
-	if(!is_string(v) && !is_bool(v) && !is_number(v) && !is_null(v)) {
-		throw invalid_type_cast();
-	}
-	return boost::get<std::string>(v.value_);
+	return as_string(v);
 }
 
 inline bool to_bool(const value &v) {
@@ -511,23 +54,15 @@ inline double to_number(const value &v) {
 	if(!is_number(v)) {
 		throw invalid_type_cast();
 	}
-	return strtod(boost::get<std::string>(v.value_).c_str(), 0);
+	return strtod(as_string(v).c_str(), 0);
 }
 
 inline object to_object(const value &v) {
-	if(!is_object(v)) {
-		throw invalid_type_cast();
-	}
-	
-	return *boost::get<object_pointer>(v.value_);
+	return as_object(v);
 }
 
 inline array to_array(const value &v) {
-	if(!is_array(v)) {
-		throw invalid_type_cast();
-	}
-	
-	return *boost::get<array_pointer>(v.value_);
+	return as_array(v);
 }
 
 inline object &as_object(value &v) {
@@ -560,6 +95,20 @@ inline const array &as_array(const value &v) {
 	}
 	
 	return *boost::get<array_pointer>(v.value_);
+}
+
+const std::string &as_string(const value &v) {
+	if(!is_string(v) && !is_bool(v) && !is_number(v) && !is_null(v)) {
+		throw invalid_type_cast();
+	}
+	return boost::get<std::string>(v.value_);
+}
+
+std::string &as_string(value &v) {
+	if(!is_string(v) && !is_bool(v) && !is_number(v) && !is_null(v)) {
+		throw invalid_type_cast();
+	}
+	return boost::get<std::string>(v.value_);
 }
 
 inline bool has_key(const value &v, const std::string &key) {
@@ -595,52 +144,6 @@ inline bool is_number(const value &v) { return (v.type_ == value::type_number); 
 inline bool is_object(const value &v) { return (v.type_ == value::type_object); }
 inline bool is_array(const value &v)  { return (v.type_ == value::type_array); }
 inline bool is_null(const value &v)   { return (v.type_ == value::type_null); }
-
-inline std::vector<uint8_t> detail::unicode_escape_to_utf8(uint16_t w1, uint16_t w2) {
-
-	uint32_t cp;
-	if((w1 & 0xfc00) == 0xd800) {
-		if((w2 & 0xfc00) == 0xdc00) {
-			cp = 0x10000 + (((static_cast<uint32_t>(w1) & 0x3ff) << 10) | (w2 & 0x3ff));
-		} else {
-			throw invalid_unicode_character();
-		}
-	} else {
-		cp = w1;
-	}
-	
-	std::vector<uint8_t> utf8;
-	
-	if(cp < 0x80) {
-		utf8.push_back(static_cast<uint8_t>(cp));
-	} else if(cp < 0x0800) {
-		uint8_t ch[2];
-		ch[0] = 0xc0 | ((cp >> 6) & 0x1f);
-		ch[1] = 0x80 | (cp & 0x3f);
-		utf8.push_back(static_cast<uint8_t>(ch[0]));
-		utf8.push_back(static_cast<uint8_t>(ch[1]));
-	} else if(cp < 0x10000) {
-		uint8_t ch[3];
-		ch[0] = 0xe0 | ((cp >> 6) & 0x0f);
-		ch[1] = 0x80 | ((cp >> 6) & 0x3f);
-		ch[2] = 0x80 | (cp & 0x3f);
-		utf8.push_back(static_cast<uint8_t>(ch[0]));
-		utf8.push_back(static_cast<uint8_t>(ch[1]));
-		utf8.push_back(static_cast<uint8_t>(ch[2]));
-	} else if(cp < 0x1fffff) {
-		uint8_t ch[4];
-		ch[0] = 0xf0 | ((cp >> 18) & 0x07);
-		ch[1] = 0x80 | ((cp >> 12) & 0x3f);
-		ch[2] = 0x80 | ((cp >> 6) & 0x3f);
-		ch[3] = 0x80 | (cp & 0x3f);
-		utf8.push_back(static_cast<uint8_t>(ch[0]));
-		utf8.push_back(static_cast<uint8_t>(ch[1]));
-		utf8.push_back(static_cast<uint8_t>(ch[2]));
-		utf8.push_back(static_cast<uint8_t>(ch[3]));
-	}
-	
-	return utf8;
-}
 
 namespace {
 
@@ -784,15 +287,15 @@ namespace {
 		}
 		
 		if(is_string(v)) {
-			ss << '"' << escape_string(to_string(v), options) << '"';
+			ss << '"' << escape_string(as_string(v), options) << '"';
 		}
 
 		if(is_number(v)) {
-			ss << to_string(v);
+			ss << as_string(v);
 		}
 
 		if(is_null(v)) {
-			ss << to_string(v);
+			ss << as_string(v);
 		}
 
 		if(is_bool(v)) {
@@ -861,15 +364,15 @@ namespace {
 		std::stringstream ss;
 
 		if(is_string(v)) {
-			ss << '"' << escape_string(to_string(v), options) << '"';
+			ss << '"' << escape_string(as_string(v), options) << '"';
 		}
 
 		if(is_number(v)) {
-			ss << to_string(v);
+			ss << as_string(v);
 		}
 
 		if(is_null(v)) {
-			ss << to_string(v);
+			ss << as_string(v);
 		}
 
 		if(is_bool(v)) {
