@@ -20,13 +20,13 @@ public:
 	In current() const     { return cur_; }
 	
 private:
-	static const char ArrayBegin  = '[';
-	static const char ArrayEnd    = ']';
-	static const char Colon       = ':';
-	static const char Comma       = ',';
-	static const char ObjectBegin = '{';
-	static const char ObjectEnd   = '}';
-	static const char Quote       = '"';
+	static const char ArrayBegin     = '[';
+	static const char ArrayEnd       = ']';
+	static const char NameSeparator  = ':';
+	static const char ValueSeparator = ',';
+	static const char ObjectBegin    = '{';
+	static const char ObjectEnd      = '}';
+	static const char Quote          = '"';
 
 private:
 	array_pointer                 get_array();

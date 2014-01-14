@@ -386,7 +386,7 @@ object_pointer parser<In>::get_object() {
 			tok = peek();
 			++cur_;
 
-		} while(tok == Comma);
+		} while(tok == ValueSeparator);
 	}
 
 	if(tok != ObjectEnd) {
@@ -420,7 +420,7 @@ array_pointer parser<In>::get_array() {
 			tok = peek();
 			++cur_;
 			
-		} while(tok == Comma);
+		} while(tok == ValueSeparator);
 	}
 
 	if(tok != ArrayEnd) {
@@ -439,7 +439,7 @@ std::pair<std::string, value> parser<In>::get_pair() {
 	
 	std::string key = get_string();
 
-	if(peek() != Colon) {
+	if(peek() != NameSeparator) {
 		throw colon_expected();
 	}
 	++cur_;
