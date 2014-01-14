@@ -51,10 +51,12 @@ object      to_object(const value &v);
 array       to_array(const value &v);
 
 // interpretation (you get a reference)
-object       &as_object(value &v);
-array        &as_array(value &v);
-const object &as_object(const value &v);
-const array  &as_array(const value &v);
+object            &as_object(value &v);
+array             &as_array(value &v);
+std::string       &as_string(value &v);
+const object      &as_object(const value &v);
+const array       &as_array(const value &v);
+const std::string &as_string(const value &v);
 
 // does the given object have a given key?
 bool has_key(const value &v, const std::string &key);
@@ -89,11 +91,13 @@ std::string stringify(const object &o);
 #include "object.h"
 #include "array.h"
 #include "value.h"
+#include "parser.h"
 
 #include "json.tcc"
 #include "object.tcc"
 #include "array.tcc"
 #include "value.tcc"
+#include "parser.tcc"
 
 #endif
 

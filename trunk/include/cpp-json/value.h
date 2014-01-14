@@ -9,11 +9,6 @@ static const struct null_t { null_t() {} } null;
 class array;
 class object;
 
-namespace detail {		
-	template <class In>
-	value get_value(In &it, const In &last);
-}
-
 class value {
 	friend bool is_string(const value &v);
 	friend bool is_bool(const value &v);
@@ -32,14 +27,16 @@ class value {
 	friend object &as_object(value &v);
 	friend const array &as_array(const value &v);
 	friend array &as_array(value &v);
+	friend const std::string &as_string(const value &v);
+	friend std::string &as_string(value &v);
 
 	friend bool has_key(const value &v, const std::string &key);
 	
 	friend bool operator==(const value &lhs, const value &rhs);
 	friend bool operator!=(const value &lhs, const value &rhs);
-	
+
 	template <class In>
-	friend value detail::get_value(In &it, const In &last);
+	friend class parser;
 	
 private:
 	struct numeric_t {};
