@@ -195,7 +195,7 @@ inline bool operator==(const value &lhs, const value &rhs) {
 	if(lhs.type_ == rhs.type_) {
 		switch(lhs.type_) {
 		case value::type_string:
-			return to_string(lhs) == to_string(rhs);
+			return as_string(lhs) == as_string(rhs);
 		case value::type_number:
 			return to_number(lhs) == to_number(rhs);
 		case value::type_null:
@@ -203,9 +203,9 @@ inline bool operator==(const value &lhs, const value &rhs) {
 		case value::type_boolean:
 			return to_bool(lhs) == to_bool(rhs);
 		case value::type_array:
-			return to_array(lhs) == to_array(rhs);
+			return as_array(lhs) == as_array(rhs);
 		case value::type_object:
-			return to_object(lhs) == to_object(rhs);
+			return as_object(lhs) == as_object(rhs);
 		case value::type_invalid:
 			break;
 		}

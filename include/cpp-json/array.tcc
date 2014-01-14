@@ -40,6 +40,15 @@ inline array &array::operator=(array &&rhs) {
 	}
 	return *this;
 }
+
+//------------------------------------------------------------------------------
+// Name: append
+//------------------------------------------------------------------------------
+template <class T, class... Args>
+array &array::append(const T &v, Args &&...args) {
+	values_.push_back(value(v));
+	return append(args...);
+}
 #endif
 
 //------------------------------------------------------------------------------
@@ -77,17 +86,6 @@ inline value &array::at(std::size_t n) {
 	
 	throw invalid_index();
 }
-
-#if __cplusplus >= 201103L
-//------------------------------------------------------------------------------
-// Name: append
-//------------------------------------------------------------------------------
-template <class T, class... Args>
-array &array::append(const T &v, Args &&...args) {
-	values_.push_back(value(v));
-	return append(args...);
-}
-#endif
 
 //------------------------------------------------------------------------------
 // Name: append

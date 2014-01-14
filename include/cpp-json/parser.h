@@ -20,14 +20,14 @@ public:
 	In current() const     { return cur_; }
 	
 private:
-	static const char Quote        = '"';
-	static const char LeftBracket  = '[';
-	static const char LeftBrace    = '{';
-	static const char RightBracket = ']';
-	static const char RightBrace   = '}';
-	static const char Comma        = ',';
-	static const char Colon        = ':';
-	
+	static const char ArrayBegin  = '[';
+	static const char ArrayEnd    = ']';
+	static const char Colon       = ':';
+	static const char Comma       = ',';
+	static const char ObjectBegin = '{';
+	static const char ObjectEnd   = '}';
+	static const char Quote       = '"';
+
 private:
 	array_pointer                 get_array();
 	bool                          get_false();
