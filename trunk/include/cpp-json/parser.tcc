@@ -236,6 +236,8 @@ std::string parser<In>::get_string() {
 
 //------------------------------------------------------------------------------
 // Name: get_number
+// Desc: retrieves a JSON number. we get it as a string in order to defer 
+//       conversion to a numeric type until absolutely necessary
 //------------------------------------------------------------------------------
 template <class In>
 std::string parser<In>::get_number() {
@@ -290,9 +292,11 @@ std::string parser<In>::get_number(const Tr &) {
 		if(cur_ != end_ && (*cur_ == '+' || *cur_ == '-')) {
 			*out++ = *cur_++;
 		}
+		
 		if(!std::isdigit(*cur_)) {
 			throw invalid_number();
 		}
+		
 		while(cur_ != end_ && std::isdigit(*cur_)) {
 			*out++ = *cur_++;
 		}
@@ -317,9 +321,9 @@ std::string parser<In>::get_number(const std::random_access_iterator_tag &) {
 	// (0|[1-9][0-9]*)
 	if(cur_ != end_) {
 		if(*cur_ >= '1' && *cur_ <= '9') {
-			while(cur_ != end_ && std::isdigit(*cur_)) {
+			do {
 				++cur_;
-			}
+			} while(cur_ != end_ && std::isdigit(*cur_));
 		} else if(*cur_ == '0') {
 			++cur_;
 		} else {
@@ -345,9 +349,11 @@ std::string parser<In>::get_number(const std::random_access_iterator_tag &) {
 		if(cur_ != end_ && (*cur_ == '+' || *cur_ == '-')) {
 			++cur_;
 		}
+		
 		if(!std::isdigit(*cur_)) {
 			throw invalid_number();
 		}
+		
 		while(cur_ != end_ && std::isdigit(*cur_)) {
 			++cur_;
 		}
@@ -364,17 +370,16 @@ object_pointer parser<In>::get_object() {
 
 	object_pointer obj = boost::make_shared<object>();
 
-	if(peek() != LeftBrace) {
+	if(peek() != ObjectBegin) {
 		throw brace_expected();
 	}
 	++cur_;
 
 	// handle empty object
 	char tok = peek();
-	if(tok == RightBrace) {
+	if(tok == ObjectEnd) {
 		++cur_;
 	} else {
-
 		do {
 			obj->values_.insert(get_pair());
 
@@ -384,7 +389,7 @@ object_pointer parser<In>::get_object() {
 		} while(tok == Comma);
 	}
 
-	if(tok != RightBrace) {
+	if(tok != ObjectEnd) {
 		throw brace_expected();
 	}
 
@@ -399,14 +404,14 @@ array_pointer parser<In>::get_array() {
 	array_pointer arr = boost::make_shared<array>();
 
 	
-	if(peek() != LeftBracket) {
+	if(peek() != ArrayBegin) {
 		throw bracket_expected();
 	}
 	++cur_;
 
 	// handle empty object
 	char tok = peek();
-	if(tok == RightBracket) {
+	if(tok == ArrayEnd) {
 		++cur_;
 	} else {
 		do {
@@ -418,7 +423,7 @@ array_pointer parser<In>::get_array() {
 		} while(tok == Comma);
 	}
 
-	if(tok != RightBracket) {
+	if(tok != ArrayEnd) {
 		throw bracket_expected();
 	}
 
@@ -448,9 +453,9 @@ std::pair<std::string, value> parser<In>::get_pair() {
 template <class In>
 value parser<In>::get_value() {
 	switch(peek()) {
-	case LeftBrace:
+	case ObjectBegin:
 		return value(get_object());
-	case LeftBracket:
+	case ArrayBegin:
 		return value(get_array());
 	case Quote:
 		return value(get_string());

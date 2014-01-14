@@ -15,7 +15,7 @@ class object {
 	friend class parser;
 
 private:
-	typedef map_type C;
+	typedef boost::unordered_map<std::string, value> C;
 	
 public:
 	typedef typename C::allocator_type          allocator_type;

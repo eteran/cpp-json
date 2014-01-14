@@ -60,7 +60,7 @@ inline value &object::operator[](const std::string &key) {
 // Name: at
 //------------------------------------------------------------------------------
 inline const value object::at(const std::string &key) const {
-	map_type::const_iterator it = values_.find(key);
+	typename C::const_iterator it = values_.find(key);
 	if(it != values_.end()) {
 		return it->second;
 	}
@@ -72,7 +72,7 @@ inline const value object::at(const std::string &key) const {
 // Name: at
 //------------------------------------------------------------------------------
 inline value &object::at(const std::string &key) {
-	map_type::iterator it = values_.find(key);
+	typename C::iterator it = values_.find(key);
 	if(it != values_.end()) {
 		return it->second;
 	}
