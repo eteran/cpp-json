@@ -84,16 +84,16 @@ std::string stringify(const object &o);
 
 }
 
-#include "json/exception.h"
+#include "exception.h"
 
-#include "json/object.h"
-#include "json/array.h"
-#include "json/value.h"
+#include "object.h"
+#include "array.h"
+#include "value.h"
 
-#include "json/json.tcc"
-#include "json/object.tcc"
-#include "json/array.tcc"
-#include "json/value.tcc"
+#include "json.tcc"
+#include "object.tcc"
+#include "array.tcc"
+#include "value.tcc"
 
 #endif
 
