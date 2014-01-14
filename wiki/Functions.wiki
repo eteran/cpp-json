@@ -58,7 +58,7 @@ Currently valid options are:
   * `json::PRETTY_PRINT` - indent the result so it looks nice :-)
 
 
-= Details =
+= Note =
 
 There used to be functions such as `keys(const value &)` and `size(const value &)`. *These no longer exist*. Instead it is better to write code such as this:
 
