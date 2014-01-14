@@ -13,7 +13,7 @@ $(OBJ_DIR)/%.o: %.cc
 
 TARGET = cpp-json
 
-CXXFLAGS  := -std=c++11 -pedantic -Wextra -Wall -O2 -g3
+CXXFLAGS  := -std=c++11 -pedantic -Wextra -Wall -Iinclude -O2 -g3
 LDFLAGS   := 
 H_FILES   :=
 CXX_FILES := main.cc
