@@ -103,8 +103,12 @@ public:
 	value &operator[](std::size_t n);
 
 private:
-	boost::variant<boost::blank, object_pointer, array_pointer, std::string> value_;
-	type                                                                     type_;
+	boost::variant<
+		boost::blank,
+		object_pointer,
+		array_pointer,
+		std::string>    value_;
+	type                type_;
 };
 
 bool operator==(const value &lhs, const value &rhs);

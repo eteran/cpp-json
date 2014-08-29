@@ -10,13 +10,8 @@
 	xx xx xx xx  UTF-8
 */
 
-#include <boost/cstdint.hpp>
-#include <boost/lexical_cast.hpp>
-#include <boost/make_shared.hpp>
-#include <boost/shared_ptr.hpp>
 #include <boost/variant.hpp>
 #include <boost/variant/get.hpp>
-#include <boost/unordered_map.hpp>
 
 #include <algorithm>
 #include <exception>
@@ -24,6 +19,19 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <iostream>
+
+#if __cplusplus >= 201103L
+#include <unordered_map>
+#include <memory>
+#include <cstdint>
+#else
+#include <boost/cstdint.hpp>
+#include <boost/lexical_cast.hpp>
+#include <boost/make_shared.hpp>
+#include <boost/shared_ptr.hpp>
+#include <boost/unordered_map.hpp>
+#endif
 
 namespace json {
 
@@ -31,8 +39,13 @@ class value;
 class array;
 class object;
 
+#if __cplusplus >= 201103L
+typedef std::shared_ptr<object> object_pointer;
+typedef std::shared_ptr<array>  array_pointer;
+#else
 typedef boost::shared_ptr<object> object_pointer;
 typedef boost::shared_ptr<array>  array_pointer;
+#endif
 
 // type testing
 inline bool is_string(const value &v);
@@ -87,9 +100,9 @@ inline std::string stringify(const object &o);
 
 #include "exception.h"
 
+#include "value.h"
 #include "object.h"
 #include "array.h"
-#include "value.h"
 #include "parser.h"
 
 #include "json.tcc"

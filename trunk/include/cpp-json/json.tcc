@@ -47,6 +47,7 @@ inline bool to_bool(const value &v) {
 	if(!is_bool(v)) {
 		throw invalid_type_cast();
 	}
+
 	return boost::get<std::string>(v.value_) == "true";
 }
 
@@ -101,6 +102,7 @@ const std::string &as_string(const value &v) {
 	if(!is_string(v) && !is_bool(v) && !is_number(v) && !is_null(v)) {
 		throw invalid_type_cast();
 	}
+	
 	return boost::get<std::string>(v.value_);
 }
 
@@ -108,6 +110,7 @@ std::string &as_string(value &v) {
 	if(!is_string(v) && !is_bool(v) && !is_number(v) && !is_null(v)) {
 		throw invalid_type_cast();
 	}
+	
 	return boost::get<std::string>(v.value_);
 }
 

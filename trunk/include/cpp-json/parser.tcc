@@ -368,8 +368,11 @@ std::string parser<In>::get_number(const std::random_access_iterator_tag &) {
 template <class In>
 object_pointer parser<In>::get_object() {
 
+#if __cplusplus >= 201103L
+	auto obj = std::make_shared<object>();
+#else
 	object_pointer obj = boost::make_shared<object>();
-
+#endif
 	if(peek() != ObjectBegin) {
 		throw brace_expected();
 	}
@@ -401,8 +404,12 @@ object_pointer parser<In>::get_object() {
 //------------------------------------------------------------------------------
 template <class In>
 array_pointer parser<In>::get_array() {
-	array_pointer arr = boost::make_shared<array>();
 
+#if __cplusplus >= 201103L
+	auto arr = std::make_shared<array>();
+#else
+	array_pointer arr = boost::make_shared<array>();
+#endif
 	
 	if(peek() != ArrayBegin) {
 		throw bracket_expected();
