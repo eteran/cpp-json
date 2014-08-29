@@ -15,8 +15,11 @@ class object {
 	friend class parser;
 
 private:
+#if __cplusplus >= 201103L
+	typedef std::unordered_map<std::string, value> C;
+#else
 	typedef boost::unordered_map<std::string, value> C;
-	
+#endif
 public:
 	typedef typename C::allocator_type          allocator_type;
 	typedef typename C::reference               reference;

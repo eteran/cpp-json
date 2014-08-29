@@ -60,25 +60,49 @@ inline value::value(const std::string &s, const numeric_t &) : value_(s), type_(
 //------------------------------------------------------------------------------
 // Name: value
 //------------------------------------------------------------------------------
-inline value::value(double x) : value_(boost::lexical_cast<std::string>(x)), type_(type_number) {
+inline value::value(double x) :
+#if __cplusplus >= 201103L
+	value_(std::to_string(x)),
+#else
+	value_(boost::lexical_cast<std::string>(x)),
+#endif
+	type_(type_number) {
 }
 
 //------------------------------------------------------------------------------
 // Name: value
 //------------------------------------------------------------------------------
-inline value::value(float x) : value_(boost::lexical_cast<std::string>(x)), type_(type_number) {
+inline value::value(float x) :
+#if __cplusplus >= 201103L
+	value_(std::to_string(x)),
+#else
+	value_(boost::lexical_cast<std::string>(x)),
+#endif
+	type_(type_number) {
 }
 
 //------------------------------------------------------------------------------
 // Name: value
 //------------------------------------------------------------------------------
-inline value::value(long x) : value_(boost::lexical_cast<std::string>(x)), type_(type_number) {
+inline value::value(long x) : 
+#if __cplusplus >= 201103L
+	value_(std::to_string(x)),
+#else
+	value_(boost::lexical_cast<std::string>(x)),
+#endif
+	type_(type_number) {
 }
 
 //------------------------------------------------------------------------------
 // Name: value
 //------------------------------------------------------------------------------
-inline value::value(int x) : value_(boost::lexical_cast<std::string>(x)), type_(type_number) {
+inline value::value(int x) : 
+#if __cplusplus >= 201103L
+	value_(std::to_string(x)),
+#else
+	value_(boost::lexical_cast<std::string>(x)),
+#endif
+	type_(type_number) {
 }
 
 //------------------------------------------------------------------------------
@@ -179,13 +203,25 @@ inline value &value::operator[](std::size_t n) {
 //------------------------------------------------------------------------------
 // Name: value
 //------------------------------------------------------------------------------
-inline value::value(const array &a) : value_(boost::make_shared<array>(a)), type_(type_array) {
+inline value::value(const array &a) : 
+#if __cplusplus >= 201103L
+	value_(std::make_shared<array>(a)), 
+#else
+	value_(boost::make_shared<array>(a)), 
+#endif
+	type_(type_array) {
 }
 
 //------------------------------------------------------------------------------
 // Name: value
 //------------------------------------------------------------------------------
-inline value::value(const object &o) : value_(boost::make_shared<object>(o)), type_(type_object) {
+inline value::value(const object &o) : 
+#if __cplusplus >= 201103L
+	value_(std::make_shared<object>(o)),
+#else
+	value_(boost::make_shared<object>(o)),
+#endif
+	type_(type_object) {
 }
 
 //------------------------------------------------------------------------------
