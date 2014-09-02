@@ -49,6 +49,15 @@ array &array::append(const T &v, Args &&...args) {
 	values_.push_back(value(v));
 	return append(args...);
 }
+
+//------------------------------------------------------------------------------
+// Name: append
+//------------------------------------------------------------------------------
+template <class T>
+array &array::append(T &&v) {
+	values_.push_back(value(std::move(v)));
+	return *this;
+}
 #endif
 
 //------------------------------------------------------------------------------

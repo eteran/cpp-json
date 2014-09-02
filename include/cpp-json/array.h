@@ -71,6 +71,9 @@ public:
 #if __cplusplus >= 201103L
 	template <class T, class... Args>
     array &append(const T &v, Args &&...args);
+	
+	template <class T>
+	array &append(T &&v);	
 #endif
 
 	template <class T>
