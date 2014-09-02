@@ -72,6 +72,10 @@ public:
 	template <class T>
 	object &insert(const std::pair<std::string, T> &p);
 
+#if __cplusplus >= 201103L
+	template <class T>
+	object &insert(std::pair<std::string, T> &&p);
+#endif
 public:
 	void swap(object &other);
 
