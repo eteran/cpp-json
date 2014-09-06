@@ -6,7 +6,7 @@ namespace json {
 namespace {
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name: to_hex
 //------------------------------------------------------------------------------
 template <class Ch>
 unsigned int to_hex(Ch ch) {
@@ -29,7 +29,7 @@ unsigned int to_hex(Ch ch) {
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name: surrogate_pair_to_utf8
 //------------------------------------------------------------------------------
 template <class Out>
 void surrogate_pair_to_utf8(uint16_t w1, uint16_t w2, Out &out) {

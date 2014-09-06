@@ -40,6 +40,15 @@ inline object &object::operator=(object &&rhs) {
 	}
 	return *this;
 }
+
+//------------------------------------------------------------------------------
+// Name: insert
+//------------------------------------------------------------------------------
+template <class T>
+inline object &object::insert(std::pair<std::string, T> &&p) {
+	values_.insert(std::move(p));
+	return *this;
+}
 #endif
 
 //------------------------------------------------------------------------------
@@ -88,17 +97,6 @@ inline object &object::insert(const std::pair<std::string, T> &p) {
 	values_.insert(p);
 	return *this;
 }
-
-#if __cplusplus >= 201103L
-//------------------------------------------------------------------------------
-// Name: insert
-//------------------------------------------------------------------------------
-template <class T>
-inline object &object::insert(std::pair<std::string, T> &&p) {
-	values_.insert(std::move(p));
-	return *this;
-}
-#endif
 
 //------------------------------------------------------------------------------
 // Name: insert
