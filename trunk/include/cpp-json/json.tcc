@@ -125,6 +125,16 @@ inline bool has_key(const object &o, const std::string &key) {
 	return o.find(key) != o.end();
 }
 
+#if __cplusplus >= 201103L
+inline value parse(std::istream &&is) {
+	return parse(is);
+}
+
+inline value parse(std::wistream &&is) {
+	return parse(is);
+}
+#endif
+
 inline value parse(std::istream &is) {
 	return parse((std::istreambuf_iterator<char>(is)), std::istreambuf_iterator<char>());
 }
