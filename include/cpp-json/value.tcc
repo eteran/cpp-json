@@ -201,25 +201,13 @@ inline value &value::operator[](std::size_t n) {
 //------------------------------------------------------------------------------
 // Name: value
 //------------------------------------------------------------------------------
-inline value::value(const array &a) : 
-#if __cplusplus >= 201103L
-	value_(std::make_shared<array>(a)), 
-#else
-	value_(boost::make_shared<array>(a)), 
-#endif
-	type_(type_array) {
+inline value::value(const array &a) : value_(make_shared<array>(a)), type_(type_array) {
 }
 
 //------------------------------------------------------------------------------
 // Name: value
 //------------------------------------------------------------------------------
-inline value::value(const object &o) : 
-#if __cplusplus >= 201103L
-	value_(std::make_shared<object>(o)),
-#else
-	value_(boost::make_shared<object>(o)),
-#endif
-	type_(type_object) {
+inline value::value(const object &o) : value_(make_shared<object>(o)), type_(type_object) {
 }
 
 //------------------------------------------------------------------------------

@@ -42,9 +42,11 @@ class object;
 #if __cplusplus >= 201103L
 typedef std::shared_ptr<object> object_pointer;
 typedef std::shared_ptr<array>  array_pointer;
+using std::make_shared;
 #else
 typedef boost::shared_ptr<object> object_pointer;
 typedef boost::shared_ptr<array>  array_pointer;
+using boost::make_shared;
 #endif
 
 // type testing
