@@ -9,6 +9,8 @@ these are the main parsing functions of the library, pass it two iterators or a 
   * `template <class In> value parse(In first, In last);`
   * `value parse(std::istream &is);`
   * `value parse(std::wistream &is);`
+  * `value parse(std::istream &&is);`
+  * `value parse(std::wistream &&is);`
   * `value parse(const std::string &s);`
   * `value parse(const std::wstring &s);`
 
