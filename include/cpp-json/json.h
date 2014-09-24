@@ -79,6 +79,10 @@ template <class In>
 inline value parse(In first, In last);
 inline value parse(std::istream &is);
 inline value parse(std::wistream &is);
+#if __cplusplus >= 201103L
+inline value parse(std::istream &&is);
+inline value parse(std::wistream &&is);
+#endif
 inline value parse(const std::string &s);
 inline value parse(const std::wstring &s);
 

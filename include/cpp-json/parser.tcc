@@ -12,7 +12,7 @@ template <class Ch>
 unsigned int to_hex(Ch ch) {
 
 	static const int hexval[256] = {
-		0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 
+		0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
 		0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
 		0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
 		0x0, 0x1, 0x2, 0x3, 0x4, 0x5, 0x6, 0x7, 0x8, 0x9, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
@@ -44,14 +44,14 @@ void surrogate_pair_to_utf8(uint16_t w1, uint16_t w2, Out &out) {
 	} else {
 		cp = w1;
 	}
-	
+
 	if(cp < 0x80) {
 		*out++ = static_cast<uint8_t>(cp);
 	} else if(cp < 0x0800) {
 		*out++ = static_cast<uint8_t>(0xc0 | ((cp >> 6) & 0x1f));
 		*out++ = static_cast<uint8_t>(0x80 | (cp & 0x3f));
 	} else if(cp < 0x10000) {
-		*out++ = static_cast<uint8_t>(0xe0 | ((cp >> 6) & 0x0f));
+		*out++ = static_cast<uint8_t>(0xe0 | ((cp >> 12) & 0x0f));
 		*out++ = static_cast<uint8_t>(0x80 | ((cp >> 6) & 0x3f));
 		*out++ = static_cast<uint8_t>(0x80 | (cp & 0x3f));
 	} else if(cp < 0x1fffff) {
@@ -178,12 +178,12 @@ std::string parser<In>::get_string() {
 
 						uint16_t w1 = 0;
 						uint16_t w2 = 0;
-						
+
 						w1 |= (to_hex(hex[0]) << 12);
 						w1 |= (to_hex(hex[1]) << 8);
 						w1 |= (to_hex(hex[2]) << 4);
 						w1 |= (to_hex(hex[3]));
-						
+
 						if((w1 & 0xfc00) == 0xdc00) {
 							throw invalid_unicode_character();
 						}
@@ -192,7 +192,7 @@ std::string parser<In>::get_string() {
 							// part of a surrogate pair
 							if(cur_ == end_ || *++cur_ != '\\') { throw utf16_surrogate_expected(); }
 							if(cur_ == end_ || *++cur_ != 'u')  { throw utf16_surrogate_expected(); }
-							
+
 							// convert \uXXXX escape sequences to UTF-8
 							if(cur_ == end_) { throw hex_character_expected(); } hex[0] = *++cur_;
 							if(cur_ == end_) { throw hex_character_expected(); } hex[1] = *++cur_;
@@ -203,11 +203,11 @@ std::string parser<In>::get_string() {
 							if(!std::isxdigit(hex[1])) throw invalid_unicode_character();
 							if(!std::isxdigit(hex[2])) throw invalid_unicode_character();
 							if(!std::isxdigit(hex[3])) throw invalid_unicode_character();
-							
+
 							w2 |= (to_hex(hex[0]) << 12);
 							w2 |= (to_hex(hex[1]) << 8);
 							w2 |= (to_hex(hex[2]) << 4);
-							w2 |= (to_hex(hex[3]));							
+							w2 |= (to_hex(hex[3]));
 						}
 
 						surrogate_pair_to_utf8(w1, w2, out);
@@ -236,7 +236,7 @@ std::string parser<In>::get_string() {
 
 //------------------------------------------------------------------------------
 // Name: get_number
-// Desc: retrieves a JSON number. we get it as a string in order to defer 
+// Desc: retrieves a JSON number. we get it as a string in order to defer
 //       conversion to a numeric type until absolutely necessary
 //------------------------------------------------------------------------------
 template <class In>
@@ -253,7 +253,7 @@ template <class Tr>
 std::string parser<In>::get_number(const Tr &) {
 	std::string s;
 	std::back_insert_iterator<std::string> out = back_inserter(s);
-	
+
 	// JSON numbers fit the regex: -?(0|[1-9][0-9]*)(\.[0-9]+)?([eE][+-]?[0-9]+)?
 
 	// -?
@@ -292,11 +292,11 @@ std::string parser<In>::get_number(const Tr &) {
 		if(cur_ != end_ && (*cur_ == '+' || *cur_ == '-')) {
 			*out++ = *cur_++;
 		}
-		
+
 		if(!std::isdigit(*cur_)) {
 			throw invalid_number();
 		}
-		
+
 		while(cur_ != end_ && std::isdigit(*cur_)) {
 			*out++ = *cur_++;
 		}
@@ -304,7 +304,7 @@ std::string parser<In>::get_number(const Tr &) {
 
 	return s;
 }
-	
+
 //------------------------------------------------------------------------------
 // Name: get_number
 // Desc: specialized for random access iterators, so we don't do as much work
@@ -349,11 +349,11 @@ std::string parser<In>::get_number(const std::random_access_iterator_tag &) {
 		if(cur_ != end_ && (*cur_ == '+' || *cur_ == '-')) {
 			++cur_;
 		}
-		
+
 		if(!std::isdigit(*cur_)) {
 			throw invalid_number();
 		}
-		
+
 		while(cur_ != end_ && std::isdigit(*cur_)) {
 			++cur_;
 		}
@@ -410,7 +410,7 @@ array_pointer parser<In>::get_array() {
 #else
 	array_pointer arr = boost::make_shared<array>();
 #endif
-	
+
 	if(peek() != ArrayBegin) {
 		throw bracket_expected();
 	}
@@ -426,7 +426,7 @@ array_pointer parser<In>::get_array() {
 
 			tok = peek();
 			++cur_;
-			
+
 		} while(tok == ValueSeparator);
 	}
 
@@ -443,7 +443,7 @@ array_pointer parser<In>::get_array() {
 //------------------------------------------------------------------------------
 template <class In>
 std::pair<std::string, value> parser<In>::get_pair() {
-	
+
 	std::string key = get_string();
 
 	if(peek() != NameSeparator) {
