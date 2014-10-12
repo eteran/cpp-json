@@ -85,7 +85,14 @@ private:
 
 bool operator==(const object &lhs, const object &rhs);
 bool operator!=(const object &lhs, const object &rhs);
-	
+
+object::iterator begin(object &obj)              { return obj.begin(); }
+object::iterator end(object &obj)                { return obj.end();   }
+object::const_iterator begin(const object &obj)  { return obj.begin(); }
+object::const_iterator end(const object &obj)    { return obj.end();   }
+object::const_iterator cbegin(const object &obj) { return obj.begin(); }
+object::const_iterator cend(const object &obj)   { return obj.end();   }	
+
 }
 
 #endif
