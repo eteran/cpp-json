@@ -36,7 +36,23 @@ int main(int argc, char *argv[]) {
 	
 	// construct from string (C++11 raw string literals work nicely here!)
 #if __cplusplus >= 201103L
-	auto v = json::parse(R"({"test3" : {"x" : 123.456},"test4" : [1,2,3,{"z":12345}],"test1" : "hello world","test2" : "BLAH\uD840\uDC8ABLAH"})");
+	auto v = json::parse(R"(
+	{
+		"test3" : {
+			"x" : 123.456
+		},
+		"test4" : [
+			1,
+			2,
+			3,
+			{
+				"z" : 12345
+			}
+		],
+		"test1" : "hello world",
+		"test2" : "BLAH\uD840\uDC8ABLAH"
+	}
+	)");
 #else
 	json::value v = json::parse("{\"test3\" : {\"x\" : 123.456},\"test4\" : [1,2,3,{\"z\":12345}],\"test1\" : \"hello world\",\"test2\" : \"BLAH\\uD840\\uDC8ABLAH\"}");
 #endif
