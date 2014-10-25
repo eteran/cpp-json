@@ -89,12 +89,12 @@ private:
 bool operator==(const array &lhs, const array &rhs);
 bool operator!=(const array &lhs, const array &rhs);
 
-array::iterator begin(array &arr)              { return arr.begin(); }
-array::iterator end(array &arr)                { return arr.end();   }
-array::const_iterator begin(const array &arr)  { return arr.begin(); }
-array::const_iterator end(const array &arr)    { return arr.end();   }
-array::const_iterator cbegin(const array &arr) { return arr.begin(); }
-array::const_iterator cend(const array &arr)   { return arr.end();   }
+inline array::iterator begin(array &arr)              { return arr.begin(); }
+inline array::iterator end(array &arr)                { return arr.end();   }
+inline array::const_iterator begin(const array &arr)  { return arr.begin(); }
+inline array::const_iterator end(const array &arr)    { return arr.end();   }
+inline array::const_iterator cbegin(const array &arr) { return arr.begin(); }
+inline array::const_iterator cend(const array &arr)   { return arr.end();   }
 
 }
 
