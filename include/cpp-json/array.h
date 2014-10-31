@@ -96,6 +96,13 @@ inline array::const_iterator end(const array &arr)    { return arr.end();   }
 inline array::const_iterator cbegin(const array &arr) { return arr.begin(); }
 inline array::const_iterator cend(const array &arr)   { return arr.end();   }
 
+inline array::reverse_iterator rbegin(array &arr)              { return arr.rbegin(); }
+inline array::reverse_iterator rend(array &arr)                { return arr.rend();   }
+inline array::const_reverse_iterator rbegin(const array &arr)  { return arr.rbegin(); }
+inline array::const_reverse_iterator rend(const array &arr)    { return arr.rend();   }
+inline array::const_reverse_iterator crbegin(const array &arr) { return arr.rbegin(); }
+inline array::const_reverse_iterator crend(const array &arr)   { return arr.rend();   }
+
 }
 
 #endif
