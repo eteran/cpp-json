@@ -30,10 +30,7 @@ inline value::value(value &&other) : value_(other.value_), type_(other.type_) {
 //------------------------------------------------------------------------------
 inline value &value::operator=(value &&rhs) {
 	if(this != &rhs) {
-		value_     = rhs.value_;
-		type_      = rhs.type_;
-		rhs.value_ = boost::blank();
-		rhs.type_  = type_invalid;
+		value(std::move(rhs)).swap(*this);
 	}
 	return *this;
 }
