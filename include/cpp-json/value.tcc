@@ -57,6 +57,7 @@ inline value::value(std::string &&s, const numeric_t &) : value_(std::move(s)), 
 // Name: value
 //------------------------------------------------------------------------------
 inline value::value(std::string &&s) : value_(std::move(s)), type_(type_string) {
+	// TODO(eteran): support unicode escapes in this string!
 }
 #endif
 
@@ -105,7 +106,7 @@ inline value::value(float x) :
 //------------------------------------------------------------------------------
 // Name: value
 //------------------------------------------------------------------------------
-inline value::value(long x) : 
+inline value::value(long x) :
 #if __cplusplus >= 201103L
 	value_(std::to_string(x)),
 #else
@@ -117,7 +118,7 @@ inline value::value(long x) :
 //------------------------------------------------------------------------------
 // Name: value
 //------------------------------------------------------------------------------
-inline value::value(int x) : 
+inline value::value(int x) :
 #if __cplusplus >= 201103L
 	value_(std::to_string(x)),
 #else
@@ -130,12 +131,14 @@ inline value::value(int x) :
 // Name: value
 //------------------------------------------------------------------------------
 inline value::value(const std::string &s) : value_(s), type_(type_string) {
+	// TODO(eteran): support unicode escapes in this string!
 }
 
 //------------------------------------------------------------------------------
 // Name: value
 //------------------------------------------------------------------------------
 inline value::value(const char *s) : value_(s), type_(type_string) {
+	// TODO(eteran): support unicode escapes in this string!
 }
 
 //------------------------------------------------------------------------------

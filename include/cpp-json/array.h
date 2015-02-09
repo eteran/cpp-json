@@ -3,20 +3,20 @@
 #define ARRAY_20110526_H_
 
 namespace json {
-	
+
 class array;
 class value;
 
 class array {
 	friend bool operator==(const array &lhs, const array &rhs);
 	friend bool operator!=(const array &lhs, const array &rhs);
-	
+
 	template <class In>
 	friend class parser;
 
 private:
 	typedef std::vector<value> C;
-	
+
 public:
 	typedef typename C::allocator_type          allocator_type;
 	typedef typename C::reference               reference;
@@ -34,6 +34,9 @@ public:
 	array();
 	array(const array &other);
 	array &operator=(const array &rhs);
+#if __cplusplus >= 201103L
+	array(std::initializer_list<value> list);
+#endif
 
 #if __cplusplus >= 201103L
 public:
@@ -63,7 +66,7 @@ public:
 public:
 	const value operator[](std::size_t n) const;
 	value &operator[](std::size_t n);
-	
+
 	const value at(std::size_t n) const;
 	value &at(std::size_t n);
 
@@ -71,9 +74,9 @@ public:
 #if __cplusplus >= 201103L
 	template <class T, class... Args>
     array &append(const T &v, Args &&...args);
-	
+
 	template <class T>
-	array &append(T &&v);	
+	array &append(T &&v);
 #endif
 
 	template <class T>

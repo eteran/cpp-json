@@ -13,12 +13,12 @@ public:
 
 public:
 	value parse();
-	
+
 public:
 	const In begin() const { return begin_; }
 	const In end() const   { return end_; }
 	In current() const     { return cur_; }
-	
+
 private:
 	static const char ArrayBegin     = '[';
 	static const char ArrayEnd       = ']';
@@ -41,12 +41,12 @@ private:
 
 private:
 	char peek();
-	
+
 private:
 	template <class Tr>
 	std::string get_number(const Tr &);
 	std::string get_number(const std::random_access_iterator_tag &);
-	
+
 private:
 	const In begin_;
 	In       cur_;

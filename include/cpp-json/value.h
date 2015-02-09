@@ -22,7 +22,7 @@ class value {
 	friend double to_number(const value &v);
 	friend object to_object(const value &v);
 	friend array to_array(const value &v);
-	
+
 	friend const object &as_object(const value &v);
 	friend object &as_object(value &v);
 	friend const array &as_array(const value &v);
@@ -31,38 +31,38 @@ class value {
 	friend std::string &as_string(value &v);
 
 	friend bool has_key(const value &v, const std::string &key);
-	
+
 	friend bool operator==(const value &lhs, const value &rhs);
 	friend bool operator!=(const value &lhs, const value &rhs);
 
 	template <class In>
 	friend class parser;
-	
+
 private:
 	struct numeric_t {};
 	// create a value from a numeric string, internal use only!
 	value(const std::string &s, const numeric_t &);
-	
+
 #if __cplusplus >= 201103L
 	value(std::string &&s, const numeric_t &);
 #endif
 
 public:
 	// intialize from basic types
-	explicit value(const null_t &);
+	value(const null_t &);
 
-	explicit value(bool b);
-	explicit value(const array &a);
-	explicit value(const char *s);
-	explicit value(const object &o);
-	explicit value(const std::string &s);
-	explicit value(double x);
-	explicit value(float x);
-	explicit value(int x);
-	explicit value(long x);
+	value(bool b);
+	value(const array &a);
+	value(const char *s);
+	value(const object &o);
+	value(const std::string &s);
+	value(double x);
+	value(float x);
+	value(int x);
+	value(long x);
 #if __cplusplus >= 201103L
-	explicit value(const std::nullptr_t &);
-	explicit value(std::string &&s);
+	value(const std::nullptr_t &);
+	value(std::string &&s);
 #endif
 
 public:
@@ -113,7 +113,7 @@ private:
 
 bool operator==(const value &lhs, const value &rhs);
 bool operator!=(const value &lhs, const value &rhs);
-	
+
 }
 
 #endif

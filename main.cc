@@ -23,9 +23,9 @@ int main(int argc, char *argv[]) {
 	obj1.insert("test1", "hello world")
 		.insert("test2", 10)
 		.insert("test3", json::object().insert("x", json::null))
-		
+
 		// if we are using C++11, we have a MUCH more elegant array initializer option
-	#if __cplusplus >= 201103L 
+	#if __cplusplus >= 201103L
 		.insert("test4", json::array().append(1, 2, 3, 4, "hello", true, 1.3));
 	#else
 		.insert("test4", json::array().append(1).append(2).append(3).append(4).append("hello").append(true).append(1.3));
@@ -33,7 +33,7 @@ int main(int argc, char *argv[]) {
 
 	std::cout << stringify(obj1, json::PRETTY_PRINT) << std::endl;
 	std::cout << "----------" << std::endl;
-	
+
 	// construct from string (C++11 raw string literals work nicely here!)
 #if __cplusplus >= 201103L
 	auto v = json::parse(R"(
@@ -58,11 +58,25 @@ int main(int argc, char *argv[]) {
 #endif
 	std::cout << stringify(v, json::PRETTY_PRINT) << std::endl;
 	std::cout << "----------" << std::endl;
-	
+
 	// get a specific value
 	json::value z = v["test4"][3]["z"];
 	std::cout << to_number(z) << std::endl;
-	
+
 	std::cout << stringify(v, json::ESCAPE_UNICODE) << std::endl;
 
+
+#if __cplusplus >= 201103L
+	std::cout << "----------" << std::endl;
+	json::array arr{
+		1,
+		2,
+		3,
+		4,
+		"Testing 1 2 3", json::object{
+			{ "hello", 1234 }
+		}
+	};
+	std::cout << stringify(arr) << std::endl;
+#endif
 }

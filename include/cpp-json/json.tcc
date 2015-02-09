@@ -34,7 +34,7 @@ value parse(In first, In last) {
 	try {
 		return p.parse();
 	} catch(const exception &e) {
-		detail::print_exception_details(p.begin(), p.current(), p.end());	
+		detail::print_exception_details(p.begin(), p.current(), p.end());
 		throw;
 	}
 }
@@ -70,7 +70,7 @@ inline object &as_object(value &v) {
 	if(!is_object(v)) {
 		throw invalid_type_cast();
 	}
-	
+
 	return *boost::get<object_pointer>(v.value_);
 }
 
@@ -78,7 +78,7 @@ inline const object &as_object(const value &v) {
 	if(!is_object(v)) {
 		throw invalid_type_cast();
 	}
-	
+
 	return *boost::get<object_pointer>(v.value_);
 }
 
@@ -86,7 +86,7 @@ inline array &as_array(value &v) {
 	if(!is_array(v)) {
 		throw invalid_type_cast();
 	}
-	
+
 	return *boost::get<array_pointer>(v.value_);
 }
 
@@ -94,7 +94,7 @@ inline const array &as_array(const value &v) {
 	if(!is_array(v)) {
 		throw invalid_type_cast();
 	}
-	
+
 	return *boost::get<array_pointer>(v.value_);
 }
 
@@ -102,7 +102,7 @@ const std::string &as_string(const value &v) {
 	if(!is_string(v) && !is_bool(v) && !is_number(v) && !is_null(v)) {
 		throw invalid_type_cast();
 	}
-	
+
 	return boost::get<std::string>(v.value_);
 }
 
@@ -110,7 +110,7 @@ std::string &as_string(value &v) {
 	if(!is_string(v) && !is_bool(v) && !is_number(v) && !is_null(v)) {
 		throw invalid_type_cast();
 	}
-	
+
 	return boost::get<std::string>(v.value_);
 }
 
@@ -161,10 +161,10 @@ inline bool is_null(const value &v)   { return (v.type_ == value::type_null); }
 namespace {
 
 	inline std::string escape_string(const std::string &s, unsigned options) {
-	
+
 		std::string r;
 		r.reserve(s.size());
-	
+
 		if(options & ESCAPE_UNICODE) {
 			typedef struct {
 				unsigned int expected : 4,
@@ -196,7 +196,7 @@ namespace {
 						default:
 							r += *it;
 							break;
-						} 
+						}
 					}else if((ch & 0xe0) == 0xc0) {
 						// 2 byte
 						result = ch & 0x1f;
@@ -234,7 +234,7 @@ namespace {
 							char buf[5];
 
 							if(result < 0xd800 || (result >= 0xe000 && result < 0x10000)) {
-								r += "\\u";					
+								r += "\\u";
 								snprintf(buf, sizeof(buf), "%04X", result);
 								r += buf;
 							} else {
@@ -250,7 +250,7 @@ namespace {
 							}
 
 							shift_state.seen     = 0;
-							shift_state.expected = 0;						
+							shift_state.expected = 0;
 							result = 0;
 						}
 
@@ -284,21 +284,21 @@ namespace {
 		}
 		return r;
 	}
-	
+
 	inline std::string escape_string(const std::string &s) {
 		return escape_string(s, 0);
 	}
 
 	inline std::string value_to_string(const value &v, unsigned options, int indent, bool ignore_initial_ident) {
-		
+
 		static const int indent_width = 2;
-		
+
 		std::stringstream ss;
-		
+
 		if(!ignore_initial_ident) {
 			ss << std::string(indent * indent_width, ' ');
 		}
-		
+
 		if(is_string(v)) {
 			ss << '"' << escape_string(as_string(v), options) << '"';
 		}
@@ -316,15 +316,15 @@ namespace {
 		}
 
 		if(is_object(v)) {
-		
+
 			const object &o = as_object(v);
-		
+
 			ss << "{\n";
 			if(!o.empty()) {
-			
+
 				object::const_iterator it = o.begin();
 				object::const_iterator e  = o.end();
-					
+
 				++indent;
 				ss << std::string(indent * indent_width, ' ') << '"' << escape_string(it->first, options) << "\" : " << value_to_string(it->second, options, indent, true);
 				++it;
@@ -341,18 +341,18 @@ namespace {
 		}
 
 		if(is_array(v)) {
-		
+
 			const array &a = as_array(v);
-		
+
 			ss << "[\n";
 			if(!a.empty()) {
-				
+
 				array::const_iterator it = a.begin();
 				array::const_iterator e  = a.end();
-			
+
 				++indent;
 				ss << value_to_string(*it++, options, indent, false);
-				
+
 				for(;it != e; ++it) {
 					ss << ',';
 					ss << '\n';
@@ -367,11 +367,11 @@ namespace {
 
 		return ss.str();
 	}
-	
+
 	inline std::string value_to_string(const value &v, unsigned options) {
 		return value_to_string(v, options, 0, false);
 	}
-	
+
 	inline std::string serialize(const value &v, unsigned options) {
 
 		std::stringstream ss;
@@ -398,7 +398,7 @@ namespace {
 			if(!o.empty()) {
 				object::const_iterator it = o.begin();
 				object::const_iterator e  = o.end();
-				
+
 				ss << '"' << escape_string(it->first, options) << "\":" << serialize(it->second, options);
 				++it;
 				for(;it != e; ++it) {
@@ -411,12 +411,12 @@ namespace {
 
 		if(is_array(v)) {
 			const array &a = as_array(v);
-		
+
 			ss << "[";
 			if(!a.empty()) {
 				array::const_iterator it = a.begin();
 				array::const_iterator e  = a.end();
-				
+
 				ss << serialize(*it++, options);
 
 				for(;it != e; ++it) {
