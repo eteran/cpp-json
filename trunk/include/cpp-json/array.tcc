@@ -25,6 +25,16 @@ inline array &array::operator=(const array &rhs) {
 }
 
 #if __cplusplus >= 201103L
+
+//------------------------------------------------------------------------------
+// Name: array
+//------------------------------------------------------------------------------
+inline array::array(std::initializer_list<value> list) {
+	for(const auto &x : list) {
+		values_.emplace_back(x);
+	}
+}
+
 //------------------------------------------------------------------------------
 // Name: array
 //------------------------------------------------------------------------------
@@ -81,7 +91,7 @@ inline const value array::at(std::size_t n) const {
 	if(n < values_.size()) {
 		return values_[n];
 	}
-	
+
 	throw invalid_index();
 }
 
@@ -92,7 +102,7 @@ inline value &array::at(std::size_t n) {
 	if(n < values_.size()) {
 		return values_[n];
 	}
-	
+
 	throw invalid_index();
 }
 

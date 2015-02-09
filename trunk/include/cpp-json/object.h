@@ -10,7 +10,7 @@ class value;
 class object {
 	friend bool operator==(const object &lhs, const object &rhs);
 	friend bool operator!=(const object &lhs, const object &rhs);
-	
+
 	template <class In>
 	friend class parser;
 
@@ -35,6 +35,9 @@ public:
 	object();
 	object(const object &other);
 	object &operator=(const object &rhs);
+#if __cplusplus >= 201103L
+	object(std::initializer_list<std::pair<std::string, value>> list);
+#endif
 
 #if __cplusplus >= 201103L
 public:
@@ -49,7 +52,7 @@ public:
 	const_iterator end() const    { return values_.end(); }
 	const_iterator cbegin() const { return values_.begin(); }
 	const_iterator cend() const   { return values_.end(); }
-	
+
 public:
 	iterator find(const std::string &s)             { return values_.find(s); }
 	const_iterator find(const std::string &s) const { return values_.find(s); }
@@ -62,7 +65,7 @@ public:
 public:
 	const value operator[](const std::string &key) const;
 	value &operator[](const std::string &key);
-	
+
 	const value at(const std::string &key) const;
 	value &at(const std::string &key);
 
@@ -91,7 +94,7 @@ inline object::iterator end(object &obj)                { return obj.end();   }
 inline object::const_iterator begin(const object &obj)  { return obj.begin(); }
 inline object::const_iterator end(const object &obj)    { return obj.end();   }
 inline object::const_iterator cbegin(const object &obj) { return obj.begin(); }
-inline object::const_iterator cend(const object &obj)   { return obj.end();   }	
+inline object::const_iterator cend(const object &obj)   { return obj.end();   }
 
 }
 

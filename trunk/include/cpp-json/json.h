@@ -2,7 +2,7 @@
 #ifndef JSON_20110525_H_
 #define JSON_20110525_H_
 
-/* TODO: support unicode
+/* TODO(eteran): support unicode
 	00 00 00 xx  UTF-32BE
 	00 xx 00 xx  UTF-16BE
 	xx 00 00 00  UTF-32LE
@@ -25,6 +25,7 @@
 #include <unordered_map>
 #include <memory>
 #include <cstdint>
+#include <initializer_list>
 #else
 #include <boost/cstdint.hpp>
 #include <boost/lexical_cast.hpp>
@@ -54,7 +55,7 @@ inline bool is_string(const value &v);
 inline bool is_bool(const value &v);
 inline bool is_number(const value &v);
 inline bool is_object(const value &v);
-inline bool is_array(const value &v); 
+inline bool is_array(const value &v);
 inline bool is_null(const value &v);
 
 // conversion (you get a copy)
