@@ -32,7 +32,6 @@ inline object &object::operator=(const object &rhs) {
 inline object::object(std::initializer_list<std::pair<std::string, value>> list) {
 
 	for(auto &x : list) {
-		// TODO(eteran): support unicode escapes in the key!
 		values_.emplace(x.first, x.second);
 	}
 }
@@ -58,7 +57,6 @@ inline object &object::operator=(object &&rhs) {
 //------------------------------------------------------------------------------
 template <class T>
 inline object &object::insert(std::pair<std::string, T> &&p) {
-	// TODO(eteran): support unicode escapes in the key!
 	values_.insert(std::move(p));
 	return *this;
 }
@@ -107,7 +105,6 @@ inline value &object::at(const std::string &key) {
 //------------------------------------------------------------------------------
 template <class T>
 inline object &object::insert(const std::pair<std::string, T> &p) {
-	// TODO(eteran): support unicode escapes in the key!
 	values_.insert(p);
 	return *this;
 }
@@ -117,7 +114,6 @@ inline object &object::insert(const std::pair<std::string, T> &p) {
 //------------------------------------------------------------------------------
 template <class T>
 inline object &object::insert(const std::string &key, const T &v) {
-	// TODO(eteran): support unicode escapes in the key!
 	return insert(std::make_pair(key, value(v)));
 }
 
