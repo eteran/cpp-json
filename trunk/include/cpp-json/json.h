@@ -20,6 +20,7 @@
 #include <string>
 #include <vector>
 #include <iostream>
+#include <cctype>
 
 #if __cplusplus >= 201103L
 #include <unordered_map>
