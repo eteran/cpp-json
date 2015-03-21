@@ -84,4 +84,4 @@ Both of which, of course results in an object representing the following JSON:
 	  "test2" : 10
 	}
 	
-Finally, this library is very fast, when processing a 190 MB JSON file I randomly selected, parsing took no more than 18 seconds on my machine. For a Qt4 JSON parsing library, you can also checkout my other project: QJson4 (Soon to be imported to github as well)
+Finally, this library is very fast, when processing a 190 MB JSON file I randomly selected, parsing took no more than 18 seconds on my machine. For a Qt4 JSON parsing library, you can also checkout my other project: [QJson4](https://github.com/eteran/qjson4)
