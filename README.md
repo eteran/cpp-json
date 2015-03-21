@@ -2,7 +2,7 @@ There are a few different JSON parsing libraries out there. But cpp-json aims to
 
 Currently, the only active item on the TODO list is to better support Unicode. The parser can be given iterators referring to wide characters, but there is no runtime detection or endian-ness detection (yet)
 
-However, Unicode is generally **well supported** in the form of `\uXXXX` encoding, including code points which require surrogate pairs. The resulting json::value object will contain the string, encoded as UTF-8 since it is stored in a `std::string`.
+However, Unicode is generally **well supported** in the form of `\uXXXX` encoding, including code points which require surrogate pairs. The resulting `json::value` object will contain the string, encoded as UTF-8 since it is stored in a `std::string`.
 
 Of course special consideration is needed when displaying these strings if they do in fact contain non ASCII characters.
 
