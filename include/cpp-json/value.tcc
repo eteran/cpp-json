@@ -171,28 +171,28 @@ inline void value::swap(value &other) {
 // Name: operator[]
 //------------------------------------------------------------------------------
 inline const value value::operator[](const std::string &key) const {
-	return as_object(*this)[key];
+	return as_object()[key];
 }
 
 //------------------------------------------------------------------------------
 // Name: operator[]
 //------------------------------------------------------------------------------
 inline const value value::operator[](std::size_t n) const {
-	return as_array(*this)[n];
+	return as_array()[n];
 }
 
 //------------------------------------------------------------------------------
 // Name: operator[]
 //------------------------------------------------------------------------------
 inline value &value::operator[](const std::string &key) {
-	return as_object(*this)[key];
+	return as_object()[key];
 }
 
 //------------------------------------------------------------------------------
 // Name: operator[]
 //------------------------------------------------------------------------------
 inline value &value::operator[](std::size_t n) {
-	return as_array(*this)[n];
+	return as_array()[n];
 }
 
 //------------------------------------------------------------------------------
@@ -237,6 +237,48 @@ inline bool operator==(const value &lhs, const value &rhs) {
 //------------------------------------------------------------------------------
 inline bool operator!=(const value &lhs, const value &rhs) {
 	return !(lhs == rhs);
+}
+
+//------------------------------------------------------------------------------
+// Name: as_string
+//------------------------------------------------------------------------------
+inline const std::string &value::as_string() const {
+	return boost::get<std::string>(value_);
+}
+
+//------------------------------------------------------------------------------
+// Name: as_string
+//------------------------------------------------------------------------------
+inline std::string &value::as_string() {
+	return boost::get<std::string>(value_);
+}
+
+//------------------------------------------------------------------------------
+// Name: as_object
+//------------------------------------------------------------------------------
+const object &value::as_object() const {
+	return *boost::get<object_pointer>(value_);
+}
+
+//------------------------------------------------------------------------------
+// Name: as_object
+//------------------------------------------------------------------------------
+object &value::as_object() {
+	return *boost::get<object_pointer>(value_);
+}
+
+//------------------------------------------------------------------------------
+// Name: as_array
+//------------------------------------------------------------------------------
+const array &value::as_array() const {
+	return *boost::get<array_pointer>(value_);
+}
+
+//------------------------------------------------------------------------------
+// Name: as_array
+//------------------------------------------------------------------------------
+array &value::as_array() {
+	return *boost::get<array_pointer>(value_);
 }
 
 }

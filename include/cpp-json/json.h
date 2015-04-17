@@ -23,10 +23,11 @@
 #include <cctype>
 
 #if __cplusplus >= 201103L
-#include <unordered_map>
-#include <memory>
 #include <cstdint>
 #include <initializer_list>
+#include <memory>
+#include <type_traits>
+#include <unordered_map>
 #else
 #include <boost/cstdint.hpp>
 #include <boost/lexical_cast.hpp>

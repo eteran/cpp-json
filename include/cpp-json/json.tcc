@@ -48,7 +48,7 @@ inline bool to_bool(const value &v) {
 		throw invalid_type_cast();
 	}
 
-	return boost::get<std::string>(v.value_) == "true";
+	return v.as_string() == "true";
 }
 
 inline double to_number(const value &v) {
@@ -71,7 +71,7 @@ inline object &as_object(value &v) {
 		throw invalid_type_cast();
 	}
 
-	return *boost::get<object_pointer>(v.value_);
+	return v.as_object();
 }
 
 inline const object &as_object(const value &v) {
@@ -79,7 +79,7 @@ inline const object &as_object(const value &v) {
 		throw invalid_type_cast();
 	}
 
-	return *boost::get<object_pointer>(v.value_);
+	return v.as_object();
 }
 
 inline array &as_array(value &v) {
@@ -87,7 +87,7 @@ inline array &as_array(value &v) {
 		throw invalid_type_cast();
 	}
 
-	return *boost::get<array_pointer>(v.value_);
+	return v.as_array();
 }
 
 inline const array &as_array(const value &v) {
@@ -95,7 +95,7 @@ inline const array &as_array(const value &v) {
 		throw invalid_type_cast();
 	}
 
-	return *boost::get<array_pointer>(v.value_);
+	return v.as_array();
 }
 
 const std::string &as_string(const value &v) {
@@ -103,7 +103,7 @@ const std::string &as_string(const value &v) {
 		throw invalid_type_cast();
 	}
 
-	return boost::get<std::string>(v.value_);
+	return v.as_string();
 }
 
 std::string &as_string(value &v) {
@@ -111,7 +111,7 @@ std::string &as_string(value &v) {
 		throw invalid_type_cast();
 	}
 
-	return boost::get<std::string>(v.value_);
+	return v.as_string();
 }
 
 inline bool has_key(const value &v, const std::string &key) {

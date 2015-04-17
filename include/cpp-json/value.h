@@ -101,6 +101,14 @@ public:
 	const value operator[](std::size_t n) const;
 	value &operator[](const std::string &key);
 	value &operator[](std::size_t n);
+	
+private:
+	const std::string &as_string() const;
+	std::string &as_string();
+	const object &as_object() const;
+	object &as_object();
+	const array &as_array() const;
+	array &as_array();	
 
 private:
 	boost::variant<
