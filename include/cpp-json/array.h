@@ -32,13 +32,11 @@ public:
 
 public:
 	array();
-	array(const array &other);
-	array &operator=(const array &rhs);
-	array(std::initializer_list<value> list);
-
-public:
 	array(array &&other);
+	array(const array &other);
+	array(std::initializer_list<value> list);
 	array &operator=(array &&rhs);
+	array &operator=(const array &rhs);
 
 public:
 	iterator begin()                       { return values_.begin();  }

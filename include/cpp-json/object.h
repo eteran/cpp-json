@@ -31,11 +31,9 @@ public:
 public:
 	object();
 	object(const object &other);
-	object &operator=(const object &rhs);
-	object(std::initializer_list<std::pair<std::string, value>> list);
-
-public:
 	object(object &&other);
+	object(std::initializer_list<std::pair<std::string, value>> list);
+	object &operator=(const object &rhs);
 	object &operator=(object &&rhs);
 
 public:
