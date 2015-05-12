@@ -1,8 +1,7 @@
 
 SHELL=/bin/sh
 
-CXX     := g++
-LD      := g++
+LD      := $(CXX)
 MKDIR   := mkdir -p
 OBJ_DIR := .obj
 
