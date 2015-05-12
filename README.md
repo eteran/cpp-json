@@ -46,44 +46,31 @@ Here is a simple example of the usage of this library:
 You can also programmatically create `json::value` objects like this:
 
 	int main(int argc, char *argv[]) {
-        	json::object obj;
-        	// construct programatically
-        	obj1.insert("test1", "hello world")
-                	.insert("test2", 10)
-                	.insert("test3", json::object().insert("x", 123.456))
-                	.insert("test4", json::array().append(1).append(2).append(3).append(4).append("hello"));
+		json::array arr = {
+			1,
+			2,
+			3,
+			4,
+			"Testing 1 2 3", json::object{
+				{ "hello", 1234 },
+				{ "world", 5678 }
+			}
+		};
 
         	std::cout << stringify(obj1) << std::endl;
 	}
 	
-When compiling with C++11, you can benefit from variadic templates and have more concise syntax too
+Which of course results in a object representing the following JSON:
 
-	int main(int argc, char *argv[]) {
-        	json::object obj;
-        	// construct programmatically
-        	obj1.insert("test1", "hello world")
-                	.insert("test2", 10)
-                	.insert("test3", json::object().insert("x", 123.456))
-                	.insert("test4", json::array().append(1, 2, 3, 4, "hello"));
-
-        	std::cout << stringify(obj1) << std::endl;
-	}
-
-Both of which, of course results in an object representing the following JSON:
-
-	{
-	  "test3" : {
-    	"x" : 123.456
-	  },
-	  "test4" : [
-    	1,
-    	2,
-    	3,
-    	4,
-    	"hello"
-	  ],
-	  "test1" : "hello world",
-	  "test2" : 10
-	}
+	[
+		1,
+		2,
+		3,
+		4,
+		"Testing 1 2 3", {
+			"hello" : 1234,
+			"world" : 5678
+		}
+	]
 	
 Finally, this library is very fast, when processing a 190 MB JSON file I randomly selected, parsing took no more than 18 seconds on my machine. For a Qt4 JSON parsing library, you can also checkout my other project: [QJson4](https://github.com/eteran/qjson4)
