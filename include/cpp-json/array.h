@@ -34,15 +34,11 @@ public:
 	array();
 	array(const array &other);
 	array &operator=(const array &rhs);
-#if __cplusplus >= 201103L
 	array(std::initializer_list<value> list);
-#endif
 
-#if __cplusplus >= 201103L
 public:
 	array(array &&other);
 	array &operator=(array &&rhs);
-#endif
 
 public:
 	iterator begin()                       { return values_.begin();  }
@@ -71,13 +67,11 @@ public:
 	value &at(std::size_t n);
 
 public:
-#if __cplusplus >= 201103L
 	template <class T, class... Args>
     array &append(const T &v, Args &&...args);
 
 	template <class T>
 	array &append(T &&v);
-#endif
 
 	template <class T>
 	array &append(const T &v);

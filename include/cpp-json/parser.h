@@ -32,7 +32,7 @@ private:
 	array_pointer                 get_array();
 	bool                          get_false();
 	bool                          get_true();
-	null_t                        get_null();
+	std::nullptr_t                get_null();
 	object_pointer                get_object();
 	std::pair<std::string, value> get_pair();
 	std::string                   get_number();

@@ -24,8 +24,6 @@ inline array &array::operator=(const array &rhs) {
 	return *this;
 }
 
-#if __cplusplus >= 201103L
-
 //------------------------------------------------------------------------------
 // Name: array
 //------------------------------------------------------------------------------
@@ -68,7 +66,6 @@ array &array::append(T &&v) {
 	values_.push_back(value(std::move(v)));
 	return *this;
 }
-#endif
 
 //------------------------------------------------------------------------------
 // Name: operator[]

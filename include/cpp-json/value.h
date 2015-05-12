@@ -4,8 +4,6 @@
 
 namespace json {
 
-static const struct null_t { null_t() {} } null;
-
 class array;
 class object;
 
@@ -42,15 +40,11 @@ private:
 	struct numeric_t {};
 	// create a value from a numeric string, internal use only!
 	value(const std::string &s, const numeric_t &);
-
-#if __cplusplus >= 201103L
 	value(std::string &&s, const numeric_t &);
-#endif
+
 
 public:
 	// intialize from basic types
-	value(const null_t &);
-
 	value(bool b);
 	value(const array &a);
 	value(const char *s);
@@ -60,27 +54,23 @@ public:
 	value(float x);
 	value(int x);
 	value(long x);
-#if __cplusplus >= 201103L
 	value(const std::nullptr_t &);
 	value(std::string &&s);
-#endif
+
 
 public:
 	explicit value(const object_pointer &o);
 	explicit value(const array_pointer &a);
-#if __cplusplus >= 201103L
 	explicit value(object_pointer &&o);
 	explicit value(array_pointer &&a);
-#endif
+
 public:
 	value(const value &other);
 	value &operator=(const value &rhs);
 
-#if __cplusplus >= 201103L
 public:
 	value(value &&other);
 	value &operator=(value &&rhs);
-#endif
 
 public:
 	void swap(value &other);

@@ -126,13 +126,13 @@ bool parser<In>::get_true() {
 // Name: get_null
 //------------------------------------------------------------------------------
 template <class In>
-null_t parser<In>::get_null() {
+std::nullptr_t parser<In>::get_null() {
 	if(cur_ == end_ || *cur_++ != 'n') { throw keyword_expected(); }
 	if(cur_ == end_ || *cur_++ != 'u') { throw keyword_expected(); }
 	if(cur_ == end_ || *cur_++ != 'l') { throw keyword_expected(); }
 	if(cur_ == end_ || *cur_++ != 'l') { throw keyword_expected(); }
 
-	return null;
+	return nullptr;
 }
 
 //------------------------------------------------------------------------------
@@ -368,7 +368,7 @@ std::string parser<In>::get_number(const std::random_access_iterator_tag &) {
 template <class In>
 object_pointer parser<In>::get_object() {
 
-	object_pointer obj = make_shared<object>();
+	object_pointer obj = std::make_shared<object>();
 
 	if(peek() != ObjectBegin) {
 		throw brace_expected();
@@ -402,7 +402,7 @@ object_pointer parser<In>::get_object() {
 template <class In>
 array_pointer parser<In>::get_array() {
 
-	array_pointer arr = make_shared<array>();
+	array_pointer arr = std::make_shared<array>();
 
 	if(peek() != ArrayBegin) {
 		throw bracket_expected();

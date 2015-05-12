@@ -15,11 +15,8 @@ class object {
 	friend class parser;
 
 private:
-#if __cplusplus >= 201103L
 	typedef std::unordered_map<std::string, value> C;
-#else
-	typedef boost::unordered_map<std::string, value> C;
-#endif
+
 public:
 	typedef typename C::allocator_type          allocator_type;
 	typedef typename C::reference               reference;
@@ -35,15 +32,11 @@ public:
 	object();
 	object(const object &other);
 	object &operator=(const object &rhs);
-#if __cplusplus >= 201103L
 	object(std::initializer_list<std::pair<std::string, value>> list);
-#endif
 
-#if __cplusplus >= 201103L
 public:
 	object(object &&other);
 	object &operator=(object &&rhs);
-#endif
 
 public:
 	iterator begin()              { return values_.begin(); }
@@ -75,10 +68,8 @@ public:
 	template <class T>
 	object &insert(const std::pair<std::string, T> &p);
 
-#if __cplusplus >= 201103L
 	template <class T>
 	object &insert(std::pair<std::string, T> &&p);
-#endif
 public:
 	void swap(object &other);
 

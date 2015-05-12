@@ -24,8 +24,6 @@ inline object &object::operator=(const object &rhs) {
 	return *this;
 }
 
-#if __cplusplus >= 201103L
-
 //------------------------------------------------------------------------------
 // Name: object
 //------------------------------------------------------------------------------
@@ -60,7 +58,6 @@ inline object &object::insert(std::pair<std::string, T> &&p) {
 	values_.insert(std::move(p));
 	return *this;
 }
-#endif
 
 //------------------------------------------------------------------------------
 // Name: operator[]

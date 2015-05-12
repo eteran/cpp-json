@@ -14,27 +14,18 @@
 #include <boost/variant/get.hpp>
 
 #include <algorithm>
+#include <cctype>
+#include <cstdint>
 #include <exception>
+#include <initializer_list>
+#include <iostream>
 #include <iterator>
+#include <memory>
 #include <sstream>
 #include <string>
-#include <vector>
-#include <iostream>
-#include <cctype>
-
-#if __cplusplus >= 201103L
-#include <cstdint>
-#include <initializer_list>
-#include <memory>
 #include <type_traits>
 #include <unordered_map>
-#else
-#include <boost/cstdint.hpp>
-#include <boost/lexical_cast.hpp>
-#include <boost/make_shared.hpp>
-#include <boost/shared_ptr.hpp>
-#include <boost/unordered_map.hpp>
-#endif
+#include <vector>
 
 namespace json {
 
@@ -42,15 +33,8 @@ class value;
 class array;
 class object;
 
-#if __cplusplus >= 201103L
 typedef std::shared_ptr<object> object_pointer;
 typedef std::shared_ptr<array>  array_pointer;
-using std::make_shared;
-#else
-typedef boost::shared_ptr<object> object_pointer;
-typedef boost::shared_ptr<array>  array_pointer;
-using boost::make_shared;
-#endif
 
 // type testing
 inline bool is_string(const value &v);
@@ -84,10 +68,8 @@ template <class In>
 inline value parse(In first, In last);
 inline value parse(std::istream &is);
 inline value parse(std::wistream &is);
-#if __cplusplus >= 201103L
 inline value parse(std::istream &&is);
 inline value parse(std::wistream &&is);
-#endif
 inline value parse(const std::string &s);
 inline value parse(const std::wstring &s);
 

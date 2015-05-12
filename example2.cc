@@ -8,10 +8,11 @@
 int main() {
 
 	// construct programatically (legacy C++03 API)
+	// See example4.cc for recommended API
 	json::object obj1;
 	obj1.insert("test1", "hello world")
 		.insert("test2", 10)
-		.insert("test3", json::object().insert("x", json::null))
+		.insert("test3", json::object().insert("x", nullptr))
 
 		// if we are using C++11, we have a MUCH more elegant array initializer option
 	#if __cplusplus >= 201103L
