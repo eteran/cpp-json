@@ -6,22 +6,21 @@ namespace json {
 namespace detail {
 
 template <class In, class Tr>
-void print_exception_details_internal(In first, In current, In last, const Tr&) {
+int distance_in_stream_internal(In first, In current, const Tr&) {
 	(void)first;
 	(void)current;
-	(void)last;
+	return -1;
 }
 
 template <class In>
-void print_exception_details_internal(In first, In current, In last, const std::random_access_iterator_tag &) {
-	(void)last;
-	std::cerr << "an error occured " << std::distance(first, current) << " characters into the stream:" << std::endl;
+int distance_in_stream_internal(In first, In current, const std::random_access_iterator_tag &) {
+	return std::distance(first, current);
 }
 
 template <class In>
-void print_exception_details(In first, In current, In last) {
+int distance_in_stream(In first, In current) {
 	typedef typename std::iterator_traits<In>::iterator_category Cat;
-	print_exception_details_internal(first, current, last, Cat());
+	return distance_in_stream_internal(first, current, Cat());
 }
 
 }
@@ -33,8 +32,8 @@ value parse(In first, In last) {
 
 	try {
 		return p.parse();
-	} catch(const exception &e) {
-		detail::print_exception_details(p.begin(), p.current(), p.end());
+	} catch(exception &e) {
+		e.location = detail::distance_in_stream(p.begin(), p.current());
 		throw;
 	}
 }
@@ -55,7 +54,11 @@ inline double to_number(const value &v) {
 	if(!is_number(v)) {
 		throw invalid_type_cast();
 	}
+#if __cplusplus >= 201103L
+	return stod(as_string(v), 0);
+#else
 	return strtod(as_string(v).c_str(), 0);
+#endif
 }
 
 inline object to_object(const value &v) {

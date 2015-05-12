@@ -5,7 +5,13 @@
 namespace json {
 
 // general error
-class exception                 : public std::exception {};
+class exception                 : public std::exception {
+public:
+	exception() : location(-1) {
+	}
+public:
+	int location;
+};
 
 // parsing errors
 class boolean_expected          : public exception {};
