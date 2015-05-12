@@ -39,9 +39,7 @@ class value {
 private:
 	struct numeric_t {};
 	// create a value from a numeric string, internal use only!
-	value(const std::string &s, const numeric_t &);
-	value(std::string &&s, const numeric_t &);
-
+	value(std::string s, const numeric_t &);
 
 public:
 	// intialize from basic types
@@ -49,13 +47,12 @@ public:
 	value(const array &a);
 	value(const char *s);
 	value(const object &o);
-	value(const std::string &s);
+	value(std::string s);
 	value(double x);
 	value(float x);
 	value(int x);
 	value(long x);
 	value(const std::nullptr_t &);
-	value(std::string &&s);
 
 
 public:
@@ -67,8 +64,6 @@ public:
 public:
 	value(const value &other);
 	value &operator=(const value &rhs);
-
-public:
 	value(value &&other);
 	value &operator=(value &&rhs);
 

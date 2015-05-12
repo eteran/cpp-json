@@ -43,13 +43,13 @@ inline value::value(array_pointer &&a) : value_(std::move(a)), type_(type_array)
 //------------------------------------------------------------------------------
 // Name: value
 //------------------------------------------------------------------------------
-inline value::value(std::string &&s, const numeric_t &) : value_(std::move(s)), type_(type_number) {
+inline value::value(std::string s, const numeric_t &) : value_(std::move(s)), type_(type_number) {
 }
 
 //------------------------------------------------------------------------------
 // Name: value
 //------------------------------------------------------------------------------
-inline value::value(std::string &&s) : value_(std::move(s)), type_(type_string) {
+inline value::value(std::string s) : value_(std::move(s)), type_(type_string) {
 }
 
 //------------------------------------------------------------------------------
@@ -62,12 +62,6 @@ inline value::value(const object_pointer &o) : value_(o), type_(type_object) {
 // Name: value
 //------------------------------------------------------------------------------
 inline value::value(const array_pointer &a) : value_(a), type_(type_array) {
-}
-
-//------------------------------------------------------------------------------
-// Name: value
-//------------------------------------------------------------------------------
-inline value::value(const std::string &s, const numeric_t &) : value_(s), type_(type_number) {
 }
 
 //------------------------------------------------------------------------------
@@ -92,12 +86,6 @@ inline value::value(long x) : value_(std::to_string(x)), type_(type_number) {
 // Name: value
 //------------------------------------------------------------------------------
 inline value::value(int x) : value_(std::to_string(x)), type_(type_number) {
-}
-
-//------------------------------------------------------------------------------
-// Name: value
-//------------------------------------------------------------------------------
-inline value::value(const std::string &s) : value_(s), type_(type_string) {
 }
 
 //------------------------------------------------------------------------------
