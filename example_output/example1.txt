@@ -1,0 +1,23 @@
+{
+  "n2" : -1234,
+  "b2" : false,
+  "n1" : null,
+  "b1" : true,
+  "u" : "\u1234",
+  "test\nreturn" : "hello\tworld",
+  "object1" : {
+    "object2" : {
+      "object3" : {
+        "test4" : [
+          1,
+          2,
+          3,
+          4
+        ],
+        "test3" : 3
+      },
+      "test2" : 2
+    }
+  },
+  "test1" : 1
+}

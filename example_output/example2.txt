@@ -1,0 +1,16 @@
+{
+  "test4" : [
+    1,
+    2,
+    3,
+    4,
+    "hello",
+    true,
+    1.300000
+  ],
+  "test3" : {
+    "x" : null
+  },
+  "test2" : 10,
+  "test1" : "hello world"
+}

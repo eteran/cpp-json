@@ -1,43 +1,29 @@
 
 SHELL=/bin/sh
 
-LD      := $(CXX)
-MKDIR   := mkdir -p
-OBJ_DIR := .obj
-
 .SUFFIXES:
 
-$(OBJ_DIR)/%.o: %.cc
-	$(CXX) $(CXXFLAGS) -MMD -c $< -o $@
-
-TARGET = cpp-json
-
 CXXFLAGS  := -std=c++11 -pedantic -Wextra -Wall -Iinclude -O2 -g3
-LDFLAGS   := 
-H_FILES   :=
-CXX_FILES := main.cc
 
-O_FILES := $(patsubst %.cc, $(OBJ_DIR)/%.o, $(CXX_FILES))
-D_FILES := $(O_FILES:.o=.d)
-
-SOURCEFILES :=	$(H_FILES) $(CXX_FILES)
-.PRECIOUS:	$(SOURCEFILES)
 .PHONY:     all clean
 
-all: $(TARGET)
+TARGETS := example1 example2 example3 example4
 
-$(O_FILES): | $(OBJ_DIR) 
+all: $(TARGETS)
 
-$(D_FILES): | $(OBJ_DIR)
+example1: example1.cc 
+	$(CXX) $(CXXFLAGS) $^ -o $@
+	
+example2: example2.cc 
+	$(CXX) $(CXXFLAGS) $^ -o $@
 
-$(OBJ_DIR) :
-	@$(MKDIR) $@
+example3: example3.cc 
+	$(CXX) $(CXXFLAGS) $^ -o $@
 
-$(TARGET): $(O_FILES) 
-	$(LD) $(LDFLAGS) $^ -o $@
+example4: example4.cc 
+	$(CXX) $(CXXFLAGS) $^ -o $@
 
 clean:
-	$(RM) $(O_FILES) $(D_FILES) $(TARGET)
+	$(RM) $(TARGETS)
 
--include $(D_FILES)
 

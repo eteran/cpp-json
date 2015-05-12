@@ -1,0 +1,18 @@
+{
+  "test2" : "BLAH𠂊BLAH",
+  "test1" : "hello world",
+  "test4" : [
+    1,
+    2,
+    3,
+    {
+      "z" : 12345
+    }
+  ],
+  "test3" : {
+    "x" : 123.456
+  }
+}
+----------
+12345
+{"test2":"BLAH\uD840\uDC8ABLAH","test1":"hello world","test4":[1,2,3,{"z":12345}],"test3":{"x":123.456}}
