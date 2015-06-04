@@ -73,7 +73,7 @@ inline value parse(std::wistream &&is);
 inline value parse(const std::string &s);
 inline value parse(const std::wstring &s);
 
-// conert a value to a JSON string
+// convert a value to a JSON string
 enum {
 	ESCAPE_UNICODE = 0x01,
 	PRETTY_PRINT   = 0x02
