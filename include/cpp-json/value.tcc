@@ -14,7 +14,7 @@ inline value::value(const std::nullptr_t &): value_("null"), type_(type_null) {
 // Name: array
 //------------------------------------------------------------------------------
 inline value::value(value &&other) : value_(other.value_), type_(other.type_) {
-	other.value_ = boost::blank();
+	other.value_ = invalid_t();
 	other.type_  = type_invalid;
 }
 
