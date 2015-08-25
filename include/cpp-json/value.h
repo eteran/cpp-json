@@ -54,6 +54,8 @@ public:
 	value(long x);
 	value(const std::nullptr_t &);
 
+public:
+	~value();
 
 public:
 	explicit value(const object_pointer &o);
