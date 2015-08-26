@@ -19,7 +19,7 @@ inline value::value(const std::nullptr_t &): type_(type_null) {
 }
 
 //------------------------------------------------------------------------------
-// Name: array
+// Name: value
 //------------------------------------------------------------------------------
 inline value::value(value &&other) : type_(other.type_) {
 
