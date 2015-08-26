@@ -58,10 +58,8 @@ public:
 	~value();
 
 public:
-	explicit value(const object_pointer &o);
-	explicit value(const array_pointer &a);
-	explicit value(object_pointer &&o);
-	explicit value(array_pointer &&a);
+	explicit value(object_pointer o);
+	explicit value(array_pointer a);
 
 public:
 	value(const value &other);

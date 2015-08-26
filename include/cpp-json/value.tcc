@@ -61,14 +61,14 @@ inline value &value::operator=(value &&rhs) {
 //------------------------------------------------------------------------------
 // Name: value
 //------------------------------------------------------------------------------
-inline value::value(object_pointer &&o) : type_(type_object) {
+inline value::value(object_pointer o) : type_(type_object) {
 	new (&value_) object_pointer(std::move(o));
 }
 
 //------------------------------------------------------------------------------
 // Name: value
 //------------------------------------------------------------------------------
-inline value::value(array_pointer &&a) : type_(type_array) {
+inline value::value(array_pointer a) : type_(type_array) {
 	new (&value_) array_pointer(std::move(a));
 }
 
@@ -84,20 +84,6 @@ inline value::value(std::string s, const numeric_t &) : type_(type_number) {
 //------------------------------------------------------------------------------
 inline value::value(std::string s) : type_(type_string) {
 	new (&value_) std::string(std::move(s));
-}
-
-//------------------------------------------------------------------------------
-// Name: value
-//------------------------------------------------------------------------------
-inline value::value(const object_pointer &o) : type_(type_object) {
-	new (&value_) object_pointer(o);
-}
-
-//------------------------------------------------------------------------------
-// Name: value
-//------------------------------------------------------------------------------
-inline value::value(const array_pointer &a) : type_(type_array) {
-	new (&value_) array_pointer(a);
 }
 
 //------------------------------------------------------------------------------
