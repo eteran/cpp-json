@@ -8,7 +8,31 @@ namespace json {
 // Name: ~value
 //------------------------------------------------------------------------------
 inline value::~value() {
-	destroy();
+	using std::string;
+
+	switch(type_) {
+	case value::type_string:
+	case value::type_number:
+	case value::type_null:
+	case value::type_boolean:
+		reinterpret_cast<std::string *>(&value_)->~string();
+		break;
+	case value::type_array:
+		reinterpret_cast<array_pointer *>(&value_)->~array_pointer();
+		break;
+	case value::type_object:
+		reinterpret_cast<object_pointer *>(&value_)->~object_pointer();
+		break;
+	case value::type_invalid:
+		break;
+	}
+}
+
+//------------------------------------------------------------------------------
+// Name: value
+//------------------------------------------------------------------------------
+inline value::value() : type_(type_invalid) {
+
 }
 
 //------------------------------------------------------------------------------
@@ -21,31 +45,8 @@ inline value::value(const std::nullptr_t &): type_(type_null) {
 //------------------------------------------------------------------------------
 // Name: value
 //------------------------------------------------------------------------------
-inline value::value(value &&other) : type_(other.type_) {
-
-	// move from the other object
-	switch(type_) {
-	case value::type_string:
-	case value::type_number:
-	case value::type_null:
-	case value::type_boolean:
-		new (&value_) std::string(std::move(*reinterpret_cast<std::string *>(&other.value_)));
-		break;
-	case value::type_array:
-		new (&value_) array_pointer(std::move(*reinterpret_cast<array_pointer *>(&other.value_)));
-		break;
-	case value::type_object:
-		new (&value_) object_pointer(std::move(*reinterpret_cast<object_pointer *>(&other.value_)));
-		break;
-	case value::type_invalid:
-		break;
-	}
-	
-	// destroy the other guys values
-	other.destroy();
-
-	// now set it to the invalid type
-	other.type_  = type_invalid;
+inline value::value(value &&other) : value() {
+	other.swap(*this);
 }
 
 //------------------------------------------------------------------------------
@@ -315,31 +316,6 @@ array &value::as_array() {
 		throw invalid_type_cast();
 	}
 	return **reinterpret_cast<array_pointer *>(&value_);
-}
-
-//------------------------------------------------------------------------------
-// Name: destroy
-//------------------------------------------------------------------------------
-void value::destroy() {
-
-	using std::string;
-
-	switch(type_) {
-	case value::type_string:
-	case value::type_number:
-	case value::type_null:
-	case value::type_boolean:
-		reinterpret_cast<std::string *>(&value_)->~string();
-		break;
-	case value::type_array:
-		reinterpret_cast<array_pointer *>(&value_)->~array_pointer();
-		break;
-	case value::type_object:
-		reinterpret_cast<object_pointer *>(&value_)->~object_pointer();
-		break;
-	case value::type_invalid:
-		break;
-	}
 }
 
 }

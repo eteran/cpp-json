@@ -55,6 +55,7 @@ public:
 	value(const std::nullptr_t &);
 
 public:
+	value();
 	~value();
 
 public:
@@ -94,9 +95,6 @@ private:
 	object &as_object();
 	const array &as_array() const;
 	array &as_array();
-
-private:
-	void destroy();
 
 private:
 	struct invalid_t {};
