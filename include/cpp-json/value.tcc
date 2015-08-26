@@ -156,7 +156,9 @@ inline value::value(const value &other) : type_(other.type_) {
 // Name: operator=
 //------------------------------------------------------------------------------
 inline value &value::operator=(const value &rhs) {
-	value(rhs).swap(*this);
+	if(this != &rhs) {
+		value(rhs).swap(*this);
+	}
 	return *this;
 }
 
