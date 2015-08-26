@@ -12,17 +12,37 @@ TESTS   := example1.test example2.test example3.test example4.test
 
 all: $(TARGETS)
 
-example1: example1.cc 
-	$(CXX) $(CXXFLAGS) $^ -o $@
+example1: example1.cc include/cpp-json/json.h \
+ include/cpp-json/exception.h include/cpp-json/value.h \
+ include/cpp-json/object.h include/cpp-json/array.h \
+ include/cpp-json/parser.h include/cpp-json/json.tcc \
+ include/cpp-json/object.tcc include/cpp-json/array.tcc \
+ include/cpp-json/value.tcc include/cpp-json/parser.tcc
+	$(CXX) $(CXXFLAGS) $< -o $@
 	
-example2: example2.cc 
-	$(CXX) $(CXXFLAGS) $^ -o $@
+example2: example2.cc include/cpp-json/json.h \
+ include/cpp-json/exception.h include/cpp-json/value.h \
+ include/cpp-json/object.h include/cpp-json/array.h \
+ include/cpp-json/parser.h include/cpp-json/json.tcc \
+ include/cpp-json/object.tcc include/cpp-json/array.tcc \
+ include/cpp-json/value.tcc include/cpp-json/parser.tcc
+	$(CXX) $(CXXFLAGS) $< -o $@
 
-example3: example3.cc 
-	$(CXX) $(CXXFLAGS) $^ -o $@
+example3: example3.cc include/cpp-json/json.h \
+ include/cpp-json/exception.h include/cpp-json/value.h \
+ include/cpp-json/object.h include/cpp-json/array.h \
+ include/cpp-json/parser.h include/cpp-json/json.tcc \
+ include/cpp-json/object.tcc include/cpp-json/array.tcc \
+ include/cpp-json/value.tcc include/cpp-json/parser.tcc
+	$(CXX) $(CXXFLAGS) $< -o $@
 
-example4: example4.cc 
-	$(CXX) $(CXXFLAGS) $^ -o $@
+example4: example4.cc include/cpp-json/json.h \
+ include/cpp-json/exception.h include/cpp-json/value.h \
+ include/cpp-json/object.h include/cpp-json/array.h \
+ include/cpp-json/parser.h include/cpp-json/json.tcc \
+ include/cpp-json/object.tcc include/cpp-json/array.tcc \
+ include/cpp-json/value.tcc include/cpp-json/parser.tcc
+	$(CXX) $(CXXFLAGS) $< -o $@
 	
 test: $(TESTS)
 	@echo "All Passed"
