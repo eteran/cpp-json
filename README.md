@@ -57,7 +57,7 @@ You can also programmatically create `json::value` objects like this:
 			}
 		};
 
-        	std::cout << stringify(obj1) << std::endl;
+        	std::cout << stringify(arr) << std::endl;
 	}
 	
 Which of course results in a object representing the following JSON:
