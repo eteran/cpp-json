@@ -10,9 +10,6 @@
 	xx xx xx xx  UTF-8
 */
 
-#include <boost/variant.hpp>
-#include <boost/variant/get.hpp>
-
 #include <algorithm>
 #include <cctype>
 #include <cstdint>

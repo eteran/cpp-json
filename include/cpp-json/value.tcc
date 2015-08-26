@@ -8,19 +8,43 @@ namespace json {
 // Name: ~value
 //------------------------------------------------------------------------------
 inline value::~value() {
+	destroy();
 }
 
 //------------------------------------------------------------------------------
 // Name: value
 //------------------------------------------------------------------------------
-inline value::value(const std::nullptr_t &): value_("null"), type_(type_null) {
+inline value::value(const std::nullptr_t &): type_(type_null) {
+	new (&value_) std::string("null");
 }
 
 //------------------------------------------------------------------------------
 // Name: array
 //------------------------------------------------------------------------------
-inline value::value(value &&other) : value_(other.value_), type_(other.type_) {
-	other.value_ = invalid_t();
+inline value::value(value &&other) : type_(other.type_) {
+
+	// move from the other object
+	switch(type_) {
+	case value::type_string:
+	case value::type_number:
+	case value::type_null:
+	case value::type_boolean:
+		new (&value_) std::string(std::move(*reinterpret_cast<std::string *>(&other.value_)));
+		break;
+	case value::type_array:
+		new (&value_) array_pointer(std::move(*reinterpret_cast<array_pointer *>(&other.value_)));
+		break;
+	case value::type_object:
+		new (&value_) object_pointer(std::move(*reinterpret_cast<object_pointer *>(&other.value_)));
+		break;
+	case value::type_invalid:
+		break;
+	}
+	
+	// destroy the other guys values
+	other.destroy();
+
+	// now set it to the invalid type
 	other.type_  = type_invalid;
 }
 
@@ -37,79 +61,109 @@ inline value &value::operator=(value &&rhs) {
 //------------------------------------------------------------------------------
 // Name: value
 //------------------------------------------------------------------------------
-inline value::value(object_pointer &&o) : value_(std::move(o)), type_(type_object) {
+inline value::value(object_pointer &&o) : type_(type_object) {
+	new (&value_) object_pointer(std::move(o));
 }
 
 //------------------------------------------------------------------------------
 // Name: value
 //------------------------------------------------------------------------------
-inline value::value(array_pointer &&a) : value_(std::move(a)), type_(type_array) {
+inline value::value(array_pointer &&a) : type_(type_array) {
+	new (&value_) array_pointer(std::move(a));
 }
 
 //------------------------------------------------------------------------------
 // Name: value
 //------------------------------------------------------------------------------
-inline value::value(std::string s, const numeric_t &) : value_(std::move(s)), type_(type_number) {
+inline value::value(std::string s, const numeric_t &) : type_(type_number) {
+	new (&value_) std::string(std::move(s));
 }
 
 //------------------------------------------------------------------------------
 // Name: value
 //------------------------------------------------------------------------------
-inline value::value(std::string s) : value_(std::move(s)), type_(type_string) {
+inline value::value(std::string s) : type_(type_string) {
+	new (&value_) std::string(std::move(s));
 }
 
 //------------------------------------------------------------------------------
 // Name: value
 //------------------------------------------------------------------------------
-inline value::value(const object_pointer &o) : value_(o), type_(type_object) {
+inline value::value(const object_pointer &o) : type_(type_object) {
+	new (&value_) object_pointer(o);
 }
 
 //------------------------------------------------------------------------------
 // Name: value
 //------------------------------------------------------------------------------
-inline value::value(const array_pointer &a) : value_(a), type_(type_array) {
+inline value::value(const array_pointer &a) : type_(type_array) {
+	new (&value_) array_pointer(a);
 }
 
 //------------------------------------------------------------------------------
 // Name: value
 //------------------------------------------------------------------------------
-inline value::value(double x) : value_(std::to_string(x)), type_(type_number) {
+inline value::value(double x) : type_(type_number) {
+	new (&value_) std::string(std::to_string(x));
 }
 
 //------------------------------------------------------------------------------
 // Name: value
 //------------------------------------------------------------------------------
-inline value::value(float x) : value_(std::to_string(x)), type_(type_number) {
+inline value::value(float x) : type_(type_number) {
+	new (&value_) std::string(std::to_string(x));
 }
 
 //------------------------------------------------------------------------------
 // Name: value
 //------------------------------------------------------------------------------
-inline value::value(long x) : value_(std::to_string(x)), type_(type_number) {
+inline value::value(long x) : type_(type_number) {
+	new (&value_) std::string(std::to_string(x));
 }
 
 //------------------------------------------------------------------------------
 // Name: value
 //------------------------------------------------------------------------------
-inline value::value(int x) : value_(std::to_string(x)), type_(type_number) {
+inline value::value(int x) : type_(type_number) {
+	new (&value_) std::string(std::to_string(x));
 }
 
 //------------------------------------------------------------------------------
 // Name: value
 //------------------------------------------------------------------------------
-inline value::value(const char *s) : value_(s), type_(type_string) {
+inline value::value(const char *s) : type_(type_string) {
+	new (&value_) std::string(s);
 }
 
 //------------------------------------------------------------------------------
 // Name: value
 //------------------------------------------------------------------------------
-inline value::value(bool b) : value_(b ? "true" : "false"), type_(type_boolean) {
+inline value::value(bool b) : type_(type_boolean) {
+	new (&value_) std::string(b ? "true" : "false");
 }
 
 //------------------------------------------------------------------------------
 // Name: value
 //------------------------------------------------------------------------------
-inline value::value(const value &other) : value_(other.value_), type_(other.type_) {
+inline value::value(const value &other) : type_(other.type_) {
+
+	// copy from the other object
+	switch(type_) {
+	case value::type_string:
+	case value::type_number:
+	case value::type_null:
+	case value::type_boolean:
+		new (&value_) std::string(*reinterpret_cast<const std::string *>(&other.value_));
+		break;
+	case value::type_array:
+		new (&value_) array_pointer(*reinterpret_cast<const array_pointer *>(&other.value_));
+		break;
+	case value::type_object:
+		new (&value_) object_pointer(*reinterpret_cast<const object_pointer *>(&other.value_));
+		break;
+	case value::type_invalid:
+		break;
+	}
 }
 
 //------------------------------------------------------------------------------
@@ -125,6 +179,7 @@ inline value &value::operator=(const value &rhs) {
 //------------------------------------------------------------------------------
 inline void value::swap(value &other) {
 	using std::swap;
+	
 	swap(value_, other.value_);
 	swap(type_, other.type_);
 }
@@ -160,13 +215,15 @@ inline value &value::operator[](std::size_t n) {
 //------------------------------------------------------------------------------
 // Name: value
 //------------------------------------------------------------------------------
-inline value::value(const array &a) : value_(std::make_shared<array>(a)), type_(type_array) {
+inline value::value(const array &a) : type_(type_array) {
+	new (&value_) array_pointer(std::make_shared<array>(a));
 }
 
 //------------------------------------------------------------------------------
 // Name: value
 //------------------------------------------------------------------------------
-inline value::value(const object &o) : value_(std::make_shared<object>(o)), type_(type_object) {
+inline value::value(const object &o) : type_(type_object) {
+	new (&value_) object_pointer(std::make_shared<object>(o));
 }
 
 //------------------------------------------------------------------------------
@@ -205,42 +262,96 @@ inline bool operator!=(const value &lhs, const value &rhs) {
 // Name: as_string
 //------------------------------------------------------------------------------
 inline const std::string &value::as_string() const {
-	return boost::get<std::string>(value_);
+
+	switch(type_) {
+	case value::type_string:
+	case value::type_number:
+	case value::type_null:
+	case value::type_boolean:	
+		return *reinterpret_cast<const std::string *>(&value_);
+	default:
+		throw invalid_type_cast();
+	}
 }
 
 //------------------------------------------------------------------------------
 // Name: as_string
 //------------------------------------------------------------------------------
 inline std::string &value::as_string() {
-	return boost::get<std::string>(value_);
+	switch(type_) {
+	case value::type_string:
+	case value::type_number:
+	case value::type_null:
+	case value::type_boolean:	
+		return *reinterpret_cast<std::string *>(&value_);
+	default:
+		throw invalid_type_cast();
+	}
 }
 
 //------------------------------------------------------------------------------
 // Name: as_object
 //------------------------------------------------------------------------------
 const object &value::as_object() const {
-	return *boost::get<object_pointer>(value_);
+	if(type_ != type_object) {
+		throw invalid_type_cast();
+	}
+	return **reinterpret_cast<const object_pointer *>(&value_);
 }
 
 //------------------------------------------------------------------------------
 // Name: as_object
 //------------------------------------------------------------------------------
 object &value::as_object() {
-	return *boost::get<object_pointer>(value_);
+	if(type_ != type_object) {
+		throw invalid_type_cast();
+	}
+	return **reinterpret_cast<object_pointer *>(&value_);
 }
 
 //------------------------------------------------------------------------------
 // Name: as_array
 //------------------------------------------------------------------------------
 const array &value::as_array() const {
-	return *boost::get<array_pointer>(value_);
+	if(type_ != type_array) {
+		throw invalid_type_cast();
+	}
+	return **reinterpret_cast<const array_pointer *>(&value_);
 }
 
 //------------------------------------------------------------------------------
 // Name: as_array
 //------------------------------------------------------------------------------
 array &value::as_array() {
-	return *boost::get<array_pointer>(value_);
+	if(type_ != type_array) {
+		throw invalid_type_cast();
+	}
+	return **reinterpret_cast<array_pointer *>(&value_);
+}
+
+//------------------------------------------------------------------------------
+// Name: destroy
+//------------------------------------------------------------------------------
+void value::destroy() {
+
+	using std::string;
+
+	switch(type_) {
+	case value::type_string:
+	case value::type_number:
+	case value::type_null:
+	case value::type_boolean:
+		reinterpret_cast<std::string *>(&value_)->~string();
+		break;
+	case value::type_array:
+		reinterpret_cast<array_pointer *>(&value_)->~array_pointer();
+		break;
+	case value::type_object:
+		reinterpret_cast<object_pointer *>(&value_)->~object_pointer();
+		break;
+	case value::type_invalid:
+		break;
+	}
 }
 
 }

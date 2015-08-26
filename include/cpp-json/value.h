@@ -98,15 +98,28 @@ private:
 	array &as_array();
 
 private:
+	void destroy();
 
+private:
 	struct invalid_t {};
 
-	boost::variant<
-		invalid_t,
-		object_pointer,
-		array_pointer,
-		std::string>    value_;
-	type                type_;
+	// I would love to use std::aligned_union, but it doesn't seem widely supported
+	// so instead, we kinda make our own, first we need a type which has the correct
+	// size and alignment requirements based on the types we want to store
+	union storage_union {
+		invalid_t      invalid;
+		object_pointer object;
+		array_pointer  array;
+		std::string    string;
+	};
+	
+	// then we create a type which is generic, and has that same alignement and size
+	typedef struct {	
+		alignas(alignof(storage_union)) uint8_t data[sizeof(storage_union)];
+	} storage_type;
+	
+	storage_type value_;		
+	type         type_;
 };
 
 bool operator==(const value &lhs, const value &rhs);
