@@ -7,9 +7,8 @@
 //------------------------------------------------------------------------------
 int main() {
 
-	// construct programmatically using object literal syntax in C++11
-#if __cplusplus >= 201103L	
-	json::array arr = {
+	// construct programmatically using object literal syntax in C++11	
+	auto arr = json::array {
 		1,
 		2,
 		3,
@@ -20,5 +19,4 @@ int main() {
 		}
 	};
 	std::cout << stringify(arr) << std::endl;
-#endif
 }
