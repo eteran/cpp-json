@@ -1,3 +1,5 @@
+**cpp-json is licensed under the GNU General Public License, version 2 or later.**
+
 **NOTE:** version [2.2](https://github.com/eteran/cpp-json/releases/tag/2.2) will be the last to not require C++11.
 
 There are a few different JSON parsing libraries out there. But cpp-json aims to be the simplest to use while still being efficient by using modern c++ techniques. Additionally, this library is header only making it trivial to include in existing projects.
