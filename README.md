@@ -18,6 +18,7 @@ will correctly parse and the object's "test1" member will have the byte sequence
 
 Here is a simple example of the usage of this library:
 
+```c++
 	#include "cpp-json/json.h"
 	#include <fstream>
 	#include <iostream>
@@ -44,9 +45,11 @@ Here is a simple example of the usage of this library:
                 	std::cout << to_string(v["servlet-name"]) << std::endl;
         	}
 	}
-	
+```
+
 You can also programmatically create `json::value` objects like this:
 
+```c++
 	int main(int argc, char *argv[]) {
 		json::array arr = {
 			1,
@@ -59,11 +62,13 @@ You can also programmatically create `json::value` objects like this:
 			}
 		};
 
-        	std::cout << stringify(arr) << std::endl;
+        std::cout << stringify(arr) << std::endl;
 	}
-	
+```
+
 Which of course results in a object representing the following JSON:
 
+```json
 	[
 		1,
 		2,
@@ -74,5 +79,6 @@ Which of course results in a object representing the following JSON:
 			"world" : 5678
 		}
 	]
-	
+```
+
 Finally, this library is very fast, when processing a 190 MB JSON file I randomly selected, parsing took no more than 18 seconds on my machine. For a Qt4 JSON parsing library, you can also checkout my other project: [QJson4](https://github.com/eteran/qjson4)
