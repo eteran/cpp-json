@@ -53,18 +53,19 @@ You can also programmatically create `json::value` objects like this:
 
 ```c++
 int main(int argc, char *argv[]) {
-	json::array arr = {
+	auto arr = json::array {
 		1,
 		2,
 		3,
 		4,
-		"Testing 1 2 3", json::object{
+		"Testing 1 2 3",
+		json::object{
 			{ "hello", 1234 },
 			{ "world", 5678 }
 		}
 	};
-
-std::cout << stringify(arr) << std::endl;
+	
+	std::cout << stringify(arr) << std::endl;
 }
 ```
 
@@ -76,7 +77,8 @@ Which of course results in a object representing the following JSON:
 	2,
 	3,
 	4,
-	"Testing 1 2 3", {
+	"Testing 1 2 3", 
+	{
 		"hello" : 1234,
 		"world" : 5678
 	}

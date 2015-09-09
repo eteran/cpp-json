@@ -13,10 +13,12 @@ int main() {
 		2,
 		3,
 		4,
-		"Testing 1 2 3", json::object{
+		"Testing 1 2 3",
+		json::object{
 			{ "hello", 1234 },
 			{ "world", 5678 }
 		}
 	};
+	
 	std::cout << stringify(arr) << std::endl;
 }
