@@ -12,8 +12,10 @@ Of course special consideration is needed when displaying these strings if they 
 
 So, for example,
 
+```json
     {"test1" : "\uD840\uDC8A"}
-   
+```
+
 will correctly parse and the object's "test1" member will have the byte sequence: `0xF0 0xA0 0x82 0x8A`
 
 Here is a simple example of the usage of this library:
