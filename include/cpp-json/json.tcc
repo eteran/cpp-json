@@ -156,320 +156,320 @@ inline bool is_object(const value &v) { return (v.type_ == value::type_object); 
 inline bool is_array(const value &v)  { return (v.type_ == value::type_array); }
 inline bool is_null(const value &v)   { return (v.type_ == value::type_null); }
 
-namespace {
+namespace detail {
 
-	inline std::string escape_string(const std::string &s, unsigned options) {
+inline std::string escape_string(const std::string &s, unsigned options) {
 
-		std::string r;
-		r.reserve(s.size());
+	std::string r;
+	r.reserve(s.size());
 
-		if(options & ESCAPE_UNICODE) {
-			typedef struct {
-				unsigned int expected : 4,
-                			 seen     : 4,
-                			 reserved : 24;
-			} state_t;
+	if(options & ESCAPE_UNICODE) {
+		typedef struct {
+			unsigned int expected : 4,
+                		 seen     : 4,
+                		 reserved : 24;
+		} state_t;
 
-			state_t shift_state = {0,0,0};
-			uint32_t result     = 0;
+		state_t shift_state = {0,0,0};
+		uint32_t result     = 0;
 
-			for(std::string::const_iterator it = s.begin(); it != s.end(); ++it) {
+		for(std::string::const_iterator it = s.begin(); it != s.end(); ++it) {
 
-				const unsigned char ch = *it;
+			const unsigned char ch = *it;
 
-				if(shift_state.seen == 0) {
+			if(shift_state.seen == 0) {
 
-					if((ch & 0x80) == 0) {
-						switch(*it) {
-						case '\"': r += "\\\""; break;
-						case '\\': r += "\\\\"; break;
-					#if 0
-						case '/':  r += "\\/"; break;
-					#endif
-						case '\b': r += "\\b"; break;
-						case '\f': r += "\\f"; break;
-						case '\n': r += "\\n"; break;
-						case '\r': r += "\\r"; break;
-						case '\t': r += "\\t"; break;
-						default:
-							r += *it;
-							break;
-						}
-					}else if((ch & 0xe0) == 0xc0) {
-						// 2 byte
-						result = ch & 0x1f;
-						shift_state.expected = 2;
-						shift_state.seen     = 1;
-					} else if((ch & 0xf0) == 0xe0) {
-						// 3 byte
-						result = ch & 0x0f;
-						shift_state.expected = 3;
-						shift_state.seen     = 1;
-					} else if((ch & 0xf8) == 0xf0) {
-						// 4 byte
-						result = ch & 0x07;
-						shift_state.expected = 4;
-						shift_state.seen     = 1;
-					} else if((ch & 0xfc) == 0xf8) {
-						// 5 byte
-						throw invalid_utf8_string(); // Restricted by RFC 3629
-					} else if((ch & 0xfe) == 0xfc) {
-						// 6 byte
-						throw invalid_utf8_string(); // Restricted by RFC 3629
-					} else {
-						throw invalid_utf8_string(); // should never happen
+				if((ch & 0x80) == 0) {
+					switch(*it) {
+					case '\"': r += "\\\""; break;
+					case '\\': r += "\\\\"; break;
+				#if 0
+					case '/':  r += "\\/"; break;
+				#endif
+					case '\b': r += "\\b"; break;
+					case '\f': r += "\\f"; break;
+					case '\n': r += "\\n"; break;
+					case '\r': r += "\\r"; break;
+					case '\t': r += "\\t"; break;
+					default:
+						r += *it;
+						break;
 					}
-				} else if(shift_state.seen < shift_state.expected) {
-					if((ch & 0xc0) == 0x80) {
-						result <<= 6;
-						result |= ch & 0x3f;
-						// increment the shift state
-						++shift_state.seen;
-
-						if(shift_state.seen == shift_state.expected) {
-							// done with this character
-
-							char buf[5];
-
-							if(result < 0xd800 || (result >= 0xe000 && result < 0x10000)) {
-								r += "\\u";
-								snprintf(buf, sizeof(buf), "%04X", result);
-								r += buf;
-							} else {
-								result = (result - 0x10000);
-
-								r += "\\u";
-								snprintf(buf, sizeof(buf), "%04X", 0xd800 + ((result >> 10) & 0x3ff));
-								r += buf;
-
-								r += "\\u";
-								snprintf(buf, sizeof(buf), "%04X", 0xdc00 + (result & 0x3ff));
-								r += buf;
-							}
-
-							shift_state.seen     = 0;
-							shift_state.expected = 0;
-							result = 0;
-						}
-
-					} else {
-						throw invalid_utf8_string(); // should never happen
-					}
+				}else if((ch & 0xe0) == 0xc0) {
+					// 2 byte
+					result = ch & 0x1f;
+					shift_state.expected = 2;
+					shift_state.seen     = 1;
+				} else if((ch & 0xf0) == 0xe0) {
+					// 3 byte
+					result = ch & 0x0f;
+					shift_state.expected = 3;
+					shift_state.seen     = 1;
+				} else if((ch & 0xf8) == 0xf0) {
+					// 4 byte
+					result = ch & 0x07;
+					shift_state.expected = 4;
+					shift_state.seen     = 1;
+				} else if((ch & 0xfc) == 0xf8) {
+					// 5 byte
+					throw invalid_utf8_string(); // Restricted by RFC 3629
+				} else if((ch & 0xfe) == 0xfc) {
+					// 6 byte
+					throw invalid_utf8_string(); // Restricted by RFC 3629
 				} else {
 					throw invalid_utf8_string(); // should never happen
 				}
-			}
-		} else {
+			} else if(shift_state.seen < shift_state.expected) {
+				if((ch & 0xc0) == 0x80) {
+					result <<= 6;
+					result |= ch & 0x3f;
+					// increment the shift state
+					++shift_state.seen;
 
-			for(std::string::const_iterator it = s.begin(); it != s.end(); ++it) {
+					if(shift_state.seen == shift_state.expected) {
+						// done with this character
 
-				switch(*it) {
-				case '\"': r += "\\\""; break;
-				case '\\': r += "\\\\"; break;
-			#if 0
-				case '/':  r += "\\/"; break;
-			#endif
-				case '\b': r += "\\b"; break;
-				case '\f': r += "\\f"; break;
-				case '\n': r += "\\n"; break;
-				case '\r': r += "\\r"; break;
-				case '\t': r += "\\t"; break;
-				default:
-					r += *it;
-					break;
+						char buf[5];
+
+						if(result < 0xd800 || (result >= 0xe000 && result < 0x10000)) {
+							r += "\\u";
+							snprintf(buf, sizeof(buf), "%04X", result);
+							r += buf;
+						} else {
+							result = (result - 0x10000);
+
+							r += "\\u";
+							snprintf(buf, sizeof(buf), "%04X", 0xd800 + ((result >> 10) & 0x3ff));
+							r += buf;
+
+							r += "\\u";
+							snprintf(buf, sizeof(buf), "%04X", 0xdc00 + (result & 0x3ff));
+							r += buf;
+						}
+
+						shift_state.seen     = 0;
+						shift_state.expected = 0;
+						result = 0;
+					}
+
+				} else {
+					throw invalid_utf8_string(); // should never happen
 				}
+			} else {
+				throw invalid_utf8_string(); // should never happen
 			}
 		}
-		return r;
+	} else {
+
+		for(std::string::const_iterator it = s.begin(); it != s.end(); ++it) {
+
+			switch(*it) {
+			case '\"': r += "\\\""; break;
+			case '\\': r += "\\\\"; break;
+		#if 0
+			case '/':  r += "\\/"; break;
+		#endif
+			case '\b': r += "\\b"; break;
+			case '\f': r += "\\f"; break;
+			case '\n': r += "\\n"; break;
+			case '\r': r += "\\r"; break;
+			case '\t': r += "\\t"; break;
+			default:
+				r += *it;
+				break;
+			}
+		}
+	}
+	return r;
+}
+
+inline std::string escape_string(const std::string &s) {
+	return escape_string(s, 0);
+}
+
+inline std::string value_to_string(const value &v, unsigned options, int indent, bool ignore_initial_ident) {
+
+	static const int indent_width = 2;
+
+	std::stringstream ss;
+
+	if(!ignore_initial_ident) {
+		ss << std::string(indent * indent_width, ' ');
 	}
 
-	inline std::string escape_string(const std::string &s) {
-		return escape_string(s, 0);
+	if(is_string(v)) {
+		ss << '"' << escape_string(as_string(v), options) << '"';
 	}
 
-	inline std::string value_to_string(const value &v, unsigned options, int indent, bool ignore_initial_ident) {
+	if(is_number(v)) {
+		ss << as_string(v);
+	}
 
-		static const int indent_width = 2;
+	if(is_null(v)) {
+		ss << as_string(v);
+	}
 
-		std::stringstream ss;
+	if(is_bool(v)) {
+		ss << (to_bool(v) ? "true" : "false");
+	}
 
-		if(!ignore_initial_ident) {
-			ss << std::string(indent * indent_width, ' ');
-		}
+	if(is_object(v)) {
 
-		if(is_string(v)) {
-			ss << '"' << escape_string(as_string(v), options) << '"';
-		}
+		const object &o = as_object(v);
 
-		if(is_number(v)) {
-			ss << as_string(v);
-		}
+		ss << "{\n";
+		if(!o.empty()) {
 
-		if(is_null(v)) {
-			ss << as_string(v);
-		}
+			object::const_iterator it = o.begin();
+			object::const_iterator e  = o.end();
 
-		if(is_bool(v)) {
-			ss << (to_bool(v) ? "true" : "false");
-		}
-
-		if(is_object(v)) {
-
-			const object &o = as_object(v);
-
-			ss << "{\n";
-			if(!o.empty()) {
-
-				object::const_iterator it = o.begin();
-				object::const_iterator e  = o.end();
-
-				++indent;
+			++indent;
+			ss << std::string(indent * indent_width, ' ') << '"' << escape_string(it->first, options) << "\" : " << value_to_string(it->second, options, indent, true);
+			++it;
+			for(;it != e; ++it) {
+				ss << ',';
+				ss << '\n';
 				ss << std::string(indent * indent_width, ' ') << '"' << escape_string(it->first, options) << "\" : " << value_to_string(it->second, options, indent, true);
-				++it;
-				for(;it != e; ++it) {
-					ss << ',';
-					ss << '\n';
-					ss << std::string(indent * indent_width, ' ') << '"' << escape_string(it->first, options) << "\" : " << value_to_string(it->second, options, indent, true);
-				}
-				--indent;
-
 			}
-			ss << "\n";
-			ss << std::string(indent * indent_width, ' ') << "}";
+			--indent;
+
 		}
-
-		if(is_array(v)) {
-
-			const array &a = as_array(v);
-
-			ss << "[\n";
-			if(!a.empty()) {
-
-				array::const_iterator it = a.begin();
-				array::const_iterator e  = a.end();
-
-				++indent;
-				ss << value_to_string(*it++, options, indent, false);
-
-				for(;it != e; ++it) {
-					ss << ',';
-					ss << '\n';
-					ss << value_to_string(*it, options, indent, false);
-				}
-				--indent;
-
-			}
-			ss << "\n";
-			ss << std::string(indent * indent_width, ' ') << "]";
-		}
-
-		return ss.str();
+		ss << "\n";
+		ss << std::string(indent * indent_width, ' ') << "}";
 	}
 
-	inline std::string value_to_string(const value &v, unsigned options) {
-		return value_to_string(v, options, 0, false);
+	if(is_array(v)) {
+
+		const array &a = as_array(v);
+
+		ss << "[\n";
+		if(!a.empty()) {
+
+			array::const_iterator it = a.begin();
+			array::const_iterator e  = a.end();
+
+			++indent;
+			ss << value_to_string(*it++, options, indent, false);
+
+			for(;it != e; ++it) {
+				ss << ',';
+				ss << '\n';
+				ss << value_to_string(*it, options, indent, false);
+			}
+			--indent;
+
+		}
+		ss << "\n";
+		ss << std::string(indent * indent_width, ' ') << "]";
 	}
 
-	inline std::string serialize(const value &v, unsigned options) {
+	return ss.str();
+}
 
-		std::stringstream ss;
+inline std::string value_to_string(const value &v, unsigned options) {
+	return value_to_string(v, options, 0, false);
+}
 
-		if(is_string(v)) {
-			ss << '"' << escape_string(as_string(v), options) << '"';
-		}
+inline std::string serialize(const value &v, unsigned options) {
 
-		if(is_number(v)) {
-			ss << as_string(v);
-		}
+	std::stringstream ss;
 
-		if(is_null(v)) {
-			ss << as_string(v);
-		}
+	if(is_string(v)) {
+		ss << '"' << escape_string(as_string(v), options) << '"';
+	}
 
-		if(is_bool(v)) {
-			ss << (to_bool(v) ? "true" : "false");
-		}
+	if(is_number(v)) {
+		ss << as_string(v);
+	}
 
-		if(is_object(v)) {
-			const object &o = as_object(v);
-			ss << "{";
-			if(!o.empty()) {
-				object::const_iterator it = o.begin();
-				object::const_iterator e  = o.end();
+	if(is_null(v)) {
+		ss << as_string(v);
+	}
 
+	if(is_bool(v)) {
+		ss << (to_bool(v) ? "true" : "false");
+	}
+
+	if(is_object(v)) {
+		const object &o = as_object(v);
+		ss << "{";
+		if(!o.empty()) {
+			object::const_iterator it = o.begin();
+			object::const_iterator e  = o.end();
+
+			ss << '"' << escape_string(it->first, options) << "\":" << serialize(it->second, options);
+			++it;
+			for(;it != e; ++it) {
+				ss << ',';
 				ss << '"' << escape_string(it->first, options) << "\":" << serialize(it->second, options);
-				++it;
-				for(;it != e; ++it) {
-					ss << ',';
-					ss << '"' << escape_string(it->first, options) << "\":" << serialize(it->second, options);
-				}
 			}
-			ss  << "}";
 		}
+		ss  << "}";
+	}
 
-		if(is_array(v)) {
-			const array &a = as_array(v);
+	if(is_array(v)) {
+		const array &a = as_array(v);
 
-			ss << "[";
-			if(!a.empty()) {
-				array::const_iterator it = a.begin();
-				array::const_iterator e  = a.end();
+		ss << "[";
+		if(!a.empty()) {
+			array::const_iterator it = a.begin();
+			array::const_iterator e  = a.end();
 
-				ss << serialize(*it++, options);
+			ss << serialize(*it++, options);
 
-				for(;it != e; ++it) {
-					ss << ',';
-					ss << serialize(*it, options);
-				}
+			for(;it != e; ++it) {
+				ss << ',';
+				ss << serialize(*it, options);
 			}
-			ss << "]";
 		}
-
-		return ss.str();
+		ss << "]";
 	}
 
-	inline std::string serialize(const array &a, unsigned options) {
-		return serialize(value(a), options);
-	}
+	return ss.str();
+}
 
-	inline std::string serialize(const object &o, unsigned options) {
-		return serialize(value(o), options);
-	}
+inline std::string serialize(const array &a, unsigned options) {
+	return serialize(value(a), options);
+}
 
-	inline std::string pretty_print(const value &v, unsigned options) {
-		return value_to_string(v, options);
-	}
+inline std::string serialize(const object &o, unsigned options) {
+	return serialize(value(o), options);
+}
 
-	inline std::string pretty_print(const array &a, unsigned options) {
-		return value_to_string(value(a), options);
-	}
+inline std::string pretty_print(const value &v, unsigned options) {
+	return value_to_string(v, options);
+}
 
-	inline std::string pretty_print(const object &o, unsigned options) {
-		return value_to_string(value(o), options);
-	}
+inline std::string pretty_print(const array &a, unsigned options) {
+	return value_to_string(value(a), options);
+}
+
+inline std::string pretty_print(const object &o, unsigned options) {
+	return value_to_string(value(o), options);
+}
 }
 
 inline std::string stringify(const value &v, unsigned options) {
 	if(options & PRETTY_PRINT) {
-		return pretty_print(v, options);
+		return detail::pretty_print(v, options);
 	} else {
-		return serialize(v, options);
+		return detail::serialize(v, options);
 	}
 }
 
 inline std::string stringify(const array &a, unsigned options) {
 	if(options & PRETTY_PRINT) {
-		return pretty_print(a, options);
+		return detail::pretty_print(a, options);
 	} else {
-		return serialize(a, options);
+		return detail::serialize(a, options);
 	}
 }
 
 inline std::string stringify(const object &o, unsigned options) {
 	if(options & PRETTY_PRINT) {
-		return pretty_print(o, options);
+		return detail::pretty_print(o, options);
 	} else {
-		return serialize(o, options);
+		return detail::serialize(o, options);
 	}
 }
 

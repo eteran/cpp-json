@@ -3,7 +3,7 @@
 #define PARSER_20140115_TCC_
 
 namespace json {
-namespace {
+namespace detail {
 
 //------------------------------------------------------------------------------
 // Name: to_hex
@@ -179,10 +179,10 @@ std::string parser<In>::get_string() {
 						uint16_t w1 = 0;
 						uint16_t w2 = 0;
 
-						w1 |= (to_hex(hex[0]) << 12);
-						w1 |= (to_hex(hex[1]) << 8);
-						w1 |= (to_hex(hex[2]) << 4);
-						w1 |= (to_hex(hex[3]));
+						w1 |= (detail::to_hex(hex[0]) << 12);
+						w1 |= (detail::to_hex(hex[1]) << 8);
+						w1 |= (detail::to_hex(hex[2]) << 4);
+						w1 |= (detail::to_hex(hex[3]));
 
 						if((w1 & 0xfc00) == 0xdc00) {
 							throw invalid_unicode_character();
@@ -204,13 +204,13 @@ std::string parser<In>::get_string() {
 							if(!std::isxdigit(hex[2])) throw invalid_unicode_character();
 							if(!std::isxdigit(hex[3])) throw invalid_unicode_character();
 
-							w2 |= (to_hex(hex[0]) << 12);
-							w2 |= (to_hex(hex[1]) << 8);
-							w2 |= (to_hex(hex[2]) << 4);
-							w2 |= (to_hex(hex[3]));
+							w2 |= (detail::to_hex(hex[0]) << 12);
+							w2 |= (detail::to_hex(hex[1]) << 8);
+							w2 |= (detail::to_hex(hex[2]) << 4);
+							w2 |= (detail::to_hex(hex[3]));
 						}
 
-						surrogate_pair_to_utf8(w1, w2, out);
+						detail::surrogate_pair_to_utf8(w1, w2, out);
 					}
 					break;
 
