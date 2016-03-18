@@ -281,7 +281,7 @@ inline std::string &value::as_string() {
 //------------------------------------------------------------------------------
 // Name: as_object
 //------------------------------------------------------------------------------
-const object &value::as_object() const {
+inline const object &value::as_object() const {
 	if(type_ != type_object) {
 		throw invalid_type_cast();
 	}
@@ -291,7 +291,7 @@ const object &value::as_object() const {
 //------------------------------------------------------------------------------
 // Name: as_object
 //------------------------------------------------------------------------------
-object &value::as_object() {
+inline object &value::as_object() {
 	if(type_ != type_object) {
 		throw invalid_type_cast();
 	}
@@ -301,7 +301,7 @@ object &value::as_object() {
 //------------------------------------------------------------------------------
 // Name: as_array
 //------------------------------------------------------------------------------
-const array &value::as_array() const {
+inline const array &value::as_array() const {
 	if(type_ != type_array) {
 		throw invalid_type_cast();
 	}
@@ -311,7 +311,7 @@ const array &value::as_array() const {
 //------------------------------------------------------------------------------
 // Name: as_array
 //------------------------------------------------------------------------------
-array &value::as_array() {
+inline array &value::as_array() {
 	if(type_ != type_array) {
 		throw invalid_type_cast();
 	}
