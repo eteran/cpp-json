@@ -67,7 +67,7 @@ void surrogate_pair_to_utf8(uint16_t w1, uint16_t w2, Out &out) {
 // Name: parser
 //------------------------------------------------------------------------------
 template <class In>
-parser<In>::parser(In first, In end_) : begin_(first), cur_(first), end_(end_) {
+parser<In>::parser(In first, In last) : begin_(first), cur_(first), end_(last) {
 }
 
 //------------------------------------------------------------------------------
