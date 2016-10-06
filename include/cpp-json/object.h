@@ -29,12 +29,12 @@ public:
 	typedef typename C::size_type               size_type;
 
 public:
-	object();
-	object(const object &other);
-	object(object &&other);
+	object()                             = default;
+	object(const object &other)          = default;
+	object(object &&other)               = default;
+	object &operator=(const object &rhs) = default;
+	object &operator=(object &&rhs)      = default;
 	object(std::initializer_list<std::pair<std::string, value>> list);
-	object &operator=(const object &rhs);
-	object &operator=(object &&rhs);
 
 public:
 	iterator begin()              { return values_.begin(); }

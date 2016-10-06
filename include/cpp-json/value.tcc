@@ -45,23 +45,6 @@ inline value::value(const std::nullptr_t &): type_(type_null) {
 //------------------------------------------------------------------------------
 // Name: value
 //------------------------------------------------------------------------------
-inline value::value(value &&other) : value() {
-	other.swap(*this);
-}
-
-//------------------------------------------------------------------------------
-// Name: operator=
-//------------------------------------------------------------------------------
-inline value &value::operator=(value &&rhs) {
-	if(this != &rhs) {
-		value(std::move(rhs)).swap(*this);
-	}
-	return *this;
-}
-
-//------------------------------------------------------------------------------
-// Name: value
-//------------------------------------------------------------------------------
 inline value::value(object_pointer o) : type_(type_object) {
 	new (&value_) object_pointer(std::move(o));
 }
@@ -168,7 +151,7 @@ inline value &value::operator=(const value &rhs) {
 //------------------------------------------------------------------------------
 inline void value::swap(value &other) {
 	using std::swap;
-	
+	  
 	swap(value_, other.value_);
 	swap(type_, other.type_);
 }

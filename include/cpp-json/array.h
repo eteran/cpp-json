@@ -31,12 +31,12 @@ public:
 	typedef typename C::size_type               size_type;
 
 public:
-	array();
-	array(array &&other);
-	array(const array &other);
+	array()                            = default;
+	array(array &&other)               = default;
+	array(const array &other)          = default;
+	array &operator=(array &&rhs)      = default;
+	array &operator=(const array &rhs) = default;
 	array(std::initializer_list<value> list);
-	array &operator=(array &&rhs);
-	array &operator=(const array &rhs);
 
 public:
 	iterator begin()                       { return values_.begin();  }

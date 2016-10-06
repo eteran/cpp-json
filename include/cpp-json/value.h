@@ -65,8 +65,6 @@ public:
 public:
 	value(const value &other);
 	value &operator=(const value &rhs);
-	value(value &&other);
-	value &operator=(value &&rhs);
 
 public:
 	void swap(value &other);
