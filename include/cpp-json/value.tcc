@@ -73,9 +73,9 @@ inline value::value(std::string s) : type_(type_string) {
 //------------------------------------------------------------------------------
 // Name: value
 //------------------------------------------------------------------------------
-template<typename T, typename>
+template <class T, typename std::enable_if<std::is_arithmetic<T>::value>::type>
 value::value(T n) : type_(type_number) {
-    new (&value_) std::string(std::to_string(x));
+    new (&value_) std::string(std::to_string(n));
 }
 
 //------------------------------------------------------------------------------
