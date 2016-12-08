@@ -73,29 +73,9 @@ inline value::value(std::string s) : type_(type_string) {
 //------------------------------------------------------------------------------
 // Name: value
 //------------------------------------------------------------------------------
-inline value::value(double x) : type_(type_number) {
-	new (&value_) std::string(std::to_string(x));
-}
-
-//------------------------------------------------------------------------------
-// Name: value
-//------------------------------------------------------------------------------
-inline value::value(float x) : type_(type_number) {
-	new (&value_) std::string(std::to_string(x));
-}
-
-//------------------------------------------------------------------------------
-// Name: value
-//------------------------------------------------------------------------------
-inline value::value(long x) : type_(type_number) {
-	new (&value_) std::string(std::to_string(x));
-}
-
-//------------------------------------------------------------------------------
-// Name: value
-//------------------------------------------------------------------------------
-inline value::value(int x) : type_(type_number) {
-	new (&value_) std::string(std::to_string(x));
+template<typename T, typename>
+value::value(T n) : type_(type_number) {
+    new (&value_) std::string(std::to_string(x));
 }
 
 //------------------------------------------------------------------------------
