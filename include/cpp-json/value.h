@@ -48,7 +48,7 @@ public:
 	value(const char *s);
 	value(const object &o);
 	value(std::string s);
-	template <class T, typename std::enable_if<std::is_arithmetic<T>::value>::type = 0>
+	template <class T, typename = std::enable_if<std::is_arithmetic<T>::value>::type>
 	value(T n);
 	value(const std::nullptr_t &);
 
