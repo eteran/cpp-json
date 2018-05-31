@@ -64,11 +64,8 @@ inline bool has_key(const object &o, const std::string &key);
 template <class In>
 inline value parse(In first, In last);
 inline value parse(std::istream &is);
-inline value parse(std::wistream &is);
 inline value parse(std::istream &&is);
-inline value parse(std::wistream &&is);
 inline value parse(const std::string &s);
-inline value parse(const std::wstring &s);
 
 // convert a value to a JSON string
 enum {

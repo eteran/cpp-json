@@ -129,23 +129,11 @@ inline value parse(std::istream &&is) {
 	return parse(is);
 }
 
-inline value parse(std::wistream &&is) {
-	return parse(is);
-}
-
 inline value parse(std::istream &is) {
 	return parse((std::istreambuf_iterator<char>(is)), std::istreambuf_iterator<char>());
 }
 
-inline value parse(std::wistream &is) {
-	return parse((std::istreambuf_iterator<wchar_t>(is)), std::istreambuf_iterator<wchar_t>());
-}
-
 inline value parse(const std::string &s) {
-	return parse(s.begin(), s.end());
-}
-
-inline value parse(const std::wstring &s) {
 	return parse(s.begin(), s.end());
 }
 

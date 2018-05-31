@@ -7,6 +7,24 @@ namespace json {
 class array;
 class object;
 
+namespace detail {
+	template <class T>
+	constexpr T static_max(T n) {
+		return n;
+	}
+
+	template <class T, class ... Args>
+	constexpr T static_max(T n, Args ... args) {
+		return n > static_max(args...) ? n : static_max(args...);
+	}
+
+	template <class... Types>
+	struct aligned_traits {
+		static constexpr std::size_t alignment_value = static_max(alignof(Types)...);
+		static constexpr std::size_t size_value      = static_max(sizeof(Types)...);
+	};
+}
+
 class value {
 	friend bool is_string(const value &v);
 	friend bool is_bool(const value &v);
@@ -98,18 +116,12 @@ private:
 	// I would love to use std::aligned_union, but it doesn't seem widely supported
 	// so instead, we kinda make our own, first we need a type which has the correct
 	// size and alignment requirements based on the types we want to store
-	union storage_union {
-		invalid_t      invalid;
-		object_pointer object;
-		array_pointer  array;
-		std::string    string;
-	};
-	
-	// then we create a type which is generic, and has that same alignement and size
+	using Tr = detail::aligned_traits<invalid_t, object_pointer, array_pointer, std::string>;
+
 	typedef struct {	
-		alignas(alignof(storage_union)) uint8_t data[sizeof(storage_union)];
+		alignas(Tr::alignment_value) uint8_t data[Tr::size_value];
 	} storage_type;
-	
+
 	storage_type value_;		
 	type         type_;
 };
