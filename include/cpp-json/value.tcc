@@ -131,7 +131,7 @@ inline value &value::operator=(const value &rhs) {
 //------------------------------------------------------------------------------
 inline void value::swap(value &other) {
 	using std::swap;
-	  
+
 	swap(value_, other.value_);
 	swap(type_, other.type_);
 }
@@ -219,7 +219,7 @@ inline const std::string &value::as_string() const {
 	case value::type_string:
 	case value::type_number:
 	case value::type_null:
-	case value::type_boolean:	
+	case value::type_boolean:
 		return *reinterpret_cast<const std::string *>(&value_);
 	default:
 		throw invalid_type_cast();
@@ -234,7 +234,7 @@ inline std::string &value::as_string() {
 	case value::type_string:
 	case value::type_number:
 	case value::type_null:
-	case value::type_boolean:	
+	case value::type_boolean:
 		return *reinterpret_cast<std::string *>(&value_);
 	default:
 		throw invalid_type_cast();

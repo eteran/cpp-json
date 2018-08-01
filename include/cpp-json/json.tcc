@@ -280,10 +280,10 @@ inline std::string value_to_string(const value &v, unsigned options, int indent,
 	static const int indent_width = 2;
 
 	std::stringstream ss;
-	
+
 	std::locale c_locale("C");
 	ss.imbue(c_locale);
-	
+
 	if(!ignore_initial_ident) {
 		ss << std::string(indent * indent_width, ' ');
 	}

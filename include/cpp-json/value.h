@@ -118,11 +118,11 @@ private:
 	// size and alignment requirements based on the types we want to store
 	using Tr = detail::aligned_traits<invalid_t, object_pointer, array_pointer, std::string>;
 
-	typedef struct {	
+	typedef struct {
 		alignas(Tr::alignment_value) uint8_t data[Tr::size_value];
 	} storage_type;
 
-	storage_type value_;		
+	storage_type value_;
 	type         type_;
 };
 

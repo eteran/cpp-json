@@ -15,7 +15,11 @@ class object {
 	friend class parser;
 
 private:
+#ifdef ORDERED_DICT
+	typedef std::vector<std::pair<std::string, value>> C;
+#else
 	typedef std::unordered_map<std::string, value> C;
+#endif
 
 public:
 	typedef typename C::allocator_type          allocator_type;
@@ -45,8 +49,22 @@ public:
 	const_iterator cend() const   { return values_.end(); }
 
 public:
+#ifdef ORDERED_DICT
+	iterator find(const std::string &s) {
+		return std::find_if(values_.begin(), values_.end(), [&s](const std::pair<std::string, value> &entry) {
+			return entry.first == s;
+		});
+	}
+
+	const_iterator find(const std::string &s) const {
+		return std::find_if(values_.begin(), values_.end(), [&s](const std::pair<std::string, value> &entry) {
+			return entry.first == s;
+		});
+	}
+#else
 	iterator find(const std::string &s)             { return values_.find(s); }
 	const_iterator find(const std::string &s) const { return values_.find(s); }
+#endif
 
 public:
 	size_type size() const     { return values_.size(); }

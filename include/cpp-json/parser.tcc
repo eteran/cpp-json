@@ -381,7 +381,11 @@ object_pointer parser<In>::get_object() {
 		++cur_;
 	} else {
 		do {
+#ifdef ORDERED_DICT
+			obj->values_.emplace_back(get_pair());
+#else
 			obj->values_.insert(get_pair());
+#endif
 
 			tok = peek();
 			++cur_;
