@@ -18,7 +18,7 @@ int main() {
 			2,
 			3,
 			{
-				"z" : 12345
+				"z" : 12345.6
 			}
 		],
 		"test1" : "hello world",
@@ -32,6 +32,7 @@ int main() {
 	// get a specific value
 	json::value z = v["test4"][3]["z"];
 	std::cout << to_number(z) << std::endl;
+	std::cout << to_integer(z) << std::endl;
 
 	std::cout << stringify(v, json::ESCAPE_UNICODE) << std::endl;
 }

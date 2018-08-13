@@ -45,6 +45,7 @@ inline bool is_null(const value &v);
 inline std::string to_string(const value &v);
 inline bool        to_bool(const value &v);
 inline double      to_number(const value &v);
+inline int64_t     to_integer(const value &v);
 inline object      to_object(const value &v);
 inline array       to_array(const value &v);
 

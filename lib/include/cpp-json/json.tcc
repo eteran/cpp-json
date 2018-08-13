@@ -58,6 +58,14 @@ inline double to_number(const value &v) {
 	return stod(as_string(v), 0);
 }
 
+inline int64_t to_integer(const value &v) {
+	if(!is_number(v)) {
+		throw invalid_type_cast();
+	}
+
+	return stoll(as_string(v), 0);
+}
+
 inline object to_object(const value &v) {
 	return as_object(v);
 }
