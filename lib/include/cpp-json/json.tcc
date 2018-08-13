@@ -19,7 +19,7 @@ int distance_in_stream_internal(In first, In current, const std::random_access_i
 
 template <class In>
 int distance_in_stream(In first, In current) {
-	typedef typename std::iterator_traits<In>::iterator_category Cat;
+	using Cat = typename std::iterator_traits<In>::iterator_category;
 	return distance_in_stream_internal(first, current, Cat());
 }
 
@@ -152,11 +152,11 @@ inline std::string escape_string(const std::string &s, unsigned options) {
 	r.reserve(s.size());
 
 	if(options & ESCAPE_UNICODE) {
-		typedef struct {
+		struct state_t {
 			unsigned int expected : 4,
-                		 seen     : 4,
-                		 reserved : 24;
-		} state_t;
+			             seen     : 4,
+			             reserved : 24;
+		};
 
 		state_t shift_state = {0,0,0};
 		uint32_t result     = 0;

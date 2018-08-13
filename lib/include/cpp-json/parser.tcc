@@ -241,7 +241,7 @@ std::string parser<In>::get_string() {
 //------------------------------------------------------------------------------
 template <class In>
 std::string parser<In>::get_number() {
-	typedef typename std::iterator_traits<In>::iterator_category Cat;
+	using Cat = typename std::iterator_traits<In>::iterator_category;
 	return get_number(Cat());
 }
 

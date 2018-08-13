@@ -2,8 +2,6 @@
 #ifndef JSON_20110525_H_
 #define JSON_20110525_H_
 
-//#define ORDERED_DICT
-
 /* TODO(eteran): support unicode
 	00 00 00 xx  UTF-32BE
 	00 xx 00 xx  UTF-16BE
@@ -32,8 +30,8 @@ class value;
 class array;
 class object;
 
-typedef std::shared_ptr<object> object_pointer;
-typedef std::shared_ptr<array>  array_pointer;
+using object_pointer = std::shared_ptr<object>;
+using array_pointer  = std::shared_ptr<array>;
 
 // type testing
 inline bool is_string(const value &v);

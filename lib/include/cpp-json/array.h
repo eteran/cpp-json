@@ -15,20 +15,20 @@ class array {
 	friend class parser;
 
 private:
-	typedef std::vector<value> C;
+	using C = std::vector<value>;
 
 public:
-	typedef typename C::allocator_type          allocator_type;
-	typedef typename C::reference               reference;
-	typedef typename C::const_reference         const_reference;
-	typedef typename C::pointer                 pointer;
-	typedef typename C::const_pointer           const_pointer;
-	typedef typename C::iterator                iterator;
-	typedef typename C::const_iterator          const_iterator;
-	typedef typename C::reverse_iterator        reverse_iterator;
-	typedef typename C::const_reverse_iterator  const_reverse_iterator;
-	typedef typename C::difference_type         difference_type;
-	typedef typename C::size_type               size_type;
+	using allocator_type         = typename C::allocator_type;
+	using reference              = typename C::reference;
+	using const_reference        = typename C::const_reference;
+	using pointer                = typename C::pointer;
+	using const_pointer          = typename C::const_pointer;
+	using iterator               = typename C::iterator;
+	using const_iterator         = typename C::const_iterator;
+	using reverse_iterator       = typename C::reverse_iterator;
+	using const_reverse_iterator = typename C::const_reverse_iterator;
+	using difference_type        = typename C::difference_type;
+	using size_type              = typename C::size_type;
 
 public:
 	array()                            = default;

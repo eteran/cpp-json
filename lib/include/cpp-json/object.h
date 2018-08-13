@@ -16,21 +16,21 @@ class object {
 
 private:
 #ifdef ORDERED_DICT
-	typedef std::vector<std::pair<std::string, value>> C;
+	using C = std::vector<std::pair<std::string, value>>;
 #else
-	typedef std::unordered_map<std::string, value> C;
+	using C = std::unordered_map<std::string, value>;
 #endif
 
 public:
-	typedef typename C::allocator_type          allocator_type;
-	typedef typename C::reference               reference;
-	typedef typename C::const_reference         const_reference;
-	typedef typename C::pointer                 pointer;
-	typedef typename C::const_pointer           const_pointer;
-	typedef typename C::iterator                iterator;
-	typedef typename C::const_iterator          const_iterator;
-	typedef typename C::difference_type         difference_type;
-	typedef typename C::size_type               size_type;
+	using allocator_type         = typename C::allocator_type;
+	using reference              = typename C::reference;
+	using const_reference        = typename C::const_reference;
+	using pointer                = typename C::pointer;
+	using const_pointer          = typename C::const_pointer;
+	using iterator               = typename C::iterator;
+	using const_iterator         = typename C::const_iterator;
+	using difference_type        = typename C::difference_type;
+	using size_type              = typename C::size_type;
 
 public:
 	object()                             = default;
