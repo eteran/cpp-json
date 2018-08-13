@@ -161,7 +161,7 @@ inline std::string escape_string(const std::string &s, unsigned options) {
 		state_t shift_state = {0,0,0};
 		uint32_t result     = 0;
 
-		for(std::string::const_iterator it = s.begin(); it != s.end(); ++it) {
+		for(auto it = s.begin(); it != s.end(); ++it) {
 
 			const unsigned char ch = *it;
 
@@ -249,7 +249,7 @@ inline std::string escape_string(const std::string &s, unsigned options) {
 		}
 	} else {
 
-		for(std::string::const_iterator it = s.begin(); it != s.end(); ++it) {
+		for(auto it = s.begin(); it != s.end(); ++it) {
 
 			switch(*it) {
 			case '\"': r += "\\\""; break;
@@ -311,8 +311,8 @@ inline std::string value_to_string(const value &v, unsigned options, int indent,
 		ss << "{\n";
 		if(!o.empty()) {
 
-			object::const_iterator it = o.begin();
-			object::const_iterator e  = o.end();
+			auto it = o.begin();
+			auto e  = o.end();
 
 			++indent;
 			ss << std::string(indent * indent_width, ' ') << '"' << escape_string(it->first, options) << "\" : " << value_to_string(it->second, options, indent, true);
@@ -336,8 +336,8 @@ inline std::string value_to_string(const value &v, unsigned options, int indent,
 		ss << "[\n";
 		if(!a.empty()) {
 
-			array::const_iterator it = a.begin();
-			array::const_iterator e  = a.end();
+			auto it = a.begin();
+			auto e  = a.end();
 
 			++indent;
 			ss << value_to_string(*it++, options, indent, false);
@@ -385,8 +385,8 @@ inline std::string serialize(const value &v, unsigned options) {
 		const object &o = as_object(v);
 		ss << "{";
 		if(!o.empty()) {
-			object::const_iterator it = o.begin();
-			object::const_iterator e  = o.end();
+			auto it = o.begin();
+			auto e  = o.end();
 
 			ss << '"' << escape_string(it->first, options) << "\":" << serialize(it->second, options);
 			++it;
@@ -403,8 +403,8 @@ inline std::string serialize(const value &v, unsigned options) {
 
 		ss << "[";
 		if(!a.empty()) {
-			array::const_iterator it = a.begin();
-			array::const_iterator e  = a.end();
+			auto it = a.begin();
+			auto e  = a.end();
 
 			ss << serialize(*it++, options);
 

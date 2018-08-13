@@ -50,11 +50,11 @@ inline value &object::operator[](const std::string &key) {
 //------------------------------------------------------------------------------
 inline const value object::at(const std::string &key) const {
 #ifdef ORDERED_DICT
-	typename C::const_iterator it = std::find_if(values_.begin(), values_.end(), [&key](const std::pair<std::string, value> &entry) {
+	auto it = std::find_if(values_.begin(), values_.end(), [&key](const std::pair<std::string, value> &entry) {
 		return entry.first == key;
 	});
 #else
-	typename C::const_iterator it = values_.find(key);
+	auto it = values_.find(key);
 #endif
 	if(it != values_.end()) {
 		return it->second;
@@ -68,11 +68,11 @@ inline const value object::at(const std::string &key) const {
 //------------------------------------------------------------------------------
 inline value &object::at(const std::string &key) {
 #ifdef ORDERED_DICT
-	typename C::iterator it = std::find_if(values_.begin(), values_.end(), [&key](const std::pair<std::string, value> &entry) {
+	auto it = std::find_if(values_.begin(), values_.end(), [&key](const std::pair<std::string, value> &entry) {
 		return entry.first == key;
 	});
 #else
-	typename C::iterator it = values_.find(key);
+	auto it = values_.find(key);
 #endif
 
 	if(it != values_.end()) {
