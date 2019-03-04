@@ -66,7 +66,7 @@ public:
 
 public:
 	template <class T, class... Args>
-    array &append(const T &v, Args &&...args);
+	array &append(const T &v, Args &&...args);
 
 	template <class T>
 	array &append(T &&v);

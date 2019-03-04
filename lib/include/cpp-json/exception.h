@@ -2,15 +2,14 @@
 #ifndef EXCEPTION_20120104_H_
 #define EXCEPTION_20120104_H_
 
+#include <exception>
+
 namespace json {
 
 // general error
-class exception                 : public std::exception {
+class exception : public std::exception {
 public:
-	exception() : location(-1) {
-	}
-public:
-	int location;
+	int location = -1;
 };
 
 // parsing errors

@@ -10,11 +10,7 @@ namespace json {
 inline object::object(std::initializer_list<std::pair<std::string, value>> list) {
 
 	for(auto &x : list) {
-#ifdef ORDERED_DICT
 		values_.emplace_back(x);
-#else
-		values_.emplace(x.first, x.second);
-#endif
 	}
 }
 
@@ -23,11 +19,7 @@ inline object::object(std::initializer_list<std::pair<std::string, value>> list)
 //------------------------------------------------------------------------------
 template <class T>
 inline object &object::insert(std::pair<std::string, T> &&p) {
-#ifdef ORDERED_DICT
 	values_.emplace_back(std::move(p));
-#else
-	values_.insert(std::move(p));
-#endif
 	return *this;
 }
 
@@ -49,13 +41,9 @@ inline value &object::operator[](const std::string &key) {
 // Name: at
 //------------------------------------------------------------------------------
 inline const value object::at(const std::string &key) const {
-#ifdef ORDERED_DICT
 	auto it = std::find_if(values_.begin(), values_.end(), [&key](const std::pair<std::string, value> &entry) {
 		return entry.first == key;
 	});
-#else
-	auto it = values_.find(key);
-#endif
 	if(it != values_.end()) {
 		return it->second;
 	}
@@ -67,13 +55,9 @@ inline const value object::at(const std::string &key) const {
 // Name: at
 //------------------------------------------------------------------------------
 inline value &object::at(const std::string &key) {
-#ifdef ORDERED_DICT
 	auto it = std::find_if(values_.begin(), values_.end(), [&key](const std::pair<std::string, value> &entry) {
 		return entry.first == key;
 	});
-#else
-	auto it = values_.find(key);
-#endif
 
 	if(it != values_.end()) {
 		return it->second;
@@ -87,11 +71,7 @@ inline value &object::at(const std::string &key) {
 //------------------------------------------------------------------------------
 template <class T>
 inline object &object::insert(const std::pair<std::string, T> &p) {
-#ifdef ORDERED_DICT
 	values_.emplace_back(p);
-#else
-	values_.insert(p);
-#endif
 	return *this;
 }
 
@@ -100,12 +80,8 @@ inline object &object::insert(const std::pair<std::string, T> &p) {
 //------------------------------------------------------------------------------
 template <class T>
 inline object &object::insert(const std::string &key, const T &v) {
-#ifdef ORDERED_DICT
 	values_.emplace_back(std::make_pair(key, value(v)));
 	return *this;
-#else
-	return insert(std::make_pair(key, value(v)));
-#endif
 }
 
 //------------------------------------------------------------------------------

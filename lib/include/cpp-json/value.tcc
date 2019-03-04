@@ -75,7 +75,7 @@ inline value::value(std::string s) : type_(type_string) {
 //------------------------------------------------------------------------------
 template <class T, typename>
 value::value(T n) : type_(type_number) {
-    new (&value_) std::string(std::to_string(n));
+	new (&value_) std::string(std::to_string(n));
 }
 
 //------------------------------------------------------------------------------
