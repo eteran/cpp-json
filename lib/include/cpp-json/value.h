@@ -71,7 +71,7 @@ public:
 	value(const std::nullptr_t &);
 
 public:
-	value();
+	value() = default;
 	~value();
 
 public:
@@ -80,7 +80,9 @@ public:
 
 public:
 	value(const value &other);
+	value(value &&other);
 	value &operator=(const value &rhs);
+	value &operator=(value &&rhs);
 
 public:
 	void swap(value &other);
@@ -123,7 +125,7 @@ private:
 	};
 
 	storage_type value_;
-	type         type_;
+	type         type_ = type_invalid;
 };
 
 bool operator==(const value &lhs, const value &rhs);

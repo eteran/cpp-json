@@ -31,13 +31,6 @@ inline value::~value() {
 //------------------------------------------------------------------------------
 // Name: value
 //------------------------------------------------------------------------------
-inline value::value() : type_(type_invalid) {
-
-}
-
-//------------------------------------------------------------------------------
-// Name: value
-//------------------------------------------------------------------------------
 inline value::value(const std::nullptr_t &): type_(type_null) {
 	new (&value_) std::string("null");
 }
@@ -90,6 +83,42 @@ inline value::value(const char *s) : type_(type_string) {
 //------------------------------------------------------------------------------
 inline value::value(bool b) : type_(type_boolean) {
 	new (&value_) std::string(b ? "true" : "false");
+}
+
+//------------------------------------------------------------------------------
+// Name: value
+//------------------------------------------------------------------------------
+inline value::value(value &&other) : type_(other.type_) {
+
+	other.type_ = type::type_invalid;
+
+	// move from the other object
+	switch(type_) {
+	case value::type_string:
+	case value::type_number:
+	case value::type_null:
+	case value::type_boolean:
+		new (&value_) std::string(std::move(*reinterpret_cast<std::string *>(&other.value_)));
+		break;
+	case value::type_array:
+		new (&value_) array_pointer(std::move(*reinterpret_cast<array_pointer *>(&other.value_)));
+		break;
+	case value::type_object:
+		new (&value_) object_pointer(std::move(*reinterpret_cast<object_pointer *>(&other.value_)));
+		break;
+	case value::type_invalid:
+		break;
+	}
+}
+
+//------------------------------------------------------------------------------
+// Name: operator=
+//------------------------------------------------------------------------------
+inline value &value::operator=(value &&rhs) {
+	if(this != &rhs) {
+		value(std::move(rhs)).swap(*this);
+	}
+	return *this;
 }
 
 //------------------------------------------------------------------------------
