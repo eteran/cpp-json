@@ -8,6 +8,13 @@ namespace json {
 // Name: ~value
 //------------------------------------------------------------------------------
 inline value::~value() {
+	destroy();
+}
+
+//------------------------------------------------------------------------------
+// Name: ~value
+//------------------------------------------------------------------------------
+inline void value::destroy() {
 	using std::string;
 
 	switch(type_) {
@@ -26,6 +33,8 @@ inline value::~value() {
 	case value::type_invalid:
 		break;
 	}
+
+	type_ = type_invalid;
 }
 
 //------------------------------------------------------------------------------
@@ -90,7 +99,7 @@ inline value::value(bool b) : type_(type_boolean) {
 //------------------------------------------------------------------------------
 inline value::value(value &&other) : type_(other.type_) {
 
-	other.type_ = type::type_invalid;
+	using std::string;
 
 	// move from the other object
 	switch(type_) {
@@ -109,6 +118,8 @@ inline value::value(value &&other) : type_(other.type_) {
 	case value::type_invalid:
 		break;
 	}
+
+	other.destroy();
 }
 
 //------------------------------------------------------------------------------

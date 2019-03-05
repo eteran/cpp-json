@@ -113,6 +113,9 @@ private:
 	array &as_array();
 
 private:
+	void destroy();
+
+private:
 	struct invalid_t {};
 
 	// I would love to use std::aligned_union, but it doesn't seem widely supported
