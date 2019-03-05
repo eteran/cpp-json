@@ -191,7 +191,7 @@ inline std::string escape_string(const std::string &s, unsigned options) {
 						r += *it;
 						break;
 					}
-				}else if((ch & 0xe0) == 0xc0) {
+				} else if((ch & 0xe0) == 0xc0) {
 					// 2 byte
 					result = ch & 0x1f;
 					shift_state.expected = 2;
@@ -257,9 +257,9 @@ inline std::string escape_string(const std::string &s, unsigned options) {
 		}
 	} else {
 
-		for(auto it = s.begin(); it != s.end(); ++it) {
+		for(char ch : s) {
 
-			switch(*it) {
+			switch(ch) {
 			case '\"': r += "\\\""; break;
 			case '\\': r += "\\\\"; break;
 		#if 0
@@ -271,7 +271,7 @@ inline std::string escape_string(const std::string &s, unsigned options) {
 			case '\r': r += "\\r"; break;
 			case '\t': r += "\\t"; break;
 			default:
-				r += *it;
+				r += ch;
 				break;
 			}
 		}
