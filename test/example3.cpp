@@ -2,9 +2,10 @@
 #include "cpp-json/json.h"
 #include <iostream>
 
-//------------------------------------------------------------------------------
-// Name: main
-//------------------------------------------------------------------------------
+/**
+ * @brief main
+ * @return
+ */
 int main() {
 
 	// construct from string (C++11 raw string literals work nicely here!)
@@ -26,7 +27,7 @@ int main() {
 	}
 	)");
 
-	std::cout << stringify(v, json::PRETTY_PRINT) << std::endl;
+	std::cout << stringify(v, json::PrettyPrint) << '\n';
 	std::cout << "----------" << std::endl;
 
 	// get a specific value
@@ -34,5 +35,5 @@ int main() {
 	std::cout << to_number(z) << std::endl;
 	std::cout << to_integer(z) << std::endl;
 
-	std::cout << stringify(v, json::ESCAPE_UNICODE) << std::endl;
+	std::cout << stringify(v, json::EscapeUnicode) << '\n';
 }

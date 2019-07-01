@@ -3,15 +3,16 @@
 #include <iostream>
 #include <fstream>
 
-//------------------------------------------------------------------------------
-// Name: main
-//------------------------------------------------------------------------------
+/**
+ * @brief main
+ * @return
+ */
 int main() {
 
 	// construct from a file
 	std::ifstream file("example1.json");
 	if(file) {
 		auto v1 = json::parse(file);
-		std::cout << stringify(v1, json::PRETTY_PRINT | json::ESCAPE_UNICODE) << std::endl;
+		std::cout << stringify(v1, json::PrettyPrint | json::EscapeUnicode) << '\n';
 	}
 }
