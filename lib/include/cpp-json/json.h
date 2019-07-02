@@ -65,10 +65,11 @@ inline bool is_null(const value &v) noexcept;
 // conversion (you get a copy)
 inline std::string to_string(const value &v);
 inline bool to_bool(const value &v);
-inline double to_number(const value &v);
-inline int64_t to_integer(const value &v);
 inline object to_object(const value &v);
 inline array to_array(const value &v);
+
+template <class T, class = typename std::enable_if<std::is_arithmetic<T>::value>::type>
+T to_number(const value &v);
 
 // interpretation (you get a reference)
 inline object &as_object(value &v);
@@ -91,9 +92,9 @@ inline value parse(NS::string_view s);
 
 // convert a value to a JSON string
 enum Options {
-	None          = 0x00,
-	EscapeUnicode = 0x01,
-	PrettyPrint   = 0x02,
+	None                   = 0x00,
+	EscapeUnicode          = 0x01,
+	PrettyPrint            = 0x02,
 };
 
 constexpr inline Options operator&(Options lhs, Options rhs) noexcept {
@@ -205,6 +206,32 @@ void surrogate_pair_to_utf8(uint16_t w1, uint16_t w2, Out &out) {
 		*out++ = static_cast<uint8_t>(0x80 | (cp & 0x3f));
 	}
 }
+
+template <class T>
+struct to_number_helper {};
+
+template <> struct to_number_helper<float>  { float convert(const value &v)  { return stof(as_string(v), nullptr); } };
+template <> struct to_number_helper<double> { double convert(const value &v) { return stod(as_string(v), nullptr); } };
+
+template <> struct to_number_helper<uint8_t>  { uint8_t convert(const value &v)  { return static_cast<uint8_t>(stoul(as_string(v), nullptr)); } };
+template <> struct to_number_helper<uint16_t> { uint16_t convert(const value &v) { return static_cast<uint16_t>(stoul(as_string(v), nullptr)); } };
+template <> struct to_number_helper<uint32_t> { uint32_t convert(const value &v) { return static_cast<uint32_t>(stoul(as_string(v), nullptr)); } };
+template <> struct to_number_helper<uint64_t> { uint64_t convert(const value &v) { return stoull(as_string(v), nullptr); } };
+
+template <> struct to_number_helper<int8_t>  { int8_t convert(const value &v)  { return static_cast<int8_t>(stol(as_string(v), nullptr)); } };
+template <> struct to_number_helper<int16_t> { int16_t convert(const value &v) { return static_cast<int16_t>(stol(as_string(v), nullptr)); } };
+template <> struct to_number_helper<int32_t> { int32_t convert(const value &v) { return static_cast<int32_t>(stol(as_string(v), nullptr)); } };
+template <> struct to_number_helper<int64_t> { int64_t convert(const value &v) { return stoll(as_string(v), nullptr); } };
+}
+
+template <class T, class>
+T to_number(const value &v) {
+	if (!is_number(v)) {
+		throw invalid_type_cast();
+	}
+
+	detail::to_number_helper<T> helper;
+	return helper.convert(v);
 }
 
 /**
@@ -632,8 +659,8 @@ private:
 
 public:
 	// intialize from basic types
-	value(const array &a);
-	value(const object &o);
+	explicit value(const array &a);
+	explicit value(const object &o);
 
 	value(array &&a);
 	value(object &&o);
@@ -722,6 +749,8 @@ public:
 public:
 	value operator[](const ptr &ptr) const;
 	value &operator[](const ptr &ptr);
+
+	value &create(const ptr &ptr);
 
 public:
 	// array like interface
@@ -1124,28 +1153,32 @@ inline bool to_bool(const value &v) {
 	return NS::get<value::Boolean>(v.storage_) == value::Boolean::True;
 }
 
-inline double to_number(const value &v) {
-	if (!is_number(v)) {
-		throw invalid_type_cast();
-	}
-
-	return stod(as_string(v), nullptr);
-}
-
-inline int64_t to_integer(const value &v) {
-	if (!is_number(v)) {
-		throw invalid_type_cast();
-	}
-
-	return stoll(as_string(v), nullptr);
-}
-
 inline object to_object(const value &v) {
 	return as_object(v);
 }
 
 inline array to_array(const value &v) {
 	return as_array(v);
+}
+
+inline object &as_object(array &v) {
+	(void)v;
+	throw invalid_type_cast();
+}
+
+inline array &as_array(object &v) {
+	(void)v;
+	throw invalid_type_cast();
+}
+
+inline const object &as_object(const array &v) {
+	(void)v;
+	throw invalid_type_cast();
+}
+
+inline const array &as_array(const object &v) {
+	(void)v;
+	throw invalid_type_cast();
 }
 
 inline object &as_object(value &v) {
@@ -1294,7 +1327,14 @@ inline std::string escape_string(NS::string_view s, Options options) {
 						r += "\\t";
 						break;
 					default:
-						r += *it;
+						if(!isprint(*it)) {
+							r += "\\u";
+							char buf[5];
+							snprintf(buf, sizeof(buf), "%04X", *it);
+							r += buf;
+						} else {
+							r += *it;
+						}
 						break;
 					}
 				} else if ((ch & 0xe0) == 0xc0) {
@@ -1514,43 +1554,43 @@ inline void value_to_string(std::ostream &os, const value &v, Options options) {
 }
 
 // serialize, not pretty printed
-inline void serialize_to_stream(std::ostream &os, const value &v, Options options);
+inline void serialize(std::ostream &os, const value &v, Options options);
 
-inline void serialize_to_stream(std::ostream &os, const array &a, Options options) {
+inline void serialize(std::ostream &os, const array &a, Options options) {
 	os << "[";
 	if (!a.empty()) {
 		auto it = a.begin();
 		auto e  = a.end();
 
-		serialize_to_stream(os, *it++, options);
+		serialize(os, *it++, options);
 
 		for (; it != e; ++it) {
 			os << ',';
-			serialize_to_stream(os, *it, options);
+			serialize(os, *it, options);
 		}
 	}
 	os << "]";
 }
 
-inline void serialize_to_stream(std::ostream &os, const object &o, Options options) {
+inline void serialize(std::ostream &os, const object &o, Options options) {
 	os << "{";
 	if (!o.empty()) {
 		auto it = o.begin();
 		auto e  = o.end();
 
 		os << '"' << escape_string(it->first, options) << "\":";
-		serialize_to_stream(os, it->second, options);
+		serialize(os, it->second, options);
 		++it;
 		for (; it != e; ++it) {
 			os << ',';
 			os << '"' << escape_string(it->first, options) << "\":";
-			serialize_to_stream(os, it->second, options);
+			serialize(os, it->second, options);
 		}
 	}
 	os << "}";
 }
 
-inline void serialize_to_stream(std::ostream &os, const value &v, Options options) {
+inline void serialize(std::ostream &os, const value &v, Options options) {
 
 	switch(v.type()) {
 	case value::type_string:
@@ -1566,11 +1606,11 @@ inline void serialize_to_stream(std::ostream &os, const value &v, Options option
 		os << (to_bool(v) ? "true" : "false");
 		break;
 	case value::type_object: {
-		serialize_to_stream(os, as_object(v), options);
+		serialize(os, as_object(v), options);
 		break;
 	}
 	case value::type_array: {
-		serialize_to_stream(os, as_array(v), options);
+		serialize(os, as_array(v), options);
 		break;
 	}
 	case value::type_invalid:
@@ -1579,24 +1619,24 @@ inline void serialize_to_stream(std::ostream &os, const value &v, Options option
 }
 
 template <class T, class = typename std::enable_if<std::is_same<T, value>::value || std::is_same<T, object>::value || std::is_same<T, array>::value>::type>
-std::string serialize_to_string(const T &v, Options options) {
+std::string serialize(const T &v, Options options) {
 	std::stringstream ss;
 
 	std::locale c_locale("C");
 	ss.imbue(c_locale);
 
-	serialize_to_stream(ss, v, options);
+	serialize(ss, v, options);
 	return ss.str();
 }
 
 template <class T, class = typename std::enable_if<std::is_same<T, value>::value || std::is_same<T, object>::value || std::is_same<T, array>::value>::type>
 std::string pretty_print(const T &v, Options options) {
-	return value_to_string(v, options);
+	return value_to_string(value(v), options);
 }
 
 template <class T, class = typename std::enable_if<std::is_same<T, value>::value || std::is_same<T, object>::value || std::is_same<T, array>::value>::type>
 void pretty_print(std::ostream &os, const T &v, Options options) {
-	value_to_string(os, v, options);
+	value_to_string(os, value(v), options);
 }
 
 }
@@ -1606,7 +1646,7 @@ std::string stringify(const T &v, Options options) {
 	if (options & Options::PrettyPrint) {
 		return detail::pretty_print(v, options);
 	} else {
-		return detail::serialize_to_string(v, options);
+		return detail::serialize(v, options);
 	}
 }
 
@@ -1619,7 +1659,7 @@ void stringify(std::ostream &os, const T &v, Options options) {
 	if (options & Options::PrettyPrint) {
 		detail::pretty_print(os, v, options);
 	} else {
-		detail::serialize_to_stream(os, v, options);
+		detail::serialize(os, v, options);
 	}
 }
 
@@ -1898,7 +1938,6 @@ inline value value::operator[](const ptr &ptr) const {
 		} else {
 			throw invalid_path();
 		}
-
 	}
 
 	return *result;
@@ -1922,7 +1961,31 @@ inline value &value::operator[](const ptr &ptr) {
 		} else {
 			throw invalid_path();
 		}
+	}
 
+	return *result;
+}
+
+inline value &value::create(const ptr &ptr) {
+	value *result = this;
+	for(const std::string &ref : ptr) {
+
+		if(result->is_object()) {
+			if(!has_key(result, ref)) {
+				result->insert(ref, object());
+			}
+			result = &result->at(ref);
+		} else if(result->is_array()) {
+			if(ref == "-") {
+				result->push_back(value());
+				result = &result->at(result->size() - 1);
+			} else {
+				std::size_t n = std::stoul(ref);
+				result = &result->at(n);
+			}
+		} else {
+			throw invalid_path();
+		}
 	}
 
 	return *result;
@@ -1976,7 +2039,7 @@ inline bool operator==(const value &lhs, const value &rhs) {
 		case value::type_string:
 			return as_string(lhs) == as_string(rhs);
 		case value::type_number:
-			return to_number(lhs) == to_number(rhs);
+			return to_number<double>(lhs) == to_number<double>(rhs);
 		case value::type_null:
 			return true;
 		case value::type_boolean:
@@ -2237,6 +2300,8 @@ template <class T>
 std::pair<object::iterator, bool> value::insert(std::pair<std::string, T> &&p) {
 	return as_object().insert(std::forward<T>(p));
 }
+
+
 
 
 }
