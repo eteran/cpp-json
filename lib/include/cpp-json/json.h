@@ -1301,7 +1301,7 @@ inline std::string escape_string(NS::string_view s, Options options) {
 			if (shift_state.seen == 0) {
 
 				if ((ch & 0x80) == 0) {
-					switch (*it) {
+					switch (ch) {
 					case '\"':
 						r += "\\\"";
 						break;
@@ -1327,13 +1327,13 @@ inline std::string escape_string(NS::string_view s, Options options) {
 						r += "\\t";
 						break;
 					default:
-						if(!isprint(*it)) {
+						if(!isprint(ch)) {
 							r += "\\u";
 							char buf[5];
-							snprintf(buf, sizeof(buf), "%04X", *it);
+							snprintf(buf, sizeof(buf), "%04X", ch);
 							r += buf;
 						} else {
-							r += *it;
+							r += static_cast<char>(ch);
 						}
 						break;
 					}
