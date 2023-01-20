@@ -103,14 +103,11 @@ public:
 };
 
 // parsing errors
-class boolean_expected : public exception {};
 class brace_expected : public exception {};
 class bracket_expected : public exception {};
 class colon_expected : public exception {};
-class hex_character_expected : public exception {};
 class quote_expected : public exception {};
 class invalid_unicode_character : public exception {};
-class keyword_expected : public exception {};
 class string_expected : public exception {};
 class value_expected : public exception {};
 class utf16_surrogate_expected : public exception {};
@@ -123,7 +120,6 @@ class invalid_index : public exception {};
 
 // pointer errors
 class invalid_path : public exception {};
-class empty_reference_token : public exception {};
 class invalid_reference_escape : public exception {};
 
 namespace detail {
@@ -136,7 +132,7 @@ namespace detail {
 template <class Ch>
 unsigned int to_hex(Ch ch) {
 
-	static const unsigned int hexval[256] = {
+	static const unsigned int hex_val[256] = {
 		0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
 		0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
 		0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
@@ -146,7 +142,7 @@ unsigned int to_hex(Ch ch) {
 		0x0, 0xa, 0xb, 0xc, 0xd, 0xe, 0xf, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0};
 
 	if (static_cast<unsigned int>(ch) < 256) {
-		return hexval[static_cast<unsigned int>(ch)];
+		return hex_val[static_cast<unsigned int>(ch)];
 	} else {
 		return 0;
 	}
@@ -189,51 +185,6 @@ void surrogate_pair_to_utf8(uint16_t w1, uint16_t w2, Out &out) {
 	}
 }
 
-template <class T>
-struct to_number_helper {};
-
-template <>
-struct to_number_helper<float> {
-	float convert(const value &v) { return stof(as_string(v), nullptr); }
-};
-template <>
-struct to_number_helper<double> {
-	double convert(const value &v) { return stod(as_string(v), nullptr); }
-};
-
-template <>
-struct to_number_helper<uint8_t> {
-	uint8_t convert(const value &v) { return static_cast<uint8_t>(stoul(as_string(v), nullptr)); }
-};
-template <>
-struct to_number_helper<uint16_t> {
-	uint16_t convert(const value &v) { return static_cast<uint16_t>(stoul(as_string(v), nullptr)); }
-};
-template <>
-struct to_number_helper<uint32_t> {
-	uint32_t convert(const value &v) { return static_cast<uint32_t>(stoul(as_string(v), nullptr)); }
-};
-template <>
-struct to_number_helper<uint64_t> {
-	uint64_t convert(const value &v) { return stoull(as_string(v), nullptr); }
-};
-
-template <>
-struct to_number_helper<int8_t> {
-	int8_t convert(const value &v) { return static_cast<int8_t>(stol(as_string(v), nullptr)); }
-};
-template <>
-struct to_number_helper<int16_t> {
-	int16_t convert(const value &v) { return static_cast<int16_t>(stol(as_string(v), nullptr)); }
-};
-template <>
-struct to_number_helper<int32_t> {
-	int32_t convert(const value &v) { return static_cast<int32_t>(stol(as_string(v), nullptr)); }
-};
-template <>
-struct to_number_helper<int64_t> {
-	int64_t convert(const value &v) { return stoll(as_string(v), nullptr); }
-};
 }
 
 template <class T, class>
@@ -242,8 +193,29 @@ T to_number(const value &v) {
 		throw invalid_type_cast();
 	}
 
-	detail::to_number_helper<T> helper;
-	return helper.convert(v);
+	if constexpr (std::is_same_v<T, int64_t>) {
+		return stoll(as_string(v), nullptr);
+	} else if constexpr (std::is_same_v<T, int32_t>) {
+		return static_cast<int32_t>(stol(as_string(v), nullptr));
+	} else if constexpr (std::is_same_v<T, int16_t>) {
+		return static_cast<int16_t>(stol(as_string(v), nullptr));
+	} else if constexpr (std::is_same_v<T, int8_t>) {
+		return static_cast<int8_t>(stol(as_string(v), nullptr));
+	} else if constexpr (std::is_same_v<T, uint64_t>) {
+		return stoull(as_string(v), nullptr);
+	} else if constexpr (std::is_same_v<T, uint32_t>) {
+		return static_cast<uint32_t>(stoul(as_string(v), nullptr));
+	} else if constexpr (std::is_same_v<T, uint16_t>) {
+		return static_cast<uint16_t>(stoul(as_string(v), nullptr));
+	} else if constexpr (std::is_same_v<T, uint8_t>) {
+		return static_cast<uint8_t>(stoul(as_string(v), nullptr));
+	} else if constexpr (std::is_same_v<T, double>) {
+		return stod(as_string(v), nullptr);
+	} else if constexpr (std::is_same_v<T, float>) {
+		return stof(as_string(v), nullptr);
+	} else {
+		throw invalid_type_cast();
+	}
 }
 
 /**
@@ -906,34 +878,58 @@ inline value &array::at(std::size_t n) {
 	throw invalid_index();
 }
 
-/**
- * @brief The parser class
- */
-class parser {
+struct location_type {
+	size_t line;
+	size_t column;
+};
+
+class reader {
+	friend class parser;
 public:
-	parser(std::string_view s)
-		: begin_(s.begin()), cur_(s.begin()), end_(s.end()) {
+	reader(std::string_view s) noexcept
+		: str_(s) {
 	}
 
 public:
-	value parse() {
-		return get_value();
+	template <class T>
+	void require(char ch) {
+		if (!match(ch)) {
+			throw T();
+		}
+	}
+
+	bool match(char ch) noexcept {
+		if (peek() != ch) {
+			return false;
+		}
+
+		++index_;
+		return true;
+	}
+
+	bool match(std::string_view s) noexcept {
+
+		if (str_.substr(index_, s.size()) != s) {
+			return false;
+		}
+
+		index_ += s.size();
+		return true;
 	}
 
 public:
-	struct location_type {
-		size_t line;
-		size_t column;
-	};
+	location_type location() noexcept {
+		return location(index_);
+	}
 
-	location_type location() {
+	location_type location(size_t index) noexcept {
 		size_t line = 1;
 		size_t col  = 1;
 
-		if (cur_ < end_) {
+		if (index < str_.size()) {
 
-			for (auto i = begin_; i < cur_; ++i) {
-				if (*i == '\n') {
+			for (size_t i = 0; i < index; ++i) {
+				if (str_[i] == '\n') {
 					++line;
 					col = 1;
 				} else {
@@ -945,199 +941,347 @@ public:
 		return location_type{line, col};
 	}
 
-private:
-	static constexpr char ArrayBegin     = '[';
-	static constexpr char ArrayEnd       = ']';
-	static constexpr char NameSeparator  = ':';
-	static constexpr char ValueSeparator = ',';
-	static constexpr char ObjectBegin    = '{';
-	static constexpr char ObjectEnd      = '}';
-	static constexpr char Quote          = '"';
-
-private:
-	bool get_false() {
-		if (read() != 'f') {
-			throw boolean_expected();
-		}
-		if (read() != 'a') {
-			throw boolean_expected();
-		}
-		if (read() != 'l') {
-			throw boolean_expected();
-		}
-		if (read() != 's') {
-			throw boolean_expected();
-		}
-		if (read() != 'e') {
-			throw boolean_expected();
+public:
+	char peek() noexcept {
+		if (at_end()) {
+			return '\0';
 		}
 
+		return str_[index_];
+	}
+
+	char read() noexcept {
+		if (at_end()) {
+			return '\0';
+		}
+
+		return str_[index_++];
+	}
+
+	bool at_end() const noexcept {
+		return index_ == str_.size();
+	}
+
+private:
+	size_t index_ = 0;
+	std::string_view str_;
+};
+
+/**
+ * @brief The parser class
+ */
+class parser {
+public:
+	struct token {
+		enum type {
+			ArrayBegin,
+			ArrayEnd,
+			Colon,
+			Comma,
+			ObjectBegin,
+			ObjectEnd,
+			Quote,
+			Number,
+			String,
+			LiteralTrue,
+			LiteralFalse,
+			LiteralNull,
+		} type;
+
+		// TODO(eteran): make this a string view, and reduce copies
+		std::string value;
+		size_t index;
+	};
+
+private:
+	template <class T>
+	const token &require(typename token::type type) {
+		if (tokens_[token_index_].type != type) {
+			throw T();
+		}
+		return tokens_[token_index_++];
+	}
+
+	bool match(typename token::type type) noexcept {
+		if (tokens_[token_index_].type == type) {
+			++token_index_;
+			return true;
+		}
 		return false;
 	}
 
-	bool get_true() {
-		if (read() != 't') {
-			throw boolean_expected();
-		}
-		if (read() != 'r') {
-			throw boolean_expected();
-		}
-		if (read() != 'u') {
-			throw boolean_expected();
-		}
-		if (read() != 'e') {
-			throw boolean_expected();
+private:
+	std::vector<token> tokenize() {
+		std::vector<token> tokens;
+
+		while (true) {
+
+			// consume whitespace
+			while (std::isspace(reader_.peek())) {
+				reader_.read();
+			}
+
+			// if we reach end of the stream, we're done!
+			if (reader_.at_end()) {
+				break;
+			}
+
+			const size_t token_start = reader_.index_;
+
+			// extract the next token...
+			if (reader_.match('[')) {
+				tokens.push_back({token::type::ArrayBegin, "[", token_start});
+			} else if (reader_.match(']')) {
+				tokens.push_back({token::type::ArrayEnd, "]", token_start});
+			} else if (reader_.match(':')) {
+				tokens.push_back({token::type::Colon, ":", token_start});
+			} else if (reader_.match(',')) {
+				tokens.push_back({token::type::Comma, ",", token_start});
+			} else if (reader_.match('{')) {
+				tokens.push_back({token::type::ObjectBegin, "{", token_start});
+			} else if (reader_.match('}')) {
+				tokens.push_back({token::type::ObjectEnd, "}", token_start});
+			} else if (reader_.match("true")) {
+				tokens.push_back({token::type::LiteralTrue, "true", token_start});
+			} else if (reader_.match("false")) {
+				tokens.push_back({token::type::LiteralFalse, "false", token_start});
+			} else if (reader_.match("null")) {
+				tokens.push_back({token::type::LiteralNull, "null", token_start});
+			} else if (reader_.match('"')) {
+
+				std::string s;
+				std::back_insert_iterator<std::string> out = back_inserter(s);
+
+				while (reader_.peek() != '"' && reader_.peek() != '\n') {
+
+					char ch = reader_.read();
+					if (ch == '\\') {
+						switch (reader_.read()) {
+						case '"':
+							*out++ = '"';
+							break;
+						case '\\':
+							*out++ = '\\';
+							break;
+						case '/':
+							*out++ = '/';
+							break;
+						case 'b':
+							*out++ = '\b';
+							break;
+						case 'f':
+							*out++ = '\f';
+							break;
+						case 'n':
+							*out++ = '\n';
+							break;
+						case 'r':
+							*out++ = '\r';
+							break;
+						case 't':
+							*out++ = '\t';
+							break;
+						case 'u': {
+							// convert \uXXXX escape sequences to UTF-8
+							char hex[4];
+
+							if (!std::isxdigit(hex[0] = reader_.read())) throw invalid_unicode_character();
+							if (!std::isxdigit(hex[1] = reader_.read())) throw invalid_unicode_character();
+							if (!std::isxdigit(hex[2] = reader_.read())) throw invalid_unicode_character();
+							if (!std::isxdigit(hex[3] = reader_.read())) throw invalid_unicode_character();
+
+							uint16_t w1 = 0;
+							uint16_t w2 = 0;
+
+							w1 |= (detail::to_hex(hex[0]) << 12);
+							w1 |= (detail::to_hex(hex[1]) << 8);
+							w1 |= (detail::to_hex(hex[2]) << 4);
+							w1 |= (detail::to_hex(hex[3]));
+
+							if ((w1 & 0xfc00) == 0xdc00) {
+								throw invalid_unicode_character();
+							}
+
+							if ((w1 & 0xfc00) == 0xd800) {
+								// part of a surrogate pair
+								if (!reader_.match("\\u")) {
+									throw utf16_surrogate_expected();
+								}
+
+								// convert \uXXXX escape sequences for surrogate pairs to UTF-8
+								if (!std::isxdigit(hex[0] = reader_.read())) throw invalid_unicode_character();
+								if (!std::isxdigit(hex[1] = reader_.read())) throw invalid_unicode_character();
+								if (!std::isxdigit(hex[2] = reader_.read())) throw invalid_unicode_character();
+								if (!std::isxdigit(hex[3] = reader_.read())) throw invalid_unicode_character();
+
+								w2 |= (detail::to_hex(hex[0]) << 12);
+								w2 |= (detail::to_hex(hex[1]) << 8);
+								w2 |= (detail::to_hex(hex[2]) << 4);
+								w2 |= (detail::to_hex(hex[3]));
+							}
+
+							detail::surrogate_pair_to_utf8(w1, w2, out);
+							break;
+						}
+						default:
+							*out++ = '\\';
+							break;
+						}
+					} else {
+						*out++ = ch;
+					}
+				}
+
+				reader_.require<quote_expected>('"');
+				tokens.push_back({token::type::String, s, token_start});
+
+			} else {
+
+				std::string s;
+				s.reserve(10);
+				std::back_insert_iterator<std::string> out = back_inserter(s);
+
+				// JSON numbers fit the regex: -?(0|[1-9][0-9]*)(\.[0-9]+)?([eE][+-]?[0-9]+)?
+
+				// -?
+				if (reader_.match('-')) {
+					*out++ = '-';
+				}
+
+				// (0|[1-9][0-9]*)
+				if (reader_.match('0')) {
+					*out++ = '0';
+				} else {
+					if (!std::isdigit(reader_.peek())) {
+						throw invalid_number();
+					}
+
+					while (std::isdigit(reader_.peek())) {
+						*out++ = reader_.read();
+					}
+				}
+
+				// (\.[0-9]+)?
+				if (reader_.match('.')) {
+					*out++ = '.';
+					if (!std::isdigit(reader_.peek())) {
+						throw invalid_number();
+					}
+
+					while (std::isdigit(reader_.peek())) {
+						*out++ = reader_.read();
+					}
+				}
+
+				// ([eE][+-]?[0-9]+)?
+				if (reader_.peek() == 'e' || reader_.peek() == 'E') {
+					*out++ = reader_.read();
+					if (reader_.peek() == '+' || reader_.peek() == '-') {
+						*out++ = reader_.read();
+					}
+
+					if (!std::isdigit(reader_.peek())) {
+						throw invalid_number();
+					}
+
+					while (std::isdigit(reader_.peek())) {
+						*out++ = reader_.read();
+					}
+				}
+
+				tokens.push_back({token::type::Number, s, token_start});
+			}
 		}
 
-		return true;
+		return tokens;
 	}
 
-	std::nullptr_t get_null() {
-		if (read() != 'n') {
-			throw keyword_expected();
-		}
-		if (read() != 'u') {
-			throw keyword_expected();
-		}
-		if (read() != 'l') {
-			throw keyword_expected();
-		}
-		if (read() != 'l') {
-			throw keyword_expected();
-		}
+public:
+	parser(std::string_view s)
+		: reader_(s) {
 
-		return nullptr;
+		tokens_ = tokenize();
 	}
 
+public:
+	value parse() {
+		return get_value();
+	}
+
+private:
 	array_pointer get_array() {
+
 		auto arr = std::make_shared<array>();
 
-		if (read() != ArrayBegin) {
-			throw bracket_expected();
-		}
+		require<bracket_expected>(token::ArrayBegin);
 
-		// handle empty object
-		char tok = peek();
-		if (tok == ArrayEnd) {
-			read();
-		} else {
+		if (!match(token::ArrayEnd)) {
 			do {
 				arr->push_back(get_value());
-				tok = read();
-			} while (tok == ValueSeparator);
+			} while (match(token::Comma));
 		}
 
-		if (tok != ArrayEnd) {
-			throw bracket_expected();
-		}
-
+		require<bracket_expected>(token::ArrayEnd);
 		return arr;
 	}
 
 	object_pointer get_object() {
+
 		auto obj = std::make_shared<object>();
 
-		if (read() != ObjectBegin) {
-			throw brace_expected();
-		}
+		require<brace_expected>(token::ObjectBegin);
 
-		// handle empty object
-		char tok = peek();
-		if (tok == ObjectEnd) {
-			read();
-		} else {
+		if (!match(token::ObjectEnd)) {
 			do {
 				obj->insert(get_pair());
-				tok = read();
-			} while (tok == ValueSeparator);
+			} while (match(token::Comma));
 		}
 
-		if (tok != ObjectEnd) {
-			throw brace_expected();
-		}
-
+		require<brace_expected>(token::ObjectEnd);
 		return obj;
 	}
 
 	object_entry get_pair() {
-		std::string key = get_string();
 
-		if (read() != NameSeparator) {
-			throw colon_expected();
-		}
-
-		return std::make_pair(std::move(key), get_value());
+		const token &key = require<string_expected>(token::String);
+		require<colon_expected>(token::Colon);
+		return std::make_pair(key.value, get_value());
 	}
-
-	std::string get_number();
-	std::string get_string();
 
 	value get_value() {
-		switch (peek()) {
-		case ObjectBegin:
+
+		switch (tokens_[token_index_].type) {
+		case token::type::ObjectBegin:
 			return value(get_object());
-		case ArrayBegin:
+		case token::type::ArrayBegin:
 			return value(get_array());
-		case Quote:
-			return value(get_string());
-		case 't':
-			return value(get_true());
-		case 'f':
-			return value(get_false());
-		case 'n':
-			return value(get_null());
+		case token::type::String:
+			return value(tokens_[token_index_++].value);
+		case token::type::LiteralTrue:
+			token_index_++;
+			return value(true);
+		case token::type::LiteralFalse:
+			token_index_++;
+			return value(false);
+		case token::type::LiteralNull:
+			token_index_++;
+			return value(nullptr);
+		case token::type::Number:
+			return value(tokens_[token_index_++].value, value::numeric_type());
 		default:
-			return value(get_number(), value::numeric_type());
+			throw value_expected();
 		}
+	}
 
-		throw value_expected();
+public:
+	location_type location() noexcept {
+		return reader_.location(tokens_[token_index_].index);
 	}
 
 private:
-	void consume_whitespace() {
-		while (!at_end() && std::isspace(*cur_)) {
-			++cur_;
-		}
-	}
-
-	char peek_no_consume() {
-		if (at_end()) {
-			return '\0';
-		}
-
-		return *cur_;
-	}
-
-	char peek() {
-		// first eat up some whitespace
-		consume_whitespace();
-
-		return peek_no_consume();
-	}
-
-	char read_no_consume() {
-		if (at_end()) {
-			return '\0';
-		}
-
-		return *cur_++;
-	}
-
-	char read() {
-		// first eat up some whitespace
-		consume_whitespace();
-
-		return read_no_consume();
-	}
-
-	bool at_end() const noexcept {
-		return cur_ == end_;
-	}
-
-private:
-	std::string_view::const_iterator begin_;
-	std::string_view::const_iterator cur_;
-	std::string_view::const_iterator end_;
+	reader reader_;
+	std::vector<token> tokens_;
+	size_t token_index_ = 0;
 };
 
 inline std::string to_string(const value &v) {
@@ -2037,6 +2181,8 @@ inline bool operator==(const value &lhs, const value &rhs) {
 		case value::type_string:
 			return as_string(lhs) == as_string(rhs);
 		case value::type_number:
+			// NOTE(eteran): this is kinda a "best effort", we can't compare their string
+			// contents because things like 1e5 equals 100000
 			return to_number<double>(lhs) == to_number<double>(rhs);
 		case value::type_null:
 			return true;
@@ -2109,170 +2255,6 @@ inline bool operator!=(const array &lhs, const array &rhs) noexcept {
 	return !(lhs == rhs);
 }
 
-/**
- * @brief parser::get_string
- * @return
- */
-std::string parser::get_string() {
-
-	if (read() != Quote) {
-		throw string_expected();
-	}
-
-	std::string s;
-
-	std::back_insert_iterator<std::string> out = back_inserter(s);
-
-	while (peek_no_consume() != Quote && peek_no_consume() != '\n') {
-
-		char ch = read_no_consume();
-		if (ch == '\\') {
-			switch (read_no_consume()) {
-			case '"':
-				*out++ = '"';
-				break;
-			case '\\':
-				*out++ = '\\';
-				break;
-			case '/':
-				*out++ = '/';
-				break;
-			case 'b':
-				*out++ = '\b';
-				break;
-			case 'f':
-				*out++ = '\f';
-				break;
-			case 'n':
-				*out++ = '\n';
-				break;
-			case 'r':
-				*out++ = '\r';
-				break;
-			case 't':
-				*out++ = '\t';
-				break;
-			case 'u': {
-				// convert \uXXXX escape sequences to UTF-8
-				char hex[4];
-
-				if (!std::isxdigit(hex[0] = read())) throw invalid_unicode_character();
-				if (!std::isxdigit(hex[1] = read())) throw invalid_unicode_character();
-				if (!std::isxdigit(hex[2] = read())) throw invalid_unicode_character();
-				if (!std::isxdigit(hex[3] = read())) throw invalid_unicode_character();
-
-				uint16_t w1 = 0;
-				uint16_t w2 = 0;
-
-				w1 |= (detail::to_hex(hex[0]) << 12);
-				w1 |= (detail::to_hex(hex[1]) << 8);
-				w1 |= (detail::to_hex(hex[2]) << 4);
-				w1 |= (detail::to_hex(hex[3]));
-
-				if ((w1 & 0xfc00) == 0xdc00) {
-					throw invalid_unicode_character();
-				}
-
-				if ((w1 & 0xfc00) == 0xd800) {
-					// part of a surrogate pair
-					if (read() != '\\') {
-						throw utf16_surrogate_expected();
-					}
-
-					if (read() != 'u') {
-						throw utf16_surrogate_expected();
-					}
-
-					// convert \uXXXX escape sequences for surrogate pairs to UTF-8
-					if (!std::isxdigit(hex[0] = read())) throw invalid_unicode_character();
-					if (!std::isxdigit(hex[1] = read())) throw invalid_unicode_character();
-					if (!std::isxdigit(hex[2] = read())) throw invalid_unicode_character();
-					if (!std::isxdigit(hex[3] = read())) throw invalid_unicode_character();
-
-					w2 |= (detail::to_hex(hex[0]) << 12);
-					w2 |= (detail::to_hex(hex[1]) << 8);
-					w2 |= (detail::to_hex(hex[2]) << 4);
-					w2 |= (detail::to_hex(hex[3]));
-				}
-
-				detail::surrogate_pair_to_utf8(w1, w2, out);
-				break;
-			}
-			default:
-				*out++ = '\\';
-				break;
-			}
-		} else {
-			*out++ = ch;
-		}
-	}
-
-	if (read() != Quote) {
-		throw quote_expected();
-	}
-
-	return s;
-}
-
-/**
- * @brief parser::get_number
- * @return
- */
-std::string parser::get_number() {
-	std::string s;
-	s.reserve(10);
-	std::back_insert_iterator<std::string> out = back_inserter(s);
-
-	// JSON numbers fit the regex: -?(0|[1-9][0-9]*)(\.[0-9]+)?([eE][+-]?[0-9]+)?
-
-	// -?
-	if (peek() == '-') {
-		*out++ = read();
-	}
-
-	// (0|[1-9][0-9]*)
-	char first_digit = peek();
-	if (first_digit >= '1' && first_digit <= '9') {
-		do {
-			*out++ = read();
-		} while (std::isdigit(peek()));
-	} else if (first_digit == '0') {
-		*out++ = read();
-	} else {
-		throw invalid_number();
-	}
-
-	// (\.[0-9]+)?
-	if (peek() == '.') {
-		*out++ = read();
-		if (!std::isdigit(peek())) {
-			throw invalid_number();
-		}
-
-		while (std::isdigit(peek())) {
-			*out++ = read();
-		}
-	}
-
-	// ([eE][+-]?[0-9]+)?
-	if (peek() == 'e' || peek() == 'E') {
-		*out++ = read();
-		if (peek() == '+' || peek() == '-') {
-			*out++ = read();
-		}
-
-		if (!std::isdigit(peek())) {
-			throw invalid_number();
-		}
-
-		while (std::isdigit(peek())) {
-			*out++ = read();
-		}
-	}
-
-	return s;
-}
-
 template <class T>
 void value::push_back(T &&v) {
 	as_array().push_back(std::forward<T>(v));
@@ -2297,7 +2279,6 @@ template <class T>
 std::pair<object::iterator, bool> value::insert(std::pair<std::string, T> &&p) {
 	return as_object().insert(std::forward<T>(p));
 }
-
 }
 
 #endif
