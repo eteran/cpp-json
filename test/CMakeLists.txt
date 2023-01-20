@@ -19,6 +19,7 @@ target_compile_options(example3 PUBLIC -pedantic -W -Wall -Wmissing-field-initia
 add_test(
     NAME example1
     COMMAND $<TARGET_FILE:example1>
+    WORKING_DIRECTORY ${PROJECT_SOURCE_DIR}/test/
 )
 
 add_test(

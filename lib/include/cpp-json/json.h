@@ -70,10 +70,6 @@ inline bool has_key(const value &v, const std::string &key) noexcept;
 inline bool has_key(const object &o, const std::string &key) noexcept;
 
 // create a value from some JSON
-template <class In>
-inline value parse(In first, In last);
-inline value parse(std::istream &is);
-inline value parse(std::istream &&is);
 inline value parse(std::string_view s);
 
 // convert a value to a JSON string
@@ -416,7 +412,6 @@ class object {
 	friend bool operator==(const object &lhs, const object &rhs) noexcept;
 	friend bool operator!=(const object &lhs, const object &rhs) noexcept;
 
-	template <class In>
 	friend class parser;
 
 private:
@@ -661,7 +656,6 @@ class value {
 	friend bool operator==(const value &lhs, const value &rhs);
 	friend bool operator!=(const value &lhs, const value &rhs);
 
-	template <class In>
 	friend class parser;
 
 private:
@@ -915,11 +909,10 @@ inline value &array::at(std::size_t n) {
 /**
  * @brief The parser class
  */
-template <class In>
 class parser {
 public:
-	parser(In first, In last)
-		: begin_(first), cur_(first), end_(last) {
+	parser(std::string_view s)
+		: begin_(s.begin()), cur_(s.begin()), end_(s.end()) {
 	}
 
 public:
@@ -1132,27 +1125,13 @@ private:
 	}
 
 private:
-	In begin_;
-	In cur_;
-	In end_;
+	std::string_view::const_iterator begin_;
+	std::string_view::const_iterator cur_;
+	std::string_view::const_iterator end_;
 
 	int line_   = 1;
 	int column_ = 0;
 };
-
-template <class In>
-value parse(In first, In last) {
-
-	parser<In> p(first, last);
-
-	try {
-		return p.parse();
-	} catch (exception &e) {
-		e.line   = p.line();
-		e.column = p.column();
-		throw;
-	}
-}
 
 inline std::string to_string(const value &v) {
 	return as_string(v);
@@ -1253,16 +1232,16 @@ inline bool has_key(const object &o, const std::string &key) noexcept {
 	return o.find(key) != o.end();
 }
 
-inline value parse(std::istream &&is) {
-	return parse(is);
-}
-
-inline value parse(std::istream &is) {
-	return parse(std::istreambuf_iterator<char>{is}, std::istreambuf_iterator<char>{});
-}
-
 inline value parse(std::string_view s) {
-	return parse(s.begin(), s.end());
+	parser p(s);
+
+	try {
+		return p.parse();
+	} catch (exception &e) {
+		e.line   = p.line();
+		e.column = p.column();
+		throw;
+	}
 }
 
 inline bool is_string(const value &v) noexcept {
@@ -2123,11 +2102,10 @@ inline bool operator!=(const array &lhs, const array &rhs) noexcept {
 }
 
 /**
- * @brief parser<In>::get_string
+ * @brief parser::get_string
  * @return
  */
-template <class In>
-std::string parser<In>::get_string() {
+std::string parser::get_string() {
 
 	if (read() != Quote) {
 		throw string_expected();
@@ -2229,11 +2207,10 @@ std::string parser<In>::get_string() {
 }
 
 /**
- * @brief parser<In>::get_number
+ * @brief parser::get_number
  * @return
  */
-template <class In>
-std::string parser<In>::get_number() {
+std::string parser::get_number() {
 	std::string s;
 	s.reserve(10);
 	std::back_insert_iterator<std::string> out = back_inserter(s);
