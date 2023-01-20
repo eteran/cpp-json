@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.15)
 
 add_library(cpp-json INTERFACE
 )
@@ -10,4 +10,3 @@ target_include_directories(cpp-json
 target_sources(cpp-json INTERFACE
 	${CMAKE_CURRENT_SOURCE_DIR}/include/cpp-json/json.h
 )
-

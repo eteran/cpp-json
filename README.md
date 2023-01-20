@@ -1,5 +1,7 @@
 **cpp-json is licensed under the GNU General Public License, version 2 or later.**
 
+**NOTE:** version [4.1](https://github.com/eteran/cpp-json/releases/tag/4.1) will be the last to not require C++17.
+
 **NOTE:** version [2.2](https://github.com/eteran/cpp-json/releases/tag/2.2) will be the last to not require C++11.
 
 There are a few different JSON parsing libraries out there. But cpp-json aims to be the simplest to use while still being efficient by using modern c++ techniques. Additionally, this library is header only making it trivial to include in existing projects.
@@ -37,12 +39,12 @@ int main() {
 	// ... though in real code you may want to check the type first ;-)
 	auto servlets = json["web-app"]["servlet"];
 
-	// when dealing with arrays, you can just use iterators, 
+	// when dealing with arrays, you can just use iterators,
 	// or feel free to use C++11 ranged-for
 	const json::array &a = as_array(servlets);
 	for(auto it = a.begin(); it != a.end(); ++it) {
         	const json::value &v = *it;
-        	// all basic types (numbers, strings, booleans) can be converted 
+        	// all basic types (numbers, strings, booleans) can be converted
         	// to a string
         	std::cout << to_string(v["servlet-name"]) << std::endl;
 	}
@@ -64,7 +66,7 @@ int main(int argc, char *argv[]) {
 			{ "world", 5678 }
 		}
 	};
-	
+
 	std::cout << stringify(arr) << std::endl;
 }
 ```
@@ -77,7 +79,7 @@ Which of course results in a object representing the following JSON:
 	2,
 	3,
 	4,
-	"Testing 1 2 3", 
+	"Testing 1 2 3",
 	{
 		"hello" : 1234,
 		"world" : 5678

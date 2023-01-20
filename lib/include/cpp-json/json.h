@@ -22,26 +22,14 @@
 #include <memory>
 #include <sstream>
 #include <string>
-#include <type_traits>
-#include <vector>
-
-#if __cplusplus >= 201703L
 #include <string_view>
+#include <type_traits>
 #include <variant>
-#else
-#include <boost/utility/string_view.hpp>
-#include <boost/variant.hpp>
-#endif
+#include <vector>
 
 namespace json {
 
 constexpr int IndentWidth = 4;
-
-#if __cplusplus >= 201703L
-namespace NS = std;
-#else
-namespace NS = boost;
-#endif
 
 class value;
 class array;
@@ -62,19 +50,19 @@ inline bool is_null(const value &v) noexcept;
 
 // conversion (you get a copy)
 inline std::string to_string(const value &v);
-inline bool        to_bool(const value &v);
-inline object      to_object(const value &v);
-inline array       to_array(const value &v);
+inline bool to_bool(const value &v);
+inline object to_object(const value &v);
+inline array to_array(const value &v);
 
 template <class T, class = typename std::enable_if<std::is_arithmetic<T>::value>::type>
 T to_number(const value &v);
 
 // interpretation (you get a reference)
-inline object &           as_object(value &v);
-inline array &            as_array(value &v);
-inline std::string &      as_string(value &v);
-inline const object &     as_object(const value &v);
-inline const array &      as_array(const value &v);
+inline object &as_object(value &v);
+inline array &as_array(value &v);
+inline std::string &as_string(value &v);
+inline const object &as_object(const value &v);
+inline const array &as_array(const value &v);
 inline const std::string &as_string(const value &v);
 
 // does the given object have a given key?
@@ -86,7 +74,7 @@ template <class In>
 inline value parse(In first, In last);
 inline value parse(std::istream &is);
 inline value parse(std::istream &&is);
-inline value parse(NS::string_view s);
+inline value parse(std::string_view s);
 
 // convert a value to a JSON string
 enum Options {
@@ -283,7 +271,7 @@ public:
 	using size_type              = typename C::size_type;
 
 public:
-	explicit ptr(NS::string_view path) {
+	explicit ptr(std::string_view path) {
 
 		auto it = path.begin();
 
@@ -386,21 +374,21 @@ public:
 	}
 
 public:
-	ptr()                 = default;
-	ptr(ptr &&other)      = default;
-	ptr(const ptr &other) = default;
-	ptr &operator=(ptr &&rhs) = default;
+	ptr()                          = default;
+	ptr(ptr &&other)               = default;
+	ptr(const ptr &other)          = default;
+	ptr &operator=(ptr &&rhs)      = default;
 	ptr &operator=(const ptr &rhs) = default;
 
 public:
-	iterator               begin() noexcept { return path_.begin(); }
-	iterator               end() noexcept { return path_.end(); }
-	const_iterator         begin() const noexcept { return path_.begin(); }
-	const_iterator         end() const noexcept { return path_.end(); }
-	const_iterator         cbegin() const noexcept { return path_.begin(); }
-	const_iterator         cend() const noexcept { return path_.end(); }
-	reverse_iterator       rbegin() noexcept { return path_.rbegin(); }
-	reverse_iterator       rend() noexcept { return path_.rend(); }
+	iterator begin() noexcept { return path_.begin(); }
+	iterator end() noexcept { return path_.end(); }
+	const_iterator begin() const noexcept { return path_.begin(); }
+	const_iterator end() const noexcept { return path_.end(); }
+	const_iterator cbegin() const noexcept { return path_.begin(); }
+	const_iterator cend() const noexcept { return path_.end(); }
+	reverse_iterator rbegin() noexcept { return path_.rbegin(); }
+	reverse_iterator rend() noexcept { return path_.rend(); }
 	const_reverse_iterator rbegin() const noexcept { return path_.rbegin(); }
 	const_reverse_iterator rend() const noexcept { return path_.rend(); }
 	const_reverse_iterator crbegin() const noexcept { return path_.rbegin(); }
@@ -409,12 +397,12 @@ public:
 public:
 	size_type size() const noexcept { return path_.size(); }
 	size_type max_size() const noexcept { return path_.max_size(); }
-	bool      empty() const noexcept { return path_.empty(); }
+	bool empty() const noexcept { return path_.empty(); }
 
 public:
-	value  operator[](std::size_t n) const;
+	value operator[](std::size_t n) const;
 	value &operator[](std::size_t n);
-	value  at(std::size_t n) const;
+	value at(std::size_t n) const;
 	value &at(std::size_t n);
 
 private:
@@ -446,23 +434,23 @@ public:
 	using size_type       = typename C::size_type;
 
 public:
-	object()                    = default;
-	object(const object &other) = default;
-	object(object &&other)      = default;
+	object()                             = default;
+	object(const object &other)          = default;
+	object(object &&other)               = default;
 	object &operator=(const object &rhs) = default;
-	object &operator=(object &&rhs) = default;
+	object &operator=(object &&rhs)      = default;
 	object(std::initializer_list<object_entry> list);
 
 public:
-	iterator       begin() noexcept { return values_.begin(); }
-	iterator       end() noexcept { return values_.end(); }
+	iterator begin() noexcept { return values_.begin(); }
+	iterator end() noexcept { return values_.end(); }
 	const_iterator begin() const noexcept { return values_.begin(); }
 	const_iterator end() const noexcept { return values_.end(); }
 	const_iterator cbegin() const noexcept { return values_.begin(); }
 	const_iterator cend() const noexcept { return values_.end(); }
 
 public:
-	iterator       find(const std::string &s) noexcept;
+	iterator find(const std::string &s) noexcept;
 	const_iterator find(const std::string &s) const noexcept;
 
 public:
@@ -479,10 +467,10 @@ public:
 	}
 
 public:
-	value  operator[](const std::string &key) const;
+	value operator[](const std::string &key) const;
 	value &operator[](const std::string &key);
 
-	value  at(const std::string &key) const;
+	value at(const std::string &key) const;
 	value &at(const std::string &key);
 
 public:
@@ -554,10 +542,10 @@ public:
 	using size_type              = typename C::size_type;
 
 public:
-	array()                   = default;
-	array(array &&other)      = default;
-	array(const array &other) = default;
-	array &operator=(array &&rhs) = default;
+	array()                            = default;
+	array(array &&other)               = default;
+	array(const array &other)          = default;
+	array &operator=(array &&rhs)      = default;
 	array &operator=(const array &rhs) = default;
 	array(std::initializer_list<value> list);
 
@@ -567,14 +555,14 @@ public:
 	}
 
 public:
-	iterator               begin() noexcept { return values_.begin(); }
-	iterator               end() noexcept { return values_.end(); }
-	const_iterator         begin() const noexcept { return values_.begin(); }
-	const_iterator         end() const noexcept { return values_.end(); }
-	const_iterator         cbegin() const noexcept { return values_.begin(); }
-	const_iterator         cend() const noexcept { return values_.end(); }
-	reverse_iterator       rbegin() noexcept { return values_.rbegin(); }
-	reverse_iterator       rend() noexcept { return values_.rend(); }
+	iterator begin() noexcept { return values_.begin(); }
+	iterator end() noexcept { return values_.end(); }
+	const_iterator begin() const noexcept { return values_.begin(); }
+	const_iterator end() const noexcept { return values_.end(); }
+	const_iterator cbegin() const noexcept { return values_.begin(); }
+	const_iterator cend() const noexcept { return values_.end(); }
+	reverse_iterator rbegin() noexcept { return values_.rbegin(); }
+	reverse_iterator rend() noexcept { return values_.rend(); }
 	const_reverse_iterator rbegin() const noexcept { return values_.rbegin(); }
 	const_reverse_iterator rend() const noexcept { return values_.rend(); }
 	const_reverse_iterator crbegin() const noexcept { return values_.rbegin(); }
@@ -583,12 +571,12 @@ public:
 public:
 	size_type size() const noexcept { return values_.size(); }
 	size_type max_size() const noexcept { return values_.max_size(); }
-	bool      empty() const noexcept { return values_.empty(); }
+	bool empty() const noexcept { return values_.empty(); }
 
 public:
-	value  operator[](std::size_t n) const;
+	value operator[](std::size_t n) const;
 	value &operator[](std::size_t n);
-	value  at(std::size_t n) const;
+	value at(std::size_t n) const;
 	value &at(std::size_t n);
 
 public:
@@ -761,19 +749,19 @@ public:
 	Type type() const noexcept { return type_; }
 
 public:
-	value  operator[](const std::string &key) const;
-	value  operator[](std::size_t n) const;
+	value operator[](const std::string &key) const;
+	value operator[](std::size_t n) const;
 	value &operator[](const std::string &key);
 	value &operator[](std::size_t n);
 
 public:
-	inline value  at(std::size_t n) const;
+	inline value at(std::size_t n) const;
 	inline value &at(std::size_t n);
-	inline value  at(const std::string &key) const;
+	inline value at(const std::string &key) const;
 	inline value &at(const std::string &key);
 
 public:
-	value  operator[](const ptr &ptr) const;
+	value operator[](const ptr &ptr) const;
 	value &operator[](const ptr &ptr);
 
 	value &create(const ptr &ptr);
@@ -839,7 +827,7 @@ public:
 		switch (type_) {
 		case value::type_string:
 		case value::type_number:
-			return NS::get<std::string>(storage_);
+			return std::get<std::string>(storage_);
 		default:
 			throw invalid_type_cast();
 		}
@@ -849,7 +837,7 @@ public:
 		switch (type_) {
 		case value::type_string:
 		case value::type_number:
-			return NS::get<std::string>(storage_);
+			return std::get<std::string>(storage_);
 		default:
 			throw invalid_type_cast();
 		}
@@ -860,7 +848,7 @@ public:
 			throw invalid_type_cast();
 		}
 
-		return *NS::get<object_pointer>(storage_);
+		return *std::get<object_pointer>(storage_);
 	}
 
 	object &as_object() {
@@ -868,7 +856,7 @@ public:
 			throw invalid_type_cast();
 		}
 
-		return *NS::get<object_pointer>(storage_);
+		return *std::get<object_pointer>(storage_);
 	}
 
 	const array &as_array() const {
@@ -876,7 +864,7 @@ public:
 			throw invalid_type_cast();
 		}
 
-		return *NS::get<array_pointer>(storage_);
+		return *std::get<array_pointer>(storage_);
 	}
 
 	array &as_array() {
@@ -884,7 +872,7 @@ public:
 			throw invalid_type_cast();
 		}
 
-		return *NS::get<array_pointer>(storage_);
+		return *std::get<array_pointer>(storage_);
 	}
 
 private:
@@ -896,8 +884,8 @@ private:
 		True,
 	};
 
-	NS::variant<Invalid, Null, Boolean, object_pointer, array_pointer, std::string> storage_;
-	Type                                                                            type_ = type_invalid;
+	std::variant<Invalid, Null, Boolean, object_pointer, array_pointer, std::string> storage_;
+	Type type_ = type_invalid;
 };
 
 inline value array::operator[](std::size_t n) const {
@@ -1175,7 +1163,7 @@ inline bool to_bool(const value &v) {
 		throw invalid_type_cast();
 	}
 
-	return NS::get<value::Boolean>(v.storage_) == value::Boolean::True;
+	return std::get<value::Boolean>(v.storage_) == value::Boolean::True;
 }
 
 inline object to_object(const value &v) {
@@ -1273,7 +1261,7 @@ inline value parse(std::istream &is) {
 	return parse(std::istreambuf_iterator<char>{is}, std::istreambuf_iterator<char>{});
 }
 
-inline value parse(NS::string_view s) {
+inline value parse(std::string_view s) {
 	return parse(s.begin(), s.end());
 }
 
@@ -1303,7 +1291,7 @@ inline bool is_null(const value &v) noexcept {
 
 namespace detail {
 
-inline std::string escape_string(NS::string_view s, Options options) {
+inline std::string escape_string(std::string_view s, Options options) {
 
 	std::string r;
 	r.reserve(s.size());
@@ -1316,8 +1304,8 @@ inline std::string escape_string(NS::string_view s, Options options) {
 				reserved : 24;
 		};
 
-		state_t  shift_state = {0, 0, 0};
-		char32_t result      = 0;
+		state_t shift_state = {0, 0, 0};
+		char32_t result     = 0;
 
 		for (auto it = s.begin(); it != s.end(); ++it) {
 
@@ -1464,7 +1452,7 @@ inline std::string escape_string(NS::string_view s, Options options) {
 	return r;
 }
 
-inline std::string escape_string(NS::string_view s) {
+inline std::string escape_string(std::string_view s) {
 	return escape_string(s, Options::None);
 }
 
