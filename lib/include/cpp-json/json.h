@@ -66,8 +66,8 @@ inline const array &as_array(const value &v);
 inline const std::string &as_string(const value &v);
 
 // does the given object have a given key?
-inline bool has_key(const value &v, const std::string &key) noexcept;
-inline bool has_key(const object &o, const std::string &key) noexcept;
+inline bool has_key(const value &v, std::string_view key) noexcept;
+inline bool has_key(const object &o, std::string_view key) noexcept;
 
 // create a value from some JSON
 inline value parse(std::string_view s);
@@ -445,8 +445,8 @@ public:
 	const_iterator cend() const noexcept { return values_.end(); }
 
 public:
-	iterator find(const std::string &s) noexcept;
-	const_iterator find(const std::string &s) const noexcept;
+	iterator find(std::string_view s) noexcept;
+	const_iterator find(std::string_view s) const noexcept;
 
 public:
 	size_type size() const noexcept {
@@ -462,11 +462,11 @@ public:
 	}
 
 public:
-	value operator[](const std::string &key) const;
-	value &operator[](const std::string &key);
+	value operator[](std::string_view key) const;
+	value &operator[](std::string_view key);
 
-	value at(const std::string &key) const;
-	value &at(const std::string &key);
+	value at(std::string_view key) const;
+	value &at(std::string_view key);
 
 public:
 	template <class T>
@@ -486,7 +486,7 @@ private:
 
 	// NOTE(eteran): The values are stored in insertion order above,
 	// but we use this map to have a fast lookup of key -> index
-	std::map<std::string, size_t> index_map_;
+	std::map<std::string, size_t, std::less<>> index_map_;
 };
 
 inline object::iterator begin(object &obj) noexcept {
@@ -743,16 +743,16 @@ public:
 	Type type() const noexcept { return type_; }
 
 public:
-	value operator[](const std::string &key) const;
+	value operator[](std::string_view key) const;
 	value operator[](std::size_t n) const;
-	value &operator[](const std::string &key);
+	value &operator[](std::string_view key);
 	value &operator[](std::size_t n);
 
 public:
 	inline value at(std::size_t n) const;
 	inline value &at(std::size_t n);
-	inline value at(const std::string &key) const;
-	inline value &at(const std::string &key);
+	inline value at(std::string_view key) const;
+	inline value &at(std::string_view key);
 
 public:
 	value operator[](const ptr &ptr) const;
@@ -921,8 +921,29 @@ public:
 	}
 
 public:
-	int line() const noexcept { return line_; }
-	int column() const noexcept { return column_; }
+	struct location_type {
+		size_t line;
+		size_t column;
+	};
+
+	location_type location() {
+		size_t line = 1;
+		size_t col  = 1;
+
+		if (cur_ < end_) {
+
+			for (auto i = begin_; i < cur_; ++i) {
+				if (*i == '\n') {
+					++line;
+					col = 1;
+				} else {
+					++col;
+				}
+			}
+		}
+
+		return location_type{line, col};
+	}
 
 private:
 	static constexpr char ArrayBegin     = '[';
@@ -1073,18 +1094,8 @@ private:
 	}
 
 private:
-	void update_pos() {
-		if (*cur_ == '\n') {
-			column_ = 0;
-			++line_;
-		} else {
-			++column_;
-		}
-	}
-
 	void consume_whitespace() {
 		while (!at_end() && std::isspace(*cur_)) {
-			update_pos();
 			++cur_;
 		}
 	}
@@ -1109,7 +1120,6 @@ private:
 			return '\0';
 		}
 
-		update_pos();
 		return *cur_++;
 	}
 
@@ -1128,9 +1138,6 @@ private:
 	std::string_view::const_iterator begin_;
 	std::string_view::const_iterator cur_;
 	std::string_view::const_iterator end_;
-
-	int line_   = 1;
-	int column_ = 0;
 };
 
 inline std::string to_string(const value &v) {
@@ -1221,14 +1228,14 @@ std::string &as_string(value &v) {
 	return v.as_string();
 }
 
-inline bool has_key(const value &v, const std::string &key) noexcept {
+inline bool has_key(const value &v, std::string_view key) noexcept {
 	if (is_object(v)) {
 		return has_key(as_object(v), key);
 	}
 	return false;
 }
 
-inline bool has_key(const object &o, const std::string &key) noexcept {
+inline bool has_key(const object &o, std::string_view key) noexcept {
 	return o.find(key) != o.end();
 }
 
@@ -1238,8 +1245,9 @@ inline value parse(std::string_view s) {
 	try {
 		return p.parse();
 	} catch (exception &e) {
-		e.line   = p.line();
-		e.column = p.column();
+		auto loc = p.location();
+		e.line   = loc.line;
+		e.column = loc.column;
 		throw;
 	}
 }
@@ -1675,15 +1683,15 @@ inline object::object(std::initializer_list<object_entry> list) {
 	}
 }
 
-inline value object::operator[](const std::string &key) const {
+inline value object::operator[](std::string_view key) const {
 	return at(key);
 }
 
-inline value &object::operator[](const std::string &key) {
+inline value &object::operator[](std::string_view key) {
 	return at(key);
 }
 
-inline object::iterator object::find(const std::string &s) noexcept {
+inline object::iterator object::find(std::string_view s) noexcept {
 
 	auto it = index_map_.find(s);
 	if (it != index_map_.end()) {
@@ -1693,7 +1701,7 @@ inline object::iterator object::find(const std::string &s) noexcept {
 	return values_.end();
 }
 
-inline object::const_iterator object::find(const std::string &s) const noexcept {
+inline object::const_iterator object::find(std::string_view s) const noexcept {
 	auto it = index_map_.find(s);
 	if (it != index_map_.end()) {
 		return values_.begin() + it->second;
@@ -1707,7 +1715,7 @@ inline object::const_iterator object::find(const std::string &s) const noexcept 
  * @param key
  * @return
  */
-inline value object::at(const std::string &key) const {
+inline value object::at(std::string_view key) const {
 
 	auto it = index_map_.find(key);
 	if (it != index_map_.end()) {
@@ -1722,7 +1730,7 @@ inline value object::at(const std::string &key) const {
  * @param key
  * @return
  */
-inline value &object::at(const std::string &key) {
+inline value &object::at(std::string_view key) {
 
 	auto it = index_map_.find(key);
 	if (it != index_map_.end()) {
@@ -1858,7 +1866,7 @@ inline value &value::at(std::size_t n) {
  * @param key
  * @return
  */
-inline value value::at(const std::string &key) const {
+inline value value::at(std::string_view key) const {
 	return as_object().at(key);
 }
 
@@ -1867,7 +1875,7 @@ inline value value::at(const std::string &key) const {
  * @param key
  * @return
  */
-inline value &value::at(const std::string &key) {
+inline value &value::at(std::string_view key) {
 	return as_object().at(key);
 }
 
@@ -1876,7 +1884,7 @@ inline value &value::at(const std::string &key) {
  * @param key
  * @return
  */
-inline value value::operator[](const std::string &key) const {
+inline value value::operator[](std::string_view key) const {
 	return as_object()[key];
 }
 
@@ -1894,7 +1902,7 @@ inline value value::operator[](std::size_t n) const {
  * @param key
  * @return
  */
-inline value &value::operator[](const std::string &key) {
+inline value &value::operator[](std::string_view key) {
 	return as_object()[key];
 }
 
