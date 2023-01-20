@@ -672,7 +672,7 @@ private:
 	}
 
 public:
-	// intialize from basic types
+	// initialize from basic types
 	explicit value(const array &a);
 	explicit value(const object &o);
 
