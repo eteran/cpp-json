@@ -703,7 +703,6 @@ public:
 
 public:
 	enum Type {
-		type_invalid,
 		type_null,
 		type_boolean,
 		type_object,
@@ -842,7 +841,6 @@ public:
 	}
 
 private:
-	struct Invalid {};
 	struct Null {};
 
 	enum class Boolean {
@@ -850,8 +848,8 @@ private:
 		True,
 	};
 
-	std::variant<Invalid, Null, Boolean, object_pointer, array_pointer, std::string> storage_;
-	Type type_ = type_invalid;
+	std::variant<Null, Boolean, object_pointer, array_pointer, std::string> storage_;
+	Type type_;
 };
 
 inline value array::operator[](std::size_t n) const {
@@ -885,6 +883,7 @@ struct location_type {
 
 class reader {
 	friend class parser;
+
 public:
 	reader(std::string_view s) noexcept
 		: str_(s) {
@@ -972,39 +971,41 @@ private:
  */
 class parser {
 public:
-	struct token {
-		enum type {
-			ArrayBegin,
-			ArrayEnd,
-			Colon,
-			Comma,
-			ObjectBegin,
-			ObjectEnd,
-			Quote,
-			Number,
-			String,
-			LiteralTrue,
-			LiteralFalse,
-			LiteralNull,
-		} type;
+	enum token_type {
+		ArrayBegin,
+		ArrayEnd,
+		Colon,
+		Comma,
+		ObjectBegin,
+		ObjectEnd,
+		Quote,
+		Number,
+		String,
+		LiteralTrue,
+		LiteralFalse,
+		LiteralNull,
+	};
 
-		// TODO(eteran): make this a string view, and reduce copies
+	struct token {
+		token_type type;
+
+		// TODO(eteran): make this a string view, and reduce copies?
 		std::string value;
 		size_t index;
 	};
 
 private:
 	template <class T>
-	const token &require(typename token::type type) {
-		if (tokens_[token_index_].type != type) {
+	const token &require(token_type type) {
+		if (tokens_[index_].type != type) {
 			throw T();
 		}
-		return tokens_[token_index_++];
+		return tokens_[index_++];
 	}
 
-	bool match(typename token::type type) noexcept {
-		if (tokens_[token_index_].type == type) {
-			++token_index_;
+	bool match(token_type type) noexcept {
+		if (tokens_[index_].type == type) {
+			++index_;
 			return true;
 		}
 		return false;
@@ -1030,23 +1031,23 @@ private:
 
 			// extract the next token...
 			if (reader_.match('[')) {
-				tokens.push_back({token::type::ArrayBegin, "[", token_start});
+				tokens.push_back({token_type::ArrayBegin, "[", token_start});
 			} else if (reader_.match(']')) {
-				tokens.push_back({token::type::ArrayEnd, "]", token_start});
+				tokens.push_back({token_type::ArrayEnd, "]", token_start});
 			} else if (reader_.match(':')) {
-				tokens.push_back({token::type::Colon, ":", token_start});
+				tokens.push_back({token_type::Colon, ":", token_start});
 			} else if (reader_.match(',')) {
-				tokens.push_back({token::type::Comma, ",", token_start});
+				tokens.push_back({token_type::Comma, ",", token_start});
 			} else if (reader_.match('{')) {
-				tokens.push_back({token::type::ObjectBegin, "{", token_start});
+				tokens.push_back({token_type::ObjectBegin, "{", token_start});
 			} else if (reader_.match('}')) {
-				tokens.push_back({token::type::ObjectEnd, "}", token_start});
+				tokens.push_back({token_type::ObjectEnd, "}", token_start});
 			} else if (reader_.match("true")) {
-				tokens.push_back({token::type::LiteralTrue, "true", token_start});
+				tokens.push_back({token_type::LiteralTrue, "true", token_start});
 			} else if (reader_.match("false")) {
-				tokens.push_back({token::type::LiteralFalse, "false", token_start});
+				tokens.push_back({token_type::LiteralFalse, "false", token_start});
 			} else if (reader_.match("null")) {
-				tokens.push_back({token::type::LiteralNull, "null", token_start});
+				tokens.push_back({token_type::LiteralNull, "null", token_start});
 			} else if (reader_.match('"')) {
 
 				std::string s;
@@ -1133,7 +1134,7 @@ private:
 				}
 
 				reader_.require<quote_expected>('"');
-				tokens.push_back({token::type::String, s, token_start});
+				tokens.push_back({token_type::String, s, token_start});
 
 			} else {
 
@@ -1189,7 +1190,7 @@ private:
 					}
 				}
 
-				tokens.push_back({token::type::Number, s, token_start});
+				tokens.push_back({token_type::Number, s, token_start});
 			}
 		}
 
@@ -1213,15 +1214,13 @@ private:
 
 		auto arr = std::make_shared<array>();
 
-		require<bracket_expected>(token::ArrayBegin);
-
-		if (!match(token::ArrayEnd)) {
+		if (!match(token_type::ArrayEnd)) {
 			do {
 				arr->push_back(get_value());
-			} while (match(token::Comma));
+			} while (match(token_type::Comma));
 		}
 
-		require<bracket_expected>(token::ArrayEnd);
+		require<bracket_expected>(token_type::ArrayEnd);
 		return arr;
 	}
 
@@ -1229,45 +1228,36 @@ private:
 
 		auto obj = std::make_shared<object>();
 
-		require<brace_expected>(token::ObjectBegin);
-
-		if (!match(token::ObjectEnd)) {
+		if (!match(token_type::ObjectEnd)) {
 			do {
-				obj->insert(get_pair());
-			} while (match(token::Comma));
+				const token &key = require<string_expected>(token_type::String);
+				require<colon_expected>(token_type::Colon);
+				obj->insert(key.value, get_value());
+			} while (match(token_type::Comma));
 		}
 
-		require<brace_expected>(token::ObjectEnd);
+		require<brace_expected>(token_type::ObjectEnd);
 		return obj;
-	}
-
-	object_entry get_pair() {
-
-		const token &key = require<string_expected>(token::String);
-		require<colon_expected>(token::Colon);
-		return std::make_pair(key.value, get_value());
 	}
 
 	value get_value() {
 
-		switch (tokens_[token_index_].type) {
-		case token::type::ObjectBegin:
+		const token &tok = tokens_[index_++];
+		switch (tok.type) {
+		case token_type::ObjectBegin:
 			return value(get_object());
-		case token::type::ArrayBegin:
+		case token_type::ArrayBegin:
 			return value(get_array());
-		case token::type::String:
-			return value(tokens_[token_index_++].value);
-		case token::type::LiteralTrue:
-			token_index_++;
+		case token_type::String:
+			return value(tok.value);
+		case token_type::LiteralTrue:
 			return value(true);
-		case token::type::LiteralFalse:
-			token_index_++;
+		case token_type::LiteralFalse:
 			return value(false);
-		case token::type::LiteralNull:
-			token_index_++;
+		case token_type::LiteralNull:
 			return value(nullptr);
-		case token::type::Number:
-			return value(tokens_[token_index_++].value, value::numeric_type());
+		case token_type::Number:
+			return value(tok.value, value::numeric_type());
 		default:
 			throw value_expected();
 		}
@@ -1275,13 +1265,13 @@ private:
 
 public:
 	location_type location() noexcept {
-		return reader_.location(tokens_[token_index_].index);
+		return reader_.location(tokens_[index_].index);
 	}
 
 private:
 	reader reader_;
 	std::vector<token> tokens_;
-	size_t token_index_ = 0;
+	size_t index_ = 0;
 };
 
 inline std::string to_string(const value &v) {
@@ -1676,8 +1666,6 @@ inline void value_to_string(std::ostream &os, const value &v, Options options, i
 	case value::type_array:
 		value_to_string(os, as_array(v), options, indent, true);
 		break;
-	case value::type_invalid:
-		break;
 	}
 }
 
@@ -1748,15 +1736,11 @@ inline void serialize(std::ostream &os, const value &v, Options options) {
 	case value::type_boolean:
 		os << (to_bool(v) ? "true" : "false");
 		break;
-	case value::type_object: {
+	case value::type_object:
 		serialize(os, as_object(v), options);
 		break;
-	}
-	case value::type_array: {
+	case value::type_array:
 		serialize(os, as_array(v), options);
-		break;
-	}
-	case value::type_invalid:
 		break;
 	}
 }
@@ -2181,7 +2165,7 @@ inline bool operator==(const value &lhs, const value &rhs) {
 		case value::type_string:
 			return as_string(lhs) == as_string(rhs);
 		case value::type_number:
-			// NOTE(eteran): this is kinda a "best effort", we can't compare their string
+			// NOTE(eteran): this is kinda a "best effort", we can't compare the string
 			// contents because things like 1e5 equals 100000
 			return to_number<double>(lhs) == to_number<double>(rhs);
 		case value::type_null:
@@ -2192,8 +2176,6 @@ inline bool operator==(const value &lhs, const value &rhs) {
 			return as_array(lhs) == as_array(rhs);
 		case value::type_object:
 			return as_object(lhs) == as_object(rhs);
-		case value::type_invalid:
-			break;
 		}
 	}
 	return false;
