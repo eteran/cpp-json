@@ -908,7 +908,7 @@ public:
 
 	bool match(std::string_view s) noexcept {
 
-		if (str_.substr(index_, s.size()) != s) {
+		if (str_.compare(index_, s.size(), s) != 0) {
 			return false;
 		}
 
