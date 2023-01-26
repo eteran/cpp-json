@@ -20,6 +20,7 @@
 #include <iterator>
 #include <map>
 #include <memory>
+#include <optional>
 #include <sstream>
 #include <string>
 #include <string_view>
@@ -789,6 +790,7 @@ public:
 
 public:
 	const std::string &as_string() const {
+
 		switch (type_) {
 		case value::type_string:
 		case value::type_number:
@@ -996,202 +998,205 @@ public:
 
 private:
 	template <class T>
-	const token &require(token_type type) {
-		if (tokens_[index_].type != type) {
-			throw T();
+	token require(token_type type) {
+		if (auto tok = match(type)) {
+			return *tok;
 		}
-		return tokens_[index_++];
+
+		throw T();
 	}
 
-	bool match(token_type type) noexcept {
+	std::optional<token> match(token_type type) noexcept {
 		if (tokens_[index_].type == type) {
-			++index_;
-			return true;
+			return tokens_[index_++];
 		}
-		return false;
+		return {};
 	}
 
 private:
-	std::vector<token> tokenize() {
-		std::vector<token> tokens;
+	std::optional<token> next_token() {
+		// consume whitespace
+		while (std::isspace(reader_.peek())) {
+			reader_.read();
+		}
 
-		while (true) {
+		// if we reach end of the stream, we're done!
+		if (reader_.at_end()) {
+			return {};
+		}
 
-			// consume whitespace
-			while (std::isspace(reader_.peek())) {
-				reader_.read();
-			}
+		const size_t token_start = reader_.index_;
 
-			// if we reach end of the stream, we're done!
-			if (reader_.at_end()) {
-				break;
-			}
+		// extract the next token...
+		if (reader_.match('[')) {
+			return token{token_type::ArrayBegin, "[", token_start};
+		} else if (reader_.match(']')) {
+			return token{token_type::ArrayEnd, "]", token_start};
+		} else if (reader_.match(':')) {
+			return token{token_type::Colon, ":", token_start};
+		} else if (reader_.match(',')) {
+			return token{token_type::Comma, ",", token_start};
+		} else if (reader_.match('{')) {
+			return token{token_type::ObjectBegin, "{", token_start};
+		} else if (reader_.match('}')) {
+			return token{token_type::ObjectEnd, "}", token_start};
+		} else if (reader_.match("true")) {
+			return token{token_type::LiteralTrue, "true", token_start};
+		} else if (reader_.match("false")) {
+			return token{token_type::LiteralFalse, "false", token_start};
+		} else if (reader_.match("null")) {
+			return token{token_type::LiteralNull, "null", token_start};
+		} else if (reader_.match('"')) {
 
-			const size_t token_start = reader_.index_;
+			std::string s;
+			std::back_insert_iterator<std::string> out = back_inserter(s);
 
-			// extract the next token...
-			if (reader_.match('[')) {
-				tokens.push_back({token_type::ArrayBegin, "[", token_start});
-			} else if (reader_.match(']')) {
-				tokens.push_back({token_type::ArrayEnd, "]", token_start});
-			} else if (reader_.match(':')) {
-				tokens.push_back({token_type::Colon, ":", token_start});
-			} else if (reader_.match(',')) {
-				tokens.push_back({token_type::Comma, ",", token_start});
-			} else if (reader_.match('{')) {
-				tokens.push_back({token_type::ObjectBegin, "{", token_start});
-			} else if (reader_.match('}')) {
-				tokens.push_back({token_type::ObjectEnd, "}", token_start});
-			} else if (reader_.match("true")) {
-				tokens.push_back({token_type::LiteralTrue, "true", token_start});
-			} else if (reader_.match("false")) {
-				tokens.push_back({token_type::LiteralFalse, "false", token_start});
-			} else if (reader_.match("null")) {
-				tokens.push_back({token_type::LiteralNull, "null", token_start});
-			} else if (reader_.match('"')) {
+			while (reader_.peek() != '"' && reader_.peek() != '\n') {
 
-				std::string s;
-				std::back_insert_iterator<std::string> out = back_inserter(s);
+				char ch = reader_.read();
+				if (ch == '\\') {
+					switch (reader_.read()) {
+					case '"':
+						*out++ = '"';
+						break;
+					case '\\':
+						*out++ = '\\';
+						break;
+					case '/':
+						*out++ = '/';
+						break;
+					case 'b':
+						*out++ = '\b';
+						break;
+					case 'f':
+						*out++ = '\f';
+						break;
+					case 'n':
+						*out++ = '\n';
+						break;
+					case 'r':
+						*out++ = '\r';
+						break;
+					case 't':
+						*out++ = '\t';
+						break;
+					case 'u': {
+						// convert \uXXXX escape sequences to UTF-8
+						char hex[4];
 
-				while (reader_.peek() != '"' && reader_.peek() != '\n') {
+						if (!std::isxdigit(hex[0] = reader_.read())) throw invalid_unicode_character();
+						if (!std::isxdigit(hex[1] = reader_.read())) throw invalid_unicode_character();
+						if (!std::isxdigit(hex[2] = reader_.read())) throw invalid_unicode_character();
+						if (!std::isxdigit(hex[3] = reader_.read())) throw invalid_unicode_character();
 
-					char ch = reader_.read();
-					if (ch == '\\') {
-						switch (reader_.read()) {
-						case '"':
-							*out++ = '"';
-							break;
-						case '\\':
-							*out++ = '\\';
-							break;
-						case '/':
-							*out++ = '/';
-							break;
-						case 'b':
-							*out++ = '\b';
-							break;
-						case 'f':
-							*out++ = '\f';
-							break;
-						case 'n':
-							*out++ = '\n';
-							break;
-						case 'r':
-							*out++ = '\r';
-							break;
-						case 't':
-							*out++ = '\t';
-							break;
-						case 'u': {
-							// convert \uXXXX escape sequences to UTF-8
-							char hex[4];
+						uint16_t w1 = 0;
+						uint16_t w2 = 0;
 
+						w1 |= (detail::to_hex(hex[0]) << 12);
+						w1 |= (detail::to_hex(hex[1]) << 8);
+						w1 |= (detail::to_hex(hex[2]) << 4);
+						w1 |= (detail::to_hex(hex[3]));
+
+						if ((w1 & 0xfc00) == 0xdc00) {
+							throw invalid_unicode_character();
+						}
+
+						if ((w1 & 0xfc00) == 0xd800) {
+							// part of a surrogate pair
+							if (!reader_.match("\\u")) {
+								throw utf16_surrogate_expected();
+							}
+
+							// convert \uXXXX escape sequences for surrogate pairs to UTF-8
 							if (!std::isxdigit(hex[0] = reader_.read())) throw invalid_unicode_character();
 							if (!std::isxdigit(hex[1] = reader_.read())) throw invalid_unicode_character();
 							if (!std::isxdigit(hex[2] = reader_.read())) throw invalid_unicode_character();
 							if (!std::isxdigit(hex[3] = reader_.read())) throw invalid_unicode_character();
 
-							uint16_t w1 = 0;
-							uint16_t w2 = 0;
-
-							w1 |= (detail::to_hex(hex[0]) << 12);
-							w1 |= (detail::to_hex(hex[1]) << 8);
-							w1 |= (detail::to_hex(hex[2]) << 4);
-							w1 |= (detail::to_hex(hex[3]));
-
-							if ((w1 & 0xfc00) == 0xdc00) {
-								throw invalid_unicode_character();
-							}
-
-							if ((w1 & 0xfc00) == 0xd800) {
-								// part of a surrogate pair
-								if (!reader_.match("\\u")) {
-									throw utf16_surrogate_expected();
-								}
-
-								// convert \uXXXX escape sequences for surrogate pairs to UTF-8
-								if (!std::isxdigit(hex[0] = reader_.read())) throw invalid_unicode_character();
-								if (!std::isxdigit(hex[1] = reader_.read())) throw invalid_unicode_character();
-								if (!std::isxdigit(hex[2] = reader_.read())) throw invalid_unicode_character();
-								if (!std::isxdigit(hex[3] = reader_.read())) throw invalid_unicode_character();
-
-								w2 |= (detail::to_hex(hex[0]) << 12);
-								w2 |= (detail::to_hex(hex[1]) << 8);
-								w2 |= (detail::to_hex(hex[2]) << 4);
-								w2 |= (detail::to_hex(hex[3]));
-							}
-
-							detail::surrogate_pair_to_utf8(w1, w2, out);
-							break;
+							w2 |= (detail::to_hex(hex[0]) << 12);
+							w2 |= (detail::to_hex(hex[1]) << 8);
+							w2 |= (detail::to_hex(hex[2]) << 4);
+							w2 |= (detail::to_hex(hex[3]));
 						}
-						default:
-							*out++ = '\\';
-							break;
-						}
-					} else {
-						*out++ = ch;
+
+						detail::surrogate_pair_to_utf8(w1, w2, out);
+						break;
 					}
-				}
-
-				reader_.require<quote_expected>('"');
-				tokens.push_back({token_type::String, s, token_start});
-
-			} else {
-
-				std::string s;
-				s.reserve(10);
-				std::back_insert_iterator<std::string> out = back_inserter(s);
-
-				// JSON numbers fit the regex: -?(0|[1-9][0-9]*)(\.[0-9]+)?([eE][+-]?[0-9]+)?
-
-				// -?
-				if (reader_.match('-')) {
-					*out++ = '-';
-				}
-
-				// (0|[1-9][0-9]*)
-				if (reader_.match('0')) {
-					*out++ = '0';
+					default:
+						*out++ = '\\';
+						break;
+					}
 				} else {
-					if (!std::isdigit(reader_.peek())) {
-						throw invalid_number();
-					}
-
-					while (std::isdigit(reader_.peek())) {
-						*out++ = reader_.read();
-					}
+					*out++ = ch;
 				}
-
-				// (\.[0-9]+)?
-				if (reader_.match('.')) {
-					*out++ = '.';
-					if (!std::isdigit(reader_.peek())) {
-						throw invalid_number();
-					}
-
-					while (std::isdigit(reader_.peek())) {
-						*out++ = reader_.read();
-					}
-				}
-
-				// ([eE][+-]?[0-9]+)?
-				if (reader_.peek() == 'e' || reader_.peek() == 'E') {
-					*out++ = reader_.read();
-					if (reader_.peek() == '+' || reader_.peek() == '-') {
-						*out++ = reader_.read();
-					}
-
-					if (!std::isdigit(reader_.peek())) {
-						throw invalid_number();
-					}
-
-					while (std::isdigit(reader_.peek())) {
-						*out++ = reader_.read();
-					}
-				}
-
-				tokens.push_back({token_type::Number, s, token_start});
 			}
+
+			reader_.require<quote_expected>('"');
+			return token{token_type::String, s, token_start};
+
+		} else {
+
+			std::string s;
+			s.reserve(10);
+			std::back_insert_iterator<std::string> out = back_inserter(s);
+
+			// JSON numbers fit the regex: -?(0|[1-9][0-9]*)(\.[0-9]+)?([eE][+-]?[0-9]+)?
+
+			// -?
+			if (reader_.match('-')) {
+				*out++ = '-';
+			}
+
+			// (0|[1-9][0-9]*)
+			if (reader_.match('0')) {
+				*out++ = '0';
+			} else {
+				if (!std::isdigit(reader_.peek())) {
+					throw invalid_number();
+				}
+
+				while (std::isdigit(reader_.peek())) {
+					*out++ = reader_.read();
+				}
+			}
+
+			// (\.[0-9]+)?
+			if (reader_.match('.')) {
+				*out++ = '.';
+				if (!std::isdigit(reader_.peek())) {
+					throw invalid_number();
+				}
+
+				while (std::isdigit(reader_.peek())) {
+					*out++ = reader_.read();
+				}
+			}
+
+			// ([eE][+-]?[0-9]+)?
+			if (reader_.peek() == 'e' || reader_.peek() == 'E') {
+				*out++ = reader_.read();
+				if (reader_.peek() == '+' || reader_.peek() == '-') {
+					*out++ = reader_.read();
+				}
+
+				if (!std::isdigit(reader_.peek())) {
+					throw invalid_number();
+				}
+
+				while (std::isdigit(reader_.peek())) {
+					*out++ = reader_.read();
+				}
+			}
+
+			return token{token_type::Number, s, token_start};
+		}
+	}
+
+	std::vector<token> tokenize() {
+		std::vector<token> tokens;
+
+		while (auto tok = next_token()) {
+			tokens.push_back(*tok);
 		}
 
 		return tokens;
@@ -1242,23 +1247,21 @@ private:
 
 	value get_value() {
 
-		const token &tok = tokens_[index_++];
-		switch (tok.type) {
-		case token_type::ObjectBegin:
+		if (match(token_type::ObjectBegin)) {
 			return value(get_object());
-		case token_type::ArrayBegin:
+		} else if (match(token_type::ArrayBegin)) {
 			return value(get_array());
-		case token_type::String:
-			return value(tok.value);
-		case token_type::LiteralTrue:
+		} else if (match(token_type::LiteralTrue)) {
 			return value(true);
-		case token_type::LiteralFalse:
+		} else if (match(token_type::LiteralFalse)) {
 			return value(false);
-		case token_type::LiteralNull:
+		} else if (match(token_type::LiteralNull)) {
 			return value(nullptr);
-		case token_type::Number:
-			return value(tok.value, value::numeric_type());
-		default:
+		} else if (auto str_token = match(token_type::String)) {
+			return value(str_token->value);
+		} else if (auto num_token = match(token_type::Number)) {
+			return value(num_token->value, value::numeric_type());
+		} else {
 			throw value_expected();
 		}
 	}
