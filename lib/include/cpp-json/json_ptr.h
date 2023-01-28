@@ -36,104 +36,58 @@ public:
 public:
 	explicit ptr(std::string_view path) {
 
-		auto it = path.begin();
+		if (path.empty() || path == "#") {
+			return;
+		}
 
-		bool uri_format = false;
+		Reader reader(path);
 
-		if (it != path.end()) {
+		// normal or URI fragment notation?
+		const bool uri_format = reader.match('#');
 
-			// normal or URI fragment notation?
-			if (*it == '#') {
-				++it;
-				uri_format = true;
-			}
+		if (!reader.match('/')) {
+			throw invalid_pointer_syntax();
+		}
 
-			while (it != path.end()) {
-				if (*it++ != '/') {
-					throw invalid_path();
+		std::string reference_token;
+		while (!reader.eof()) {
+
+			if (!uri_format) {
+				if (reader.match("~0")) {
+					reference_token.push_back('~');
+				} else if (reader.match("~1")) {
+					reference_token.push_back('/');
+				} else if (reader.match("/")) {
+					path_.push_back(reference_token);
+					reference_token.clear();
+				} else if (reader.match("~")) {
+					throw invalid_pointer_syntax();
+				} else {
+					reference_token.push_back(reader.read());
 				}
-
-				std::string reference_token;
-				while (it != path.end() && *it != '/') {
-					char ch = *it;
-
-					if (!uri_format) {
-						if (ch == '~') {
-
-							// ~1 -> /
-							// ~0 -> ~
-
-							++it;
-							if (it == path.end()) {
-								throw invalid_reference_escape();
-							}
-
-							switch (*it) {
-							case '0':
-								ch = '~';
-								break;
-							case '1':
-								ch = '/';
-								break;
-							default:
-								throw invalid_reference_escape();
-							}
-						}
-					} else {
-						// %XX -> char(0xXX)
-
-						if (ch == '%') {
-							++it;
-							if (it == path.end()) {
-								throw invalid_reference_escape();
-							}
-
-							char hex[2];
-							if (!isxdigit(*it)) {
-								throw invalid_reference_escape();
-							}
-
-							hex[0] = *it++;
-							if (it == path.end()) {
-								throw invalid_reference_escape();
-							}
-
-							if (!isxdigit(*it)) {
-								throw invalid_reference_escape();
-							}
-
-							hex[1] = *it;
-
-							ch = static_cast<char>((detail::to_hex(hex[0]) << 4) | (detail::to_hex(hex[1])));
-						} else if (ch == '~') {
-							// ~1 -> /
-							// ~0 -> ~
-
-							++it;
-							if (it == path.end()) {
-								throw invalid_reference_escape();
-							}
-
-							switch (*it) {
-							case '0':
-								ch = '~';
-								break;
-							case '1':
-								ch = '/';
-								break;
-							default:
-								throw invalid_reference_escape();
-							}
-						}
-					}
-
-					reference_token.push_back(ch);
-					++it;
+			} else {
+				static const std::regex hex_regex(R"(%[0-9A-Fa-f]{2})");
+				if (reader.match("~0")) {
+					reference_token.push_back('~');
+				} else if (reader.match("~1")) {
+					reference_token.push_back('/');
+				} else if (reader.match("/")) {
+					path_.push_back(reference_token);
+					reference_token.clear();
+				} else if (reader.match("~")) {
+					throw invalid_pointer_syntax();
+				} else if (auto hex_value = reader.match(hex_regex)) {
+					// %XX -> char(0xXX)
+					reference_token.push_back(static_cast<char>((detail::to_hex(hex_value->data()[1]) << 4) | (detail::to_hex(hex_value->data()[2]))));
+				} else if (reader.match("%")) {
+					throw invalid_pointer_syntax();
+				} else {
+					reference_token.push_back(reader.read());
 				}
-
-				path_.push_back(reference_token);
 			}
 		}
+
+		path_.push_back(reference_token);
 	}
 
 public:

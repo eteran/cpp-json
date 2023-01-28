@@ -9,8 +9,8 @@ namespace json {
 // general error
 class exception {
 public:
-	size_t line   = static_cast<size_t>(-1);
-	size_t column = static_cast<size_t>(-1);
+	size_t line   = static_cast<size_t>(0);
+	size_t column = static_cast<size_t>(0);
 };
 
 // parsing errors
@@ -35,7 +35,7 @@ class invalid_index : public exception {};
 
 // pointer errors
 class invalid_path : public exception {};
-class invalid_reference_escape : public exception {};
+class invalid_pointer_syntax : public exception {};
 }
 
 #endif
