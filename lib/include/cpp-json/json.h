@@ -16,7 +16,6 @@
 #include "json_format.h"
 #include "json_ptr.h"
 #include "json_value.h"
-#include <optional>
 
 namespace json {
 
@@ -50,7 +49,7 @@ public:
 private:
 	token next_token() {
 		// consume whitespace
-		while (std::isspace(reader_.peek())) {
+		while (detail::is_space(reader_.peek())) {
 			reader_.read();
 		}
 

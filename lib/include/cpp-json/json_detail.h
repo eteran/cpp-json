@@ -32,6 +32,11 @@ unsigned int to_hex(Ch ch) {
 	}
 }
 
+template <class Ch>
+bool is_space(Ch ch) {
+	return ch == '\t' || ch == '\n' || ch == '\r' || ch == ' ';
+}
+
 /**
  * @brief surrogate_pair_to_utf8
  * @param w1
