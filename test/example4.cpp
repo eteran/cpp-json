@@ -51,8 +51,8 @@ int main() {
 		std::cout << json::stringify(v[json::ptr("#/%20")]) << std::endl;
 		std::cout << json::stringify(v[json::ptr("#/m~0n")]) << std::endl;
 
-	} catch (const json::exception &e) {
-		std::cerr << "Error on line: " << e.line << ", column: " << e.column << std::endl;
+	} catch (const json::lexing_error &e) {
+		std::cerr << "Error @ " << e.index() << std::endl;
 		throw;
 	}
 }

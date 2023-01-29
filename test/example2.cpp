@@ -21,8 +21,8 @@ int main() {
 				{"world", 5678}}};
 
 		std::cout << stringify(arr) << '\n';
-	} catch (const json::exception &e) {
-		std::cerr << "Error on line: " << e.line << ", column: " << e.column << std::endl;
+	} catch (const json::lexing_error &e) {
+		std::cerr << "Error @ " << e.index() << std::endl;
 		throw;
 	}
 }

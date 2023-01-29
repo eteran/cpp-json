@@ -7,35 +7,55 @@
 namespace json {
 
 // general error
-class exception {
-public:
-	size_t line   = static_cast<size_t>(0);
-	size_t column = static_cast<size_t>(0);
-};
+struct exception {};
 
 // parsing errors
-class brace_expected : public exception {};
-class bracket_expected : public exception {};
-class colon_expected : public exception {};
-class string_expected : public exception {};
-class value_expected : public exception {};
+struct brace_expected : exception {};
+struct bracket_expected : exception {};
+struct colon_expected : exception {};
+struct string_expected : exception {};
+struct value_expected : exception {};
 
 // lexing errors
-class invalid_unicode_character : public exception {};
-class utf16_surrogate_expected : public exception {};
-class quote_expected : public exception {};
-class invalid_number : public exception {};
+struct lexing_error : exception {
+	lexing_error(size_t index)
+		: index_(index) {}
+
+	size_t index() const {
+		return index_;
+	}
+
+private:
+	size_t index_ = 0;
+};
+struct invalid_unicode_character : lexing_error {
+	invalid_unicode_character(size_t index)
+		: lexing_error(index) {}
+};
+
+struct utf16_surrogate_expected : lexing_error {
+	utf16_surrogate_expected(size_t index)
+		: lexing_error(index) {}
+};
+struct quote_expected : lexing_error {
+	quote_expected(size_t index)
+		: lexing_error(index) {}
+};
+struct invalid_number : lexing_error {
+	invalid_number(size_t index)
+		: lexing_error(index) {}
+};
 
 // serialization errors
-class invalid_utf8_string : public exception {};
+struct invalid_utf8_string : exception {};
 
 // usage errors
-class invalid_type_cast : public exception {};
-class invalid_index : public exception {};
+struct invalid_type_cast : exception {};
+struct invalid_index : exception {};
 
 // pointer errors
-class invalid_path : public exception {};
-class invalid_pointer_syntax : public exception {};
+struct invalid_path : exception {};
+struct invalid_pointer_syntax : exception {};
 }
 
 #endif

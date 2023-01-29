@@ -117,10 +117,10 @@ private:
 						// convert \uXXXX escape sequences to UTF-8
 						char hex[4];
 
-						if (!std::isxdigit(hex[0] = reader_.read())) throw invalid_unicode_character();
-						if (!std::isxdigit(hex[1] = reader_.read())) throw invalid_unicode_character();
-						if (!std::isxdigit(hex[2] = reader_.read())) throw invalid_unicode_character();
-						if (!std::isxdigit(hex[3] = reader_.read())) throw invalid_unicode_character();
+						if (!std::isxdigit(hex[0] = reader_.read())) throw invalid_unicode_character(reader_.index());
+						if (!std::isxdigit(hex[1] = reader_.read())) throw invalid_unicode_character(reader_.index());
+						if (!std::isxdigit(hex[2] = reader_.read())) throw invalid_unicode_character(reader_.index());
+						if (!std::isxdigit(hex[3] = reader_.read())) throw invalid_unicode_character(reader_.index());
 
 						uint16_t w1 = 0;
 						uint16_t w2 = 0;
@@ -131,20 +131,20 @@ private:
 						w1 |= (detail::to_hex(hex[3]));
 
 						if ((w1 & 0xfc00) == 0xdc00) {
-							throw invalid_unicode_character();
+							throw invalid_unicode_character(reader_.index());
 						}
 
 						if ((w1 & 0xfc00) == 0xd800) {
 							// part of a surrogate pair
 							if (!reader_.match("\\u")) {
-								throw utf16_surrogate_expected();
+								throw utf16_surrogate_expected(reader_.index());
 							}
 
 							// convert \uXXXX escape sequences for surrogate pairs to UTF-8
-							if (!std::isxdigit(hex[0] = reader_.read())) throw invalid_unicode_character();
-							if (!std::isxdigit(hex[1] = reader_.read())) throw invalid_unicode_character();
-							if (!std::isxdigit(hex[2] = reader_.read())) throw invalid_unicode_character();
-							if (!std::isxdigit(hex[3] = reader_.read())) throw invalid_unicode_character();
+							if (!std::isxdigit(hex[0] = reader_.read())) throw invalid_unicode_character(reader_.index());
+							if (!std::isxdigit(hex[1] = reader_.read())) throw invalid_unicode_character(reader_.index());
+							if (!std::isxdigit(hex[2] = reader_.read())) throw invalid_unicode_character(reader_.index());
+							if (!std::isxdigit(hex[3] = reader_.read())) throw invalid_unicode_character(reader_.index());
 
 							w2 |= (detail::to_hex(hex[0]) << 12);
 							w2 |= (detail::to_hex(hex[1]) << 8);
@@ -165,10 +165,10 @@ private:
 			}
 
 			if (!reader_.match('"')) {
-				throw quote_expected();
+				throw quote_expected(reader_.index());
 			}
 
-			return token{token_type::String, s, token_start};
+			return token{token_type::String, std::move(s), token_start};
 
 		} else {
 
@@ -188,7 +188,7 @@ private:
 				*out++ = '0';
 			} else {
 				if (!std::isdigit(reader_.peek())) {
-					throw invalid_number();
+					throw invalid_number(reader_.index());
 				}
 
 				while (std::isdigit(reader_.peek())) {
@@ -200,7 +200,7 @@ private:
 			if (reader_.match('.')) {
 				*out++ = '.';
 				if (!std::isdigit(reader_.peek())) {
-					throw invalid_number();
+					throw invalid_number(reader_.index());
 				}
 
 				while (std::isdigit(reader_.peek())) {
@@ -216,7 +216,7 @@ private:
 				}
 
 				if (!std::isdigit(reader_.peek())) {
-					throw invalid_number();
+					throw invalid_number(reader_.index());
 				}
 
 				while (std::isdigit(reader_.peek())) {
@@ -224,7 +224,7 @@ private:
 				}
 			}
 
-			return token{token_type::Number, s, token_start};
+			return token{token_type::Number, std::move(s), token_start};
 		}
 	}
 
@@ -319,9 +319,9 @@ private:
 		case token_type::LiteralNull:
 			return value(nullptr);
 		case token_type::String:
-			return value(tok.value);
+			return value(std::move(tok.value));
 		case token_type::Number:
-			return value(tok.value, value::numeric_type());
+			return value(std::move(tok.value), value::numeric_type());
 		default:
 			throw value_expected();
 		}
@@ -337,13 +337,7 @@ private:
 
 inline value parse(std::string_view s) {
 	parser p(s);
-
-	try {
-		return p.parse();
-	} catch (exception &e) {
-		// TODO(eteran): add location info if we can
-		throw;
-	}
+	return p.parse();
 }
 
 }

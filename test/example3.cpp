@@ -35,8 +35,8 @@ int main() {
 		std::cout << json::to_number<int>(z) << std::endl;
 
 		std::cout << stringify(v, json::EscapeUnicode) << '\n';
-	} catch (const json::exception &e) {
-		std::cerr << "Error on line: " << e.line << ", column: " << e.column << std::endl;
+	} catch (const json::lexing_error &e) {
+		std::cerr << "Error @ " << e.index() << std::endl;
 		throw;
 	}
 }
