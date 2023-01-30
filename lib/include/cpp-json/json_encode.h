@@ -1,6 +1,6 @@
 
-#ifndef JSON_FORMAT_H_
-#define JSON_FORMAT_H_
+#ifndef JSON_ENCODE_H_
+#define JSON_ENCODE_H_
 
 #include "json_value.h"
 #include <ostream>
