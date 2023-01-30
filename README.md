@@ -42,7 +42,6 @@ int main() {
 
 	// when dealing with arrays, you can use iterators, indexing, or ranged-for
 	for(const json::value &v : as_array(servlets)) {
-        	const json::value &v = *it;
         	// all basic types (numbers, strings, booleans) can be converted
         	// to a string
         	std::cout << to_string(v["servlet-name"]) << '\n';
