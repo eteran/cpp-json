@@ -10,9 +10,9 @@
 	xx xx xx xx  UTF-8
 */
 
-#include "Reader.h"
 #include "json_detail.h"
 #include "json_error.h"
+#include "json_reader.h"
 #include "json_value.h"
 
 namespace json {
@@ -330,7 +330,7 @@ private:
 	}
 
 private:
-	Reader reader_;
+	reader reader_;
 };
 
 inline value parse(std::string_view s) {

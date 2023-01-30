@@ -1,6 +1,6 @@
 
-#ifndef READER_H_
-#define READER_H_
+#ifndef JSON_READER_H_
+#define JSON_READER_H_
 
 #include <cassert>
 #include <cstddef>
@@ -10,8 +10,10 @@
 #include <string>
 #include <string_view>
 
+namespace json {
+
 template <class Ch>
-class BasicReader {
+class basic_reader {
 public:
 	struct Location {
 		size_t line;
@@ -24,14 +26,14 @@ public:
 	 *
 	 * @param input
 	 */
-	explicit BasicReader(std::basic_string_view<Ch> input) noexcept
+	explicit basic_reader(std::basic_string_view<Ch> input) noexcept
 		: input_(input) {
 	}
 
-	BasicReader()                                  = default;
-	BasicReader(const BasicReader &other)          = default;
-	BasicReader &operator=(const BasicReader &rhs) = default;
-	~BasicReader()                                 = default;
+	basic_reader()                                   = default;
+	basic_reader(const basic_reader &other)          = default;
+	basic_reader &operator=(const basic_reader &rhs) = default;
+	~basic_reader()                                  = default;
 
 public:
 	/**
@@ -290,6 +292,8 @@ private:
 	std::stack<size_t> state_;
 };
 
-using Reader = BasicReader<char>;
+using reader = basic_reader<char>;
+
+}
 
 #endif

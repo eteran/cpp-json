@@ -4,6 +4,13 @@
 
 #include <cstddef>
 
+#if defined(__EXCEPTIONS)
+#define JSON_THROW(x) throw x
+#else
+#include <cassert>
+#define JSON_THROW(...) assert(0)
+#endif
+
 namespace json {
 
 // general error

@@ -2,7 +2,7 @@
 #ifndef JSON_PTR_H_
 #define JSON_PTR_H_
 
-#include "Reader.h"
+#include "json_reader.h"
 #include "json_detail.h"
 #include "json_error.h"
 #include <string>
@@ -40,49 +40,49 @@ public:
 			return;
 		}
 
-		Reader reader(path);
+		reader input(path);
 
 		// normal or URI fragment notation?
-		const bool uri_format = reader.match('#');
+		const bool uri_format = input.match('#');
 
-		if (!reader.match('/')) {
+		if (!input.match('/')) {
 			JSON_THROW(invalid_pointer_syntax());
 		}
 
 		std::string reference_token;
-		while (!reader.eof()) {
+		while (!input.eof()) {
 
 			if (!uri_format) {
-				if (reader.match("~0")) {
+				if (input.match("~0")) {
 					reference_token.push_back('~');
-				} else if (reader.match("~1")) {
+				} else if (input.match("~1")) {
 					reference_token.push_back('/');
-				} else if (reader.match("/")) {
+				} else if (input.match("/")) {
 					path_.push_back(reference_token);
 					reference_token.clear();
-				} else if (reader.match("~")) {
+				} else if (input.match("~")) {
 					JSON_THROW(invalid_pointer_syntax());
 				} else {
-					reference_token.push_back(reader.read());
+					reference_token.push_back(input.read());
 				}
 			} else {
 				static const std::regex hex_regex(R"(%[0-9A-Fa-f]{2})");
-				if (reader.match("~0")) {
+				if (input.match("~0")) {
 					reference_token.push_back('~');
-				} else if (reader.match("~1")) {
+				} else if (input.match("~1")) {
 					reference_token.push_back('/');
-				} else if (reader.match("/")) {
+				} else if (input.match("/")) {
 					path_.push_back(reference_token);
 					reference_token.clear();
-				} else if (reader.match("~")) {
+				} else if (input.match("~")) {
 					JSON_THROW(invalid_pointer_syntax());
-				} else if (auto hex_value = reader.match(hex_regex)) {
+				} else if (auto hex_value = input.match(hex_regex)) {
 					// %XX -> char(0xXX)
 					reference_token.push_back(static_cast<char>((detail::to_hex(hex_value->data()[1]) << 4) | (detail::to_hex(hex_value->data()[2]))));
-				} else if (reader.match("%")) {
+				} else if (input.match("%")) {
 					JSON_THROW(invalid_pointer_syntax());
 				} else {
-					reference_token.push_back(reader.read());
+					reference_token.push_back(input.read());
 				}
 			}
 		}
