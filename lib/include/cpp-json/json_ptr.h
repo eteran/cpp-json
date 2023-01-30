@@ -46,7 +46,7 @@ public:
 		const bool uri_format = reader.match('#');
 
 		if (!reader.match('/')) {
-			throw invalid_pointer_syntax();
+			JSON_THROW(invalid_pointer_syntax());
 		}
 
 		std::string reference_token;
@@ -61,7 +61,7 @@ public:
 					path_.push_back(reference_token);
 					reference_token.clear();
 				} else if (reader.match("~")) {
-					throw invalid_pointer_syntax();
+					JSON_THROW(invalid_pointer_syntax());
 				} else {
 					reference_token.push_back(reader.read());
 				}
@@ -75,12 +75,12 @@ public:
 					path_.push_back(reference_token);
 					reference_token.clear();
 				} else if (reader.match("~")) {
-					throw invalid_pointer_syntax();
+					JSON_THROW(invalid_pointer_syntax());
 				} else if (auto hex_value = reader.match(hex_regex)) {
 					// %XX -> char(0xXX)
 					reference_token.push_back(static_cast<char>((detail::to_hex(hex_value->data()[1]) << 4) | (detail::to_hex(hex_value->data()[2]))));
 				} else if (reader.match("%")) {
-					throw invalid_pointer_syntax();
+					JSON_THROW(invalid_pointer_syntax());
 				} else {
 					reference_token.push_back(reader.read());
 				}

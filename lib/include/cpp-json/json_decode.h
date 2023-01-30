@@ -115,10 +115,10 @@ private:
 						// convert \uXXXX escape sequences to UTF-8
 						char hex[4];
 
-						if (!std::isxdigit(hex[0] = reader_.read())) throw invalid_unicode_character(reader_.index());
-						if (!std::isxdigit(hex[1] = reader_.read())) throw invalid_unicode_character(reader_.index());
-						if (!std::isxdigit(hex[2] = reader_.read())) throw invalid_unicode_character(reader_.index());
-						if (!std::isxdigit(hex[3] = reader_.read())) throw invalid_unicode_character(reader_.index());
+						if (!std::isxdigit(hex[0] = reader_.read())) JSON_THROW(invalid_unicode_character(reader_.index()));
+						if (!std::isxdigit(hex[1] = reader_.read())) JSON_THROW(invalid_unicode_character(reader_.index()));
+						if (!std::isxdigit(hex[2] = reader_.read())) JSON_THROW(invalid_unicode_character(reader_.index()));
+						if (!std::isxdigit(hex[3] = reader_.read())) JSON_THROW(invalid_unicode_character(reader_.index()));
 
 						uint16_t w1 = 0;
 						uint16_t w2 = 0;
@@ -129,20 +129,20 @@ private:
 						w1 |= (detail::to_hex(hex[3]));
 
 						if ((w1 & 0xfc00) == 0xdc00) {
-							throw invalid_unicode_character(reader_.index());
+							JSON_THROW(invalid_unicode_character(reader_.index()));
 						}
 
 						if ((w1 & 0xfc00) == 0xd800) {
 							// part of a surrogate pair
 							if (!reader_.match("\\u")) {
-								throw utf16_surrogate_expected(reader_.index());
+								JSON_THROW(utf16_surrogate_expected(reader_.index()));
 							}
 
 							// convert \uXXXX escape sequences for surrogate pairs to UTF-8
-							if (!std::isxdigit(hex[0] = reader_.read())) throw invalid_unicode_character(reader_.index());
-							if (!std::isxdigit(hex[1] = reader_.read())) throw invalid_unicode_character(reader_.index());
-							if (!std::isxdigit(hex[2] = reader_.read())) throw invalid_unicode_character(reader_.index());
-							if (!std::isxdigit(hex[3] = reader_.read())) throw invalid_unicode_character(reader_.index());
+							if (!std::isxdigit(hex[0] = reader_.read())) JSON_THROW(invalid_unicode_character(reader_.index()));
+							if (!std::isxdigit(hex[1] = reader_.read())) JSON_THROW(invalid_unicode_character(reader_.index()));
+							if (!std::isxdigit(hex[2] = reader_.read())) JSON_THROW(invalid_unicode_character(reader_.index()));
+							if (!std::isxdigit(hex[3] = reader_.read())) JSON_THROW(invalid_unicode_character(reader_.index()));
 
 							w2 |= (detail::to_hex(hex[0]) << 12);
 							w2 |= (detail::to_hex(hex[1]) << 8);
@@ -163,7 +163,7 @@ private:
 			}
 
 			if (!reader_.match('"')) {
-				throw quote_expected(reader_.index());
+				JSON_THROW(quote_expected(reader_.index()));
 			}
 
 			return token{token_type::String, std::move(s), token_start};
@@ -186,7 +186,7 @@ private:
 				*out++ = '0';
 			} else {
 				if (!std::isdigit(reader_.peek())) {
-					throw invalid_number(reader_.index());
+					JSON_THROW(invalid_number(reader_.index()));
 				}
 
 				while (std::isdigit(reader_.peek())) {
@@ -198,7 +198,7 @@ private:
 			if (reader_.match('.')) {
 				*out++ = '.';
 				if (!std::isdigit(reader_.peek())) {
-					throw invalid_number(reader_.index());
+					JSON_THROW(invalid_number(reader_.index()));
 				}
 
 				while (std::isdigit(reader_.peek())) {
@@ -214,7 +214,7 @@ private:
 				}
 
 				if (!std::isdigit(reader_.peek())) {
-					throw invalid_number(reader_.index());
+					JSON_THROW(invalid_number(reader_.index()));
 				}
 
 				while (std::isdigit(reader_.peek())) {
@@ -257,7 +257,7 @@ private:
 			}
 
 			if (next.type != token_type::ArrayEnd) {
-				throw bracket_expected();
+				JSON_THROW(bracket_expected());
 			}
 		}
 
@@ -284,7 +284,7 @@ private:
 			}
 
 			if (next.type != token_type::ObjectEnd) {
-				throw brace_expected();
+				JSON_THROW(brace_expected());
 			}
 		}
 
@@ -293,12 +293,12 @@ private:
 
 	object_entry get_entry(const token &key) {
 		if (key.type != token_type::String) {
-			throw string_expected();
+			JSON_THROW(string_expected());
 		}
 
 		token colon = next_token();
 		if (colon.type != token_type::Colon) {
-			throw colon_expected();
+			JSON_THROW(colon_expected());
 		}
 
 		return object_entry(key.value, get_value());
@@ -321,7 +321,7 @@ private:
 		case token_type::Number:
 			return value(std::move(tok.value), value::numeric_type());
 		default:
-			throw value_expected();
+			JSON_THROW(value_expected());
 		}
 	}
 

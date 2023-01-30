@@ -51,7 +51,7 @@ void surrogate_pair_to_utf8(std::uint16_t w1, std::uint16_t w2, Out &out) {
 		if ((w2 & 0xfc00) == 0xdc00) {
 			cp = 0x10000 + (((static_cast<std::uint32_t>(w1) & 0x3ff) << 10) | (w2 & 0x3ff));
 		} else {
-			throw invalid_unicode_character(0);
+			JSON_THROW(invalid_unicode_character(0));
 		}
 	} else {
 		cp = w1;

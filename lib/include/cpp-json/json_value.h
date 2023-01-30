@@ -55,7 +55,7 @@ inline bool has_key(const object &o, std::string_view key) noexcept;
 template <class T, class>
 T to_number(const value &v) {
 	if (!is_number(v)) {
-		throw invalid_type_cast();
+		JSON_THROW(invalid_type_cast());
 	}
 
 	if constexpr (std::is_same_v<T, int64_t>) {
@@ -79,7 +79,7 @@ T to_number(const value &v) {
 	} else if constexpr (std::is_same_v<T, float>) {
 		return stof(as_string(v), nullptr);
 	} else {
-		throw invalid_type_cast();
+		JSON_THROW(invalid_type_cast());
 	}
 }
 
@@ -465,7 +465,7 @@ public:
 			return as_array().size();
 		}
 
-		throw invalid_type_cast();
+		JSON_THROW(invalid_type_cast());
 	}
 
 public:
@@ -501,7 +501,7 @@ public:
 		case value::type_number:
 			return std::get<std::string>(storage_);
 		default:
-			throw invalid_type_cast();
+			JSON_THROW(invalid_type_cast());
 		}
 	}
 
@@ -511,13 +511,13 @@ public:
 		case value::type_number:
 			return std::get<std::string>(storage_);
 		default:
-			throw invalid_type_cast();
+			JSON_THROW(invalid_type_cast());
 		}
 	}
 
 	const object &as_object() const {
 		if (type_ != type_object) {
-			throw invalid_type_cast();
+			JSON_THROW(invalid_type_cast());
 		}
 
 		return *std::get<object_pointer>(storage_);
@@ -525,7 +525,7 @@ public:
 
 	object &as_object() {
 		if (type_ != type_object) {
-			throw invalid_type_cast();
+			JSON_THROW(invalid_type_cast());
 		}
 
 		return *std::get<object_pointer>(storage_);
@@ -533,7 +533,7 @@ public:
 
 	const array &as_array() const {
 		if (type_ != type_array) {
-			throw invalid_type_cast();
+			JSON_THROW(invalid_type_cast());
 		}
 
 		return *std::get<array_pointer>(storage_);
@@ -541,7 +541,7 @@ public:
 
 	array &as_array() {
 		if (type_ != type_array) {
-			throw invalid_type_cast();
+			JSON_THROW(invalid_type_cast());
 		}
 
 		return *std::get<array_pointer>(storage_);
@@ -572,7 +572,7 @@ inline value array::at(std::size_t n) const {
 		return values_[n];
 	}
 
-	throw invalid_index();
+	JSON_THROW(invalid_index());
 }
 
 inline value &array::at(std::size_t n) {
@@ -580,7 +580,7 @@ inline value &array::at(std::size_t n) {
 		return values_[n];
 	}
 
-	throw invalid_index();
+	JSON_THROW(invalid_index());
 }
 
 inline std::string to_string(const value &v) {
@@ -589,7 +589,7 @@ inline std::string to_string(const value &v) {
 
 inline bool to_bool(const value &v) {
 	if (!is_bool(v)) {
-		throw invalid_type_cast();
+		JSON_THROW(invalid_type_cast());
 	}
 
 	return std::get<value::Boolean>(v.storage_) == value::Boolean::True;
@@ -605,27 +605,27 @@ inline array to_array(const value &v) {
 
 inline object &as_object(array &v) {
 	(void)v;
-	throw invalid_type_cast();
+	JSON_THROW(invalid_type_cast());
 }
 
 inline array &as_array(object &v) {
 	(void)v;
-	throw invalid_type_cast();
+	JSON_THROW(invalid_type_cast());
 }
 
 inline const object &as_object(const array &v) {
 	(void)v;
-	throw invalid_type_cast();
+	JSON_THROW(invalid_type_cast());
 }
 
 inline const array &as_array(const object &v) {
 	(void)v;
-	throw invalid_type_cast();
+	JSON_THROW(invalid_type_cast());
 }
 
 inline object &as_object(value &v) {
 	if (!is_object(v)) {
-		throw invalid_type_cast();
+		JSON_THROW(invalid_type_cast());
 	}
 
 	return v.as_object();
@@ -633,7 +633,7 @@ inline object &as_object(value &v) {
 
 inline const object &as_object(const value &v) {
 	if (!is_object(v)) {
-		throw invalid_type_cast();
+		JSON_THROW(invalid_type_cast());
 	}
 
 	return v.as_object();
@@ -641,7 +641,7 @@ inline const object &as_object(const value &v) {
 
 inline array &as_array(value &v) {
 	if (!is_array(v)) {
-		throw invalid_type_cast();
+		JSON_THROW(invalid_type_cast());
 	}
 
 	return v.as_array();
@@ -649,7 +649,7 @@ inline array &as_array(value &v) {
 
 inline const array &as_array(const value &v) {
 	if (!is_array(v)) {
-		throw invalid_type_cast();
+		JSON_THROW(invalid_type_cast());
 	}
 
 	return v.as_array();
@@ -657,7 +657,7 @@ inline const array &as_array(const value &v) {
 
 const std::string &as_string(const value &v) {
 	if (!is_string(v) && !is_number(v)) {
-		throw invalid_type_cast();
+		JSON_THROW(invalid_type_cast());
 	}
 
 	return v.as_string();
@@ -665,7 +665,7 @@ const std::string &as_string(const value &v) {
 
 std::string &as_string(value &v) {
 	if (!is_string(v) && !is_number(v)) {
-		throw invalid_type_cast();
+		JSON_THROW(invalid_type_cast());
 	}
 
 	return v.as_string();
@@ -766,7 +766,7 @@ inline value object::at(std::string_view key) const {
 		return values_[it->second].second;
 	}
 
-	throw invalid_index();
+	JSON_THROW(invalid_index());
 }
 
 /**
@@ -781,7 +781,7 @@ inline value &object::at(std::string_view key) {
 		return values_[it->second].second;
 	}
 
-	throw invalid_index();
+	JSON_THROW(invalid_index());
 }
 
 /**
@@ -978,7 +978,7 @@ inline value value::operator[](const ptr &ptr) const {
 				result        = &result->at(n);
 			}
 		} else {
-			throw invalid_path();
+			JSON_THROW(invalid_path());
 		}
 	}
 
@@ -1001,7 +1001,7 @@ inline value &value::operator[](const ptr &ptr) {
 				result        = &result->at(n);
 			}
 		} else {
-			throw invalid_path();
+			JSON_THROW(invalid_path());
 		}
 	}
 
@@ -1026,7 +1026,7 @@ inline value &value::create(const ptr &ptr) {
 				result        = &result->at(n);
 			}
 		} else {
-			throw invalid_path();
+			JSON_THROW(invalid_path());
 		}
 	}
 
