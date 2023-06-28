@@ -49,7 +49,7 @@ inline const array &as_array(const value &v);
 inline const std::string &as_string(const value &v);
 
 // does the given object have a given key?
-inline bool has_key(const value &v, std::string_view key) noexcept;
+inline bool has_key(const value &v, std::string_view key);
 inline bool has_key(const object &o, std::string_view key) noexcept;
 
 template <class T, class>
@@ -671,7 +671,7 @@ std::string &as_string(value &v) {
 	return v.as_string();
 }
 
-inline bool has_key(const value &v, std::string_view key) noexcept {
+inline bool has_key(const value &v, std::string_view key) {
 	if (is_object(v)) {
 		return has_key(as_object(v), key);
 	}
