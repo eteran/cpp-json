@@ -3,6 +3,7 @@
 #define JSON_ENCODE_H_
 
 #include "json_value.h"
+#include <cstdint>
 #include <ostream>
 #include <sstream>
 #include <string>
@@ -49,8 +50,8 @@ inline std::string escape_string(std::string_view s, Options options) {
 				reserved : 24;
 		};
 
-		state_t shift_state = {0, 0, 0};
-		char32_t result     = 0;
+		state_t shift_state            = {0, 0, 0};
+		std::uint_least32_t result     = 0;
 
 		for (auto it = s.begin(); it != s.end(); ++it) {
 
