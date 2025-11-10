@@ -53,9 +53,7 @@ inline std::string escape_string(std::string_view s, Options options) {
 		state_t shift_state            = {0, 0, 0};
 		std::uint_least32_t result     = 0;
 
-		for (auto it = s.begin(); it != s.end(); ++it) {
-
-			const auto ch = static_cast<uint8_t>(*it);
+		for (const unsigned char ch : s) {
 
 			if (shift_state.seen == 0) {
 
@@ -162,7 +160,7 @@ inline std::string escape_string(std::string_view s, Options options) {
 		}
 	} else {
 
-		for (char ch : s) {
+		for (const char ch : s) {
 
 			switch (ch) {
 			case '\"':

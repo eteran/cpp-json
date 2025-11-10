@@ -14,6 +14,7 @@
 #include "json_error.h"
 #include "json_reader.h"
 #include "json_value.h"
+#include <cstdint>
 
 namespace json {
 
@@ -84,7 +85,7 @@ private:
 
 			while (reader_.peek() != '"' && reader_.peek() != '\n') {
 
-				char ch = reader_.read();
+				const char ch = reader_.read();
 				if (ch == '\\') {
 					switch (reader_.read()) {
 					case '"':
@@ -120,8 +121,8 @@ private:
 						if (!std::isxdigit(hex[2] = reader_.read())) JSON_THROW(invalid_unicode_character(reader_.index()));
 						if (!std::isxdigit(hex[3] = reader_.read())) JSON_THROW(invalid_unicode_character(reader_.index()));
 
-						uint16_t w1 = 0;
-						uint16_t w2 = 0;
+						std::uint_least16_t w1 = 0;
+						std::uint_least16_t w2 = 0;
 
 						w1 |= (detail::to_hex(hex[0]) << 12);
 						w1 |= (detail::to_hex(hex[1]) << 8);
