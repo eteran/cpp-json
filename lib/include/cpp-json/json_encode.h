@@ -215,14 +215,13 @@ inline void value_to_string(std::ostream &os, const object &o, Options options, 
 		os << "{\n";
 
 		auto it = o.begin();
-		auto e  = o.end();
 
 		++indent;
 		os << std::string(indent * IndentWidth, ' ') << '"' << escape_string(it->first, options) << "\" : ";
 		value_to_string(os, it->second, options, indent, true);
 
 		++it;
-		for (; it != e; ++it) {
+		for (auto e = o.end(); it != e; ++it) {
 			os << ',';
 			os << '\n';
 			os << std::string(indent * IndentWidth, ' ') << '"' << escape_string(it->first, options) << "\" : ";
@@ -247,12 +246,11 @@ inline void value_to_string(std::ostream &os, const array &a, Options options, i
 		os << "[\n";
 
 		auto it = a.begin();
-		auto e  = a.end();
 
 		++indent;
 		value_to_string(os, *it++, options, indent, false);
 
-		for (; it != e; ++it) {
+		for (auto e = a.end(); it != e; ++it) {
 			os << ',';
 			os << '\n';
 			value_to_string(os, *it, options, indent, false);
@@ -314,11 +312,10 @@ inline void serialize(std::ostream &os, const array &a, Options options) {
 	os << "[";
 	if (!a.empty()) {
 		auto it = a.begin();
-		auto e  = a.end();
 
 		serialize(os, *it++, options);
 
-		for (; it != e; ++it) {
+		for (const auto e = a.end(); it != e; ++it) {
 			os << ',';
 			serialize(os, *it, options);
 		}
@@ -330,12 +327,11 @@ inline void serialize(std::ostream &os, const object &o, Options options) {
 	os << "{";
 	if (!o.empty()) {
 		auto it = o.begin();
-		auto e  = o.end();
 
 		os << '"' << escape_string(it->first, options) << "\":";
 		serialize(os, it->second, options);
 		++it;
-		for (; it != e; ++it) {
+		for (const auto e = o.end(); it != e; ++it) {
 			os << ',';
 			os << '"' << escape_string(it->first, options) << "\":";
 			serialize(os, it->second, options);
