@@ -373,11 +373,11 @@ public:
 	}
 
 	value(const std::nullptr_t &)
-		: storage_(Null()), type_(type_null) {
+		: storage_(Null::Value), type_(type_null) {
 	}
 
 	value()
-		: storage_(Null()), type_(type_null) {
+		: storage_(Null::Value), type_(type_null) {
 	}
 
 public:
@@ -548,7 +548,9 @@ public:
 	}
 
 private:
-	struct Null {};
+	enum class Null {
+		Value,
+	};
 
 	enum class Boolean {
 		False,
