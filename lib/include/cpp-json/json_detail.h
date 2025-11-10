@@ -47,7 +47,7 @@ bool is_space(Ch ch) {
 template <class Out>
 void surrogate_pair_to_utf8(std::uint_least16_t w1, std::uint_least16_t w2, Out &out) {
 
-	std::uint_least32_t cp;
+	std::uint_least32_t cp = '\0';
 	if ((w1 & 0xfc00) == 0xd800) {
 		if ((w2 & 0xfc00) == 0xdc00) {
 			cp = 0x10000 + (((static_cast<std::uint_least32_t>(w1) & 0x3ff) << 10) | (w2 & 0x3ff));
