@@ -176,7 +176,7 @@ public:
 		std::match_results<const Ch *> matches;
 
 		const Ch *first = &input_[index_];
-		const Ch *last  = &input_[input_.size()];
+		const Ch *last  = &input_.back();
 
 		if (std::regex_search(first, last, matches, regex, std::regex_constants::match_continuous)) {
 			std::basic_string<Ch> m(matches[0].first, matches[0].second);
