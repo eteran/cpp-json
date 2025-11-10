@@ -15,10 +15,18 @@ set_property(TARGET example2 PROPERTY CXX_STANDARD 17)
 set_property(TARGET example3 PROPERTY CXX_STANDARD 17)
 set_property(TARGET example4 PROPERTY CXX_STANDARD 17)
 
-target_compile_options(example1 PUBLIC -pedantic -W -Wall -Wmissing-field-initializers -Wunused -Wshadow)
-target_compile_options(example2 PUBLIC -pedantic -W -Wall -Wmissing-field-initializers -Wunused -Wshadow)
-target_compile_options(example3 PUBLIC -pedantic -W -Wall -Wmissing-field-initializers -Wunused -Wshadow)
-target_compile_options(example4 PUBLIC -pedantic -W -Wall -Wmissing-field-initializers -Wunused -Wshadow)
+if(CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
+    target_compile_options(example1 PUBLIC -pedantic -W -Wall -Wmissing-field-initializers -Wunused -Wshadow)
+    target_compile_options(example2 PUBLIC -pedantic -W -Wall -Wmissing-field-initializers -Wunused -Wshadow)
+    target_compile_options(example3 PUBLIC -pedantic -W -Wall -Wmissing-field-initializers -Wunused -Wshadow)
+    target_compile_options(example4 PUBLIC -pedantic -W -Wall -Wmissing-field-initializers -Wunused -Wshadow)
+elseif(MSVC)
+    # multi-processor compilation, warning-level 4
+    target_compile_options(example1 PUBLIC /MP /W4)
+    target_compile_options(example2 PUBLIC /MP /W4)
+    target_compile_options(example3 PUBLIC /MP /W4)
+    target_compile_options(example4 PUBLIC /MP /W4)
+endif()
 
 add_test(
     NAME example1
