@@ -80,8 +80,8 @@ public:
 	 * @return size_t
 	 */
 	size_t consume(std::basic_string_view<Ch> chars) noexcept {
-		return consume_while([&chars](Ch ch) {
-			return chars.find(ch) != chars.npos;
+		return consume_while([chars](Ch ch) {
+			return chars.find(ch) != std::basic_string_view<Ch>::npos;
 		});
 	}
 
@@ -196,9 +196,8 @@ public:
 		if (count > 0) {
 			return return_type{ input_.substr(index_ - count, count) };
 		}
-		else {
-			return {};
-		}
+
+		return {};
 	}
 
 	/**
