@@ -4,6 +4,7 @@
 
 #include "json_error.h"
 #include "json_ptr.h"
+#include <cstddef>
 #include <map>
 #include <memory>
 #include <string>
@@ -164,7 +165,7 @@ private:
 
 	// NOTE(eteran): The values are stored in insertion order above,
 	// but we use this map to have a fast lookup of key -> index
-	std::map<std::string, size_t, std::less<>> index_map_;
+	std::map<std::string, std::size_t, std::less<>> index_map_;
 };
 
 inline object::iterator begin(object &obj) noexcept {
@@ -458,7 +459,7 @@ public:
 
 public:
 	// object/array like
-	size_t size() const {
+	std::size_t size() const {
 		if (is_object()) {
 			return as_object().size();
 		} else if (is_array()) {

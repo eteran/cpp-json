@@ -2,7 +2,7 @@
 #ifndef JSON_ERROR_H_
 #define JSON_ERROR_H_
 
-#include <cstddef>
+#include <stddef.h>
 
 #if defined(__EXCEPTIONS)
 #define JSON_THROW(x) throw x

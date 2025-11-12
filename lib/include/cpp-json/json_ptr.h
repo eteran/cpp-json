@@ -116,12 +116,6 @@ public:
 	size_type max_size() const noexcept { return path_.max_size(); }
 	bool empty() const noexcept { return path_.empty(); }
 
-public:
-	value operator[](std::size_t n) const;
-	value &operator[](std::size_t n);
-	value at(std::size_t n) const;
-	value &at(std::size_t n);
-
 private:
 	C path_;
 };

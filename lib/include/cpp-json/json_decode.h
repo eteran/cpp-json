@@ -14,6 +14,7 @@
 #include "json_error.h"
 #include "json_reader.h"
 #include "json_value.h"
+#include <cstddef>
 #include <cstdint>
 
 namespace json {
@@ -42,7 +43,7 @@ public:
 	struct token {
 		token_type type;
 		std::string value;
-		size_t index;
+		std::size_t index;
 	};
 
 private:
@@ -52,7 +53,7 @@ private:
 			reader_.read();
 		}
 
-		const size_t token_start = reader_.index();
+		const std::size_t token_start = reader_.index();
 
 		// if we reach end of the stream, we're done!
 		if (reader_.eof()) {

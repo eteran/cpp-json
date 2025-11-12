@@ -3,7 +3,7 @@
 #define JSON_READER_H_
 
 #include <cassert>
-#include <cstddef>
+#include <stddef.h>
 #include <iterator>
 #include <optional>
 #include <regex>
