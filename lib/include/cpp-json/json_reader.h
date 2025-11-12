@@ -3,7 +3,7 @@
 #define JSON_READER_H_
 
 #include <cassert>
-#include <stddef.h>
+#include <cstddef>
 #include <iterator>
 #include <optional>
 #include <regex>
@@ -17,8 +17,8 @@ template <class Ch>
 class basic_reader {
 public:
 	struct Location {
-		size_t line;
-		size_t column;
+		std::size_t line;
+		std::size_t column;
 	};
 
 public:
@@ -77,9 +77,9 @@ public:
 	 * and returns the number of consumed characters
 	 *
 	 * @param chars
-	 * @return size_t
+	 * @return std::size_t
 	 */
-	size_t consume(std::basic_string_view<Ch> chars) noexcept {
+	std::size_t consume(std::basic_string_view<Ch> chars) noexcept {
 		return consume_while([chars](Ch ch) noexcept {
 			return chars.find(ch) != std::basic_string_view<Ch>::npos;
 		});
@@ -89,9 +89,9 @@ public:
 	 * @brief Consumes while the next character is whitespace (tab or space)
 	 * and returns the number of consumed characters
 	 *
-	 * @return size_t
+	 * @return std::size_t
 	 */
-	size_t consume_whitespace() noexcept {
+	std::size_t consume_whitespace() noexcept {
 		return consume_while([](Ch ch) noexcept {
 			return (ch == ' ' || ch == '\t');
 		});
@@ -102,11 +102,11 @@ public:
 	 * and returns the number of consumed characters
 	 *
 	 * @param pred
-	 * @return size_t
+	 * @return std::size_t
 	 */
 	template <class Pred>
-	size_t consume_while(Pred pred) noexcept(noexcept(pred(Ch{'\0'}))) {
-		const size_t start = index_;
+	std::size_t consume_while(Pred pred) noexcept(noexcept(pred(Ch{'\0'}))) {
+		const std::size_t start = index_;
 		while (!eof() && pred(peek())) {
 			++index_;
 		}
@@ -191,7 +191,7 @@ public:
 	std::optional<std::basic_string<Ch>> match_while(Pred pred) {
 		using return_type = std::optional<std::basic_string<Ch>>;
 
-		const size_t count = consume_while(std::move(pred));
+		const std::size_t count = consume_while(std::move(pred));
 
 		if (count > 0) {
 			return return_type{ input_.substr(index_ - count, count) };
@@ -203,9 +203,9 @@ public:
 	/**
 	 * @brief Returns the current position in the string
 	 *
-	 * @return size_t
+	 * @return std::size_t
 	 */
-	size_t index() const noexcept {
+	std::size_t index() const noexcept {
 		return index_;
 	}
 
@@ -224,13 +224,13 @@ public:
 	 * @param index
 	 * @return Location
 	 */
-	Location location(size_t index) const noexcept {
-		size_t line = 1;
-		size_t col  = 1;
+	Location location(std::size_t index) const noexcept {
+		std::size_t line = 1;
+		std::size_t col  = 1;
 
 		if (index < input_.size()) {
 
-			for (size_t i = 0; i < index; ++i) {
+			for (std::size_t i = 0; i < index; ++i) {
 				if (input_[i] == '\n') {
 					++line;
 					col = 1;
@@ -273,8 +273,8 @@ public:
 
 private:
 	std::basic_string_view<Ch> input_;
-	size_t index_ = 0;
-	std::stack<size_t> state_;
+	std::size_t index_ = 0;
+	std::stack<std::size_t> state_;
 };
 
 using reader = basic_reader<char>;

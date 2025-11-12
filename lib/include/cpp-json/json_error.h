@@ -19,7 +19,7 @@
 #define JSON_THROW(...) assert(false); std::abort()
 #endif
 
-#include <stddef.h>
+#include <cstddef>
 
 namespace json {
 
@@ -35,15 +35,15 @@ struct value_expected : exception {};
 
 // lexing errors
 struct lexing_error : exception {
-	lexing_error(size_t index)
+	lexing_error(std::size_t index)
 		: index_(index) {}
 
-	size_t index() const {
+	std::size_t index() const {
 		return index_;
 	}
 
 private:
-	size_t index_ = 0;
+	std::size_t index_ = 0;
 };
 struct invalid_unicode_character : lexing_error {
 	using lexing_error::lexing_error;
