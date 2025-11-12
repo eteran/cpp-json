@@ -2,14 +2,24 @@
 #ifndef JSON_ERROR_H_
 #define JSON_ERROR_H_
 
-#include <stddef.h>
-
-#if defined(__EXCEPTIONS)
-#define JSON_THROW(x) throw x
-#else
-#include <cassert>
-#define JSON_THROW(...) assert(0)
+#if __has_include(<version>)
+// __cpp_lib_* macros
+#include <version>
 #endif
+
+#if __cpp_exceptions >= 199711L
+#define JSON_THROW(x) throw x
+#elif __cpp_lib_unreachable >= 202202L
+#include <utility>
+#include <cassert>
+#define JSON_THROW(...) assert(false); std::unreachable()
+#else
+#include <cstdlib>
+#include <cassert>
+#define JSON_THROW(...) assert(false); std::abort()
+#endif
+
+#include <stddef.h>
 
 namespace json {
 
