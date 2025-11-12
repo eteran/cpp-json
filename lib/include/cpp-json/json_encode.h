@@ -4,6 +4,7 @@
 
 #include "json_value.h"
 #include <cstdint>
+#include <iterator>
 #include <ostream>
 #include <sstream>
 #include <string>
@@ -87,7 +88,7 @@ inline std::string escape_string(std::string_view s, Options options) {
 						if (!isprint(ch)) {
 							r += "\\u";
 							char buf[5];
-							snprintf(buf, sizeof(buf), "%04X", ch);
+							snprintf(buf, std::size(buf), "%04X", ch);
 							r += buf;
 						} else {
 							r += static_cast<char>(ch);
@@ -132,17 +133,17 @@ inline std::string escape_string(std::string_view s, Options options) {
 
 						if (result < 0xd800 || (result >= 0xe000 && result < 0x10000)) {
 							r += "\\u";
-							snprintf(buf, sizeof(buf), "%04X", result);
+							snprintf(buf, std::size(buf), "%04X", result);
 							r += buf;
 						} else {
 							result = (result - 0x10000);
 
 							r += "\\u";
-							snprintf(buf, sizeof(buf), "%04X", 0xd800 + ((result >> 10) & 0x3ff));
+							snprintf(buf, std::size(buf), "%04X", 0xd800 + ((result >> 10) & 0x3ff));
 							r += buf;
 
 							r += "\\u";
-							snprintf(buf, sizeof(buf), "%04X", 0xdc00 + (result & 0x3ff));
+							snprintf(buf, std::size(buf), "%04X", 0xdc00 + (result & 0x3ff));
 							r += buf;
 						}
 
