@@ -8,6 +8,7 @@
 #include <ostream>
 #include <sstream>
 #include <string>
+#include <type_traits>
 
 namespace json {
 
@@ -20,12 +21,12 @@ enum Options {
 	PrettyPrint   = 0x02,
 };
 
-constexpr inline Options operator&(Options lhs, Options rhs) noexcept {
+constexpr Options operator&(Options lhs, Options rhs) noexcept {
 	using T = std::underlying_type<Options>::type;
 	return static_cast<Options>(static_cast<T>(lhs) & static_cast<T>(rhs));
 }
 
-constexpr inline Options operator|(Options lhs, Options rhs) noexcept {
+constexpr Options operator|(Options lhs, Options rhs) noexcept {
 	using T = std::underlying_type<Options>::type;
 	return static_cast<Options>(static_cast<T>(lhs) | static_cast<T>(rhs));
 }

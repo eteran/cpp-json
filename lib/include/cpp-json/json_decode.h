@@ -14,7 +14,14 @@
 #include "json_error.h"
 #include "json_reader.h"
 #include "json_value.h"
+#include <cctype>
+#include <cstddef>
 #include <cstdint>
+#include <iterator>
+#include <memory>
+#include <string>
+#include <string_view>
+#include <utility>
 
 namespace json {
 
@@ -42,7 +49,7 @@ public:
 	struct token {
 		token_type type;
 		std::string value;
-		size_t index;
+		std::size_t index;
 	};
 
 private:
@@ -52,7 +59,7 @@ private:
 			reader_.read();
 		}
 
-		const size_t token_start = reader_.index();
+		const std::size_t token_start = reader_.index();
 
 		// if we reach end of the stream, we're done!
 		if (reader_.eof()) {
@@ -305,7 +312,7 @@ private:
 		return object_entry(key.value, get_value());
 	}
 
-	value get_value(const token &tok) {
+	value get_value(token tok) {
 		switch (tok.type) {
 		case token_type::ObjectBegin:
 			return value(get_object());

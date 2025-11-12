@@ -5,6 +5,7 @@
 #include "json_reader.h"
 #include "json_detail.h"
 #include "json_error.h"
+#include <regex>
 #include <string>
 #include <string_view>
 #include <vector>
@@ -115,12 +116,6 @@ public:
 	size_type size() const noexcept { return path_.size(); }
 	size_type max_size() const noexcept { return path_.max_size(); }
 	bool empty() const noexcept { return path_.empty(); }
-
-public:
-	value operator[](std::size_t n) const;
-	value &operator[](std::size_t n);
-	value at(std::size_t n) const;
-	value &at(std::size_t n);
 
 private:
 	C path_;
