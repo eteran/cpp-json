@@ -80,7 +80,7 @@ public:
 	 * @return size_t
 	 */
 	size_t consume(std::basic_string_view<Ch> chars) noexcept {
-		return consume_while([chars](Ch ch) {
+		return consume_while([chars](Ch ch) noexcept {
 			return chars.find(ch) != std::basic_string_view<Ch>::npos;
 		});
 	}
@@ -92,7 +92,7 @@ public:
 	 * @return size_t
 	 */
 	size_t consume_whitespace() noexcept {
-		return consume_while([](Ch ch) {
+		return consume_while([](Ch ch) noexcept {
 			return (ch == ' ' || ch == '\t');
 		});
 	}
@@ -105,7 +105,7 @@ public:
 	 * @return size_t
 	 */
 	template <class Pred>
-	size_t consume_while(Pred pred) noexcept {
+	size_t consume_while(Pred pred) noexcept(noexcept(pred(Ch{'\0'}))) {
 		const size_t start = index_;
 		while (!eof() && pred(peek())) {
 			++index_;
