@@ -3,6 +3,8 @@
 #define JSON_ENCODE_H_
 
 #include "json_value.h"
+#include <cstdint>
+#include <iterator>
 #include <ostream>
 #include <sstream>
 #include <string>
@@ -49,12 +51,10 @@ inline std::string escape_string(std::string_view s, Options options) {
 				reserved : 24;
 		};
 
-		state_t shift_state = {0, 0, 0};
-		char32_t result     = 0;
+		state_t shift_state            = {0, 0, 0};
+		std::uint_least32_t result     = 0;
 
-		for (auto it = s.begin(); it != s.end(); ++it) {
-
-			const auto ch = static_cast<uint8_t>(*it);
+		for (const unsigned char ch : s) {
 
 			if (shift_state.seen == 0) {
 
@@ -88,7 +88,7 @@ inline std::string escape_string(std::string_view s, Options options) {
 						if (!isprint(ch)) {
 							r += "\\u";
 							char buf[5];
-							snprintf(buf, sizeof(buf), "%04X", ch);
+							snprintf(buf, std::size(buf), "%04X", ch);
 							r += buf;
 						} else {
 							r += static_cast<char>(ch);
@@ -133,17 +133,17 @@ inline std::string escape_string(std::string_view s, Options options) {
 
 						if (result < 0xd800 || (result >= 0xe000 && result < 0x10000)) {
 							r += "\\u";
-							snprintf(buf, sizeof(buf), "%04X", result);
+							snprintf(buf, std::size(buf), "%04X", result);
 							r += buf;
 						} else {
 							result = (result - 0x10000);
 
 							r += "\\u";
-							snprintf(buf, sizeof(buf), "%04X", 0xd800 + ((result >> 10) & 0x3ff));
+							snprintf(buf, std::size(buf), "%04X", 0xd800 + ((result >> 10) & 0x3ff));
 							r += buf;
 
 							r += "\\u";
-							snprintf(buf, sizeof(buf), "%04X", 0xdc00 + (result & 0x3ff));
+							snprintf(buf, std::size(buf), "%04X", 0xdc00 + (result & 0x3ff));
 							r += buf;
 						}
 
@@ -161,7 +161,7 @@ inline std::string escape_string(std::string_view s, Options options) {
 		}
 	} else {
 
-		for (char ch : s) {
+		for (const char ch : s) {
 
 			switch (ch) {
 			case '\"':
@@ -216,14 +216,13 @@ inline void value_to_string(std::ostream &os, const object &o, Options options, 
 		os << "{\n";
 
 		auto it = o.begin();
-		auto e  = o.end();
 
 		++indent;
 		os << std::string(indent * IndentWidth, ' ') << '"' << escape_string(it->first, options) << "\" : ";
 		value_to_string(os, it->second, options, indent, true);
 
 		++it;
-		for (; it != e; ++it) {
+		for (auto e = o.end(); it != e; ++it) {
 			os << ',';
 			os << '\n';
 			os << std::string(indent * IndentWidth, ' ') << '"' << escape_string(it->first, options) << "\" : ";
@@ -248,12 +247,11 @@ inline void value_to_string(std::ostream &os, const array &a, Options options, i
 		os << "[\n";
 
 		auto it = a.begin();
-		auto e  = a.end();
 
 		++indent;
 		value_to_string(os, *it++, options, indent, false);
 
-		for (; it != e; ++it) {
+		for (auto e = a.end(); it != e; ++it) {
 			os << ',';
 			os << '\n';
 			value_to_string(os, *it, options, indent, false);
@@ -315,11 +313,10 @@ inline void serialize(std::ostream &os, const array &a, Options options) {
 	os << "[";
 	if (!a.empty()) {
 		auto it = a.begin();
-		auto e  = a.end();
 
 		serialize(os, *it++, options);
 
-		for (; it != e; ++it) {
+		for (const auto e = a.end(); it != e; ++it) {
 			os << ',';
 			serialize(os, *it, options);
 		}
@@ -331,12 +328,11 @@ inline void serialize(std::ostream &os, const object &o, Options options) {
 	os << "{";
 	if (!o.empty()) {
 		auto it = o.begin();
-		auto e  = o.end();
 
 		os << '"' << escape_string(it->first, options) << "\":";
 		serialize(os, it->second, options);
 		++it;
-		for (; it != e; ++it) {
+		for (const auto e = o.end(); it != e; ++it) {
 			os << ',';
 			os << '"' << escape_string(it->first, options) << "\":";
 			serialize(os, it->second, options);
