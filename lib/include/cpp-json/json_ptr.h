@@ -5,6 +5,7 @@
 #include "json_reader.h"
 #include "json_detail.h"
 #include "json_error.h"
+#include <regex>
 #include <string>
 #include <string_view>
 #include <vector>

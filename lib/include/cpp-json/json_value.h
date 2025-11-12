@@ -5,6 +5,7 @@
 #include "json_error.h"
 #include "json_ptr.h"
 #include <cstddef>
+#include <initializer_list>
 #include <map>
 #include <memory>
 #include <string>
@@ -12,6 +13,7 @@
 #include <type_traits>
 #include <variant>
 #include <vector>
+#include <utility>
 
 namespace json {
 

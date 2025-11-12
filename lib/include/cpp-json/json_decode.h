@@ -14,8 +14,14 @@
 #include "json_error.h"
 #include "json_reader.h"
 #include "json_value.h"
+#include <cctype>
 #include <cstddef>
 #include <cstdint>
+#include <iterator>
+#include <memory>
+#include <string>
+#include <string_view>
+#include <utility>
 
 namespace json {
 
@@ -306,7 +312,7 @@ private:
 		return object_entry(key.value, get_value());
 	}
 
-	value get_value(const token &tok) {
+	value get_value(token tok) {
 		switch (tok.type) {
 		case token_type::ObjectBegin:
 			return value(get_object());
