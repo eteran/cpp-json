@@ -5,8 +5,7 @@
 #include "json_error.h"
 #include <cstdint>
 
-namespace json {
-namespace detail {
+namespace json::detail {
 
 /**
  * @brief to_hex
@@ -75,7 +74,6 @@ void surrogate_pair_to_utf8(std::uint_least16_t w1, std::uint_least16_t w2, Out 
 	}
 }
 
-}
 }
 
 #endif
