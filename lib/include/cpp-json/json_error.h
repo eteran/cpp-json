@@ -36,21 +36,16 @@ private:
 	size_t index_ = 0;
 };
 struct invalid_unicode_character : lexing_error {
-	invalid_unicode_character(size_t index)
-		: lexing_error(index) {}
+	using lexing_error::lexing_error;
 };
-
 struct utf16_surrogate_expected : lexing_error {
-	utf16_surrogate_expected(size_t index)
-		: lexing_error(index) {}
+	using lexing_error::lexing_error;
 };
 struct quote_expected : lexing_error {
-	quote_expected(size_t index)
-		: lexing_error(index) {}
+	using lexing_error::lexing_error;
 };
 struct invalid_number : lexing_error {
-	invalid_number(size_t index)
-		: lexing_error(index) {}
+	using lexing_error::lexing_error;
 };
 
 // serialization errors
