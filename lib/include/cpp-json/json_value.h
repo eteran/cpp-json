@@ -91,7 +91,9 @@ T to_number(const value &v) {
  */
 class object {
 	friend bool operator==(const object &lhs, const object &rhs) noexcept;
+#if __cplusplus < 202002L	//	C++20 defaulted comparison operators
 	friend bool operator!=(const object &lhs, const object &rhs) noexcept;
+#endif
 
 	friend class parser;
 
@@ -199,7 +201,9 @@ inline object::const_iterator cend(const object &obj) noexcept {
  */
 class array {
 	friend bool operator==(const array &lhs, const array &rhs) noexcept;
+#if __cplusplus < 202002L	//	C++20 defaulted comparison operators
 	friend bool operator!=(const array &lhs, const array &rhs) noexcept;
+#endif
 
 private:
 	using C = std::vector<value>;
@@ -335,7 +339,9 @@ class value {
 	friend bool to_bool(const value &v);
 
 	friend bool operator==(const value &lhs, const value &rhs);
+#if __cplusplus < 202002L	//	C++20 defaulted comparison operators
 	friend bool operator!=(const value &lhs, const value &rhs);
+#endif
 
 	friend class parser;
 
@@ -1100,6 +1106,7 @@ inline bool operator==(const value &lhs, const value &rhs) {
 	return false;
 }
 
+#if __cplusplus < 202002L	//	C++20 defaulted comparison operators
 /**
  * @brief operator !=
  * @param lhs
@@ -1109,6 +1116,7 @@ inline bool operator==(const value &lhs, const value &rhs) {
 inline bool operator!=(const value &lhs, const value &rhs) {
 	return !(lhs == rhs);
 }
+#endif
 
 /**
  * @brief operator ==
@@ -1123,6 +1131,7 @@ inline bool operator==(const object &lhs, const object &rhs) noexcept {
 	return false;
 }
 
+#if __cplusplus < 202002L	//	C++20 defaulted comparison operators
 /**
  * @brief operator !=
  * @param lhs
@@ -1132,6 +1141,7 @@ inline bool operator==(const object &lhs, const object &rhs) noexcept {
 inline bool operator!=(const object &lhs, const object &rhs) noexcept {
 	return !(lhs == rhs);
 }
+#endif
 
 /**
  * @brief operator ==
@@ -1146,6 +1156,7 @@ inline bool operator==(const array &lhs, const array &rhs) noexcept {
 	return false;
 }
 
+#if __cplusplus < 202002L	//	C++20 defaulted comparison operators
 /**
  * @brief operator !=
  * @param lhs
@@ -1155,6 +1166,7 @@ inline bool operator==(const array &lhs, const array &rhs) noexcept {
 inline bool operator!=(const array &lhs, const array &rhs) noexcept {
 	return !(lhs == rhs);
 }
+#endif
 
 template <class T>
 void value::push_back(T &&v) {
