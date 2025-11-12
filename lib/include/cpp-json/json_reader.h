@@ -4,6 +4,7 @@
 
 #include <cassert>
 #include <cstddef>
+#include <iterator>
 #include <optional>
 #include <regex>
 #include <stack>
@@ -79,7 +80,7 @@ public:
 	 * @return size_t
 	 */
 	size_t consume(std::basic_string_view<Ch> chars) noexcept {
-		return consume_while([chars](Ch ch) {
+		return consume_while([chars](Ch ch) noexcept {
 			return chars.find(ch) != std::basic_string_view<Ch>::npos;
 		});
 	}
@@ -91,7 +92,7 @@ public:
 	 * @return size_t
 	 */
 	size_t consume_whitespace() noexcept {
-		return consume_while([](Ch ch) {
+		return consume_while([](Ch ch) noexcept {
 			return (ch == ' ' || ch == '\t');
 		});
 	}
@@ -104,18 +105,12 @@ public:
 	 * @return size_t
 	 */
 	template <class Pred>
-	size_t consume_while(Pred pred) noexcept {
-		size_t count = 0;
-		while (!eof()) {
-			const Ch ch = peek();
-			if (!pred(ch)) {
-				break;
-			}
-
+	size_t consume_while(Pred pred) noexcept(noexcept(pred(Ch{'\0'}))) {
+		const size_t start = index_;
+		while (!eof() && pred(peek())) {
 			++index_;
-			++count;
 		}
-		return count;
+		return index_ - start;
 	}
 
 	/**
@@ -160,7 +155,7 @@ public:
 			return {};
 		}
 
-		std::basic_string<Ch> m = input_.substr(index_);
+		std::basic_string<Ch> m{ input_.substr(index_) };
 		index_ += m.size();
 		return m;
 	}
@@ -173,15 +168,13 @@ public:
 	 * @return bool
 	 */
 	std::optional<std::basic_string<Ch>> match(const std::basic_regex<Ch> &regex) {
-		std::match_results<const Ch *> matches;
+		std::match_results<typename std::basic_string_view<Ch>::const_iterator> matches;
 
-		const Ch *first = &input_[index_];
-		const Ch *last  = &input_[input_.size()];
+		const auto first = std::next(input_.cbegin(), index_);
 
-		if (std::regex_search(first, last, matches, regex, std::regex_constants::match_continuous)) {
-			std::basic_string<Ch> m(matches[0].first, matches[0].second);
-			index_ += m.size();
-			return m;
+		if (std::regex_search(first, input_.cend(), matches, regex, std::regex_constants::match_continuous)) {
+			index_ += matches[0].length();
+			return matches[0].str();
 		}
 
 		return {};
@@ -196,20 +189,12 @@ public:
 	 */
 	template <class Pred>
 	std::optional<std::basic_string<Ch>> match_while(Pred pred) {
+		using return_type = std::optional<std::basic_string<Ch>>;
 
-		size_t start = index_;
-		while (!eof()) {
-			const Ch ch = peek();
-			if (!pred(ch)) {
-				break;
-			}
+		const size_t count = consume_while(std::move(pred));
 
-			++index_;
-		}
-
-		std::basic_string<Ch> m(&input_[start], &input_[index_]);
-		if (!m.empty()) {
-			return m;
+		if (count > 0) {
+			return return_type{ input_.substr(index_ - count, count) };
 		}
 
 		return {};

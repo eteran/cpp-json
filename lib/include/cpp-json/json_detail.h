@@ -45,12 +45,12 @@ bool is_space(Ch ch) {
  * @param out
  */
 template <class Out>
-void surrogate_pair_to_utf8(std::uint16_t w1, std::uint16_t w2, Out &out) {
+void surrogate_pair_to_utf8(std::uint_least16_t w1, std::uint_least16_t w2, Out &out) {
 
-	std::uint32_t cp;
+	std::uint_least32_t cp = '\0';
 	if ((w1 & 0xfc00) == 0xd800) {
 		if ((w2 & 0xfc00) == 0xdc00) {
-			cp = 0x10000 + (((static_cast<std::uint32_t>(w1) & 0x3ff) << 10) | (w2 & 0x3ff));
+			cp = 0x10000 + (((static_cast<std::uint_least32_t>(w1) & 0x3ff) << 10) | (w2 & 0x3ff));
 		} else {
 			JSON_THROW(invalid_unicode_character(0));
 		}
@@ -59,19 +59,19 @@ void surrogate_pair_to_utf8(std::uint16_t w1, std::uint16_t w2, Out &out) {
 	}
 
 	if (cp < 0x80) {
-		*out++ = static_cast<std::uint8_t>(cp);
+		*out++ = static_cast<unsigned char>(cp);
 	} else if (cp < 0x0800) {
-		*out++ = static_cast<std::uint8_t>(0xc0 | ((cp >> 6) & 0x1f));
-		*out++ = static_cast<std::uint8_t>(0x80 | (cp & 0x3f));
+		*out++ = static_cast<unsigned char>(0xc0 | ((cp >> 6) & 0x1f));
+		*out++ = static_cast<unsigned char>(0x80 | (cp & 0x3f));
 	} else if (cp < 0x10000) {
-		*out++ = static_cast<std::uint8_t>(0xe0 | ((cp >> 12) & 0x0f));
-		*out++ = static_cast<std::uint8_t>(0x80 | ((cp >> 6) & 0x3f));
-		*out++ = static_cast<std::uint8_t>(0x80 | (cp & 0x3f));
+		*out++ = static_cast<unsigned char>(0xe0 | ((cp >> 12) & 0x0f));
+		*out++ = static_cast<unsigned char>(0x80 | ((cp >> 6) & 0x3f));
+		*out++ = static_cast<unsigned char>(0x80 | (cp & 0x3f));
 	} else if (cp < 0x1fffff) {
-		*out++ = static_cast<std::uint8_t>(0xf0 | ((cp >> 18) & 0x07));
-		*out++ = static_cast<std::uint8_t>(0x80 | ((cp >> 12) & 0x3f));
-		*out++ = static_cast<std::uint8_t>(0x80 | ((cp >> 6) & 0x3f));
-		*out++ = static_cast<std::uint8_t>(0x80 | (cp & 0x3f));
+		*out++ = static_cast<unsigned char>(0xf0 | ((cp >> 18) & 0x07));
+		*out++ = static_cast<unsigned char>(0x80 | ((cp >> 12) & 0x3f));
+		*out++ = static_cast<unsigned char>(0x80 | ((cp >> 6) & 0x3f));
+		*out++ = static_cast<unsigned char>(0x80 | (cp & 0x3f));
 	}
 }
 
