@@ -2,14 +2,24 @@
 #ifndef JSON_ERROR_H_
 #define JSON_ERROR_H_
 
-#include <cstddef>
-
-#if defined(__EXCEPTIONS)
-#define JSON_THROW(x) throw x
-#else
-#include <cassert>
-#define JSON_THROW(...) assert(0)
+#if __has_include(<version>)
+// __cpp_lib_* macros
+#include <version>
 #endif
+
+#if __cpp_exceptions >= 199711L
+#define JSON_THROW(x) throw x
+#elif __cpp_lib_unreachable >= 202202L
+#include <utility>
+#include <cassert>
+#define JSON_THROW(...) assert(false); std::unreachable()
+#else
+#include <cstdlib>
+#include <cassert>
+#define JSON_THROW(...) assert(false); std::abort()
+#endif
+
+#include <cstddef>
 
 namespace json {
 
@@ -25,32 +35,27 @@ struct value_expected : exception {};
 
 // lexing errors
 struct lexing_error : exception {
-	lexing_error(size_t index)
+	lexing_error(std::size_t index)
 		: index_(index) {}
 
-	size_t index() const {
+	std::size_t index() const {
 		return index_;
 	}
 
 private:
-	size_t index_ = 0;
+	std::size_t index_ = 0;
 };
 struct invalid_unicode_character : lexing_error {
-	invalid_unicode_character(size_t index)
-		: lexing_error(index) {}
+	using lexing_error::lexing_error;
 };
-
 struct utf16_surrogate_expected : lexing_error {
-	utf16_surrogate_expected(size_t index)
-		: lexing_error(index) {}
+	using lexing_error::lexing_error;
 };
 struct quote_expected : lexing_error {
-	quote_expected(size_t index)
-		: lexing_error(index) {}
+	using lexing_error::lexing_error;
 };
 struct invalid_number : lexing_error {
-	invalid_number(size_t index)
-		: lexing_error(index) {}
+	using lexing_error::lexing_error;
 };
 
 // serialization errors

@@ -4,6 +4,8 @@
 
 #include "json_error.h"
 #include "json_ptr.h"
+#include <cstddef>
+#include <initializer_list>
 #include <map>
 #include <memory>
 #include <string>
@@ -11,6 +13,7 @@
 #include <type_traits>
 #include <variant>
 #include <vector>
+#include <utility>
 
 namespace json {
 
@@ -88,7 +91,9 @@ T to_number(const value &v) {
  */
 class object {
 	friend bool operator==(const object &lhs, const object &rhs) noexcept;
+#if __cplusplus < 202002L	//	C++20 defaulted comparison operators
 	friend bool operator!=(const object &lhs, const object &rhs) noexcept;
+#endif
 
 	friend class parser;
 
@@ -164,7 +169,7 @@ private:
 
 	// NOTE(eteran): The values are stored in insertion order above,
 	// but we use this map to have a fast lookup of key -> index
-	std::map<std::string, size_t, std::less<>> index_map_;
+	std::map<std::string, std::size_t, std::less<>> index_map_;
 };
 
 inline object::iterator begin(object &obj) noexcept {
@@ -196,7 +201,9 @@ inline object::const_iterator cend(const object &obj) noexcept {
  */
 class array {
 	friend bool operator==(const array &lhs, const array &rhs) noexcept;
+#if __cplusplus < 202002L	//	C++20 defaulted comparison operators
 	friend bool operator!=(const array &lhs, const array &rhs) noexcept;
+#endif
 
 private:
 	using C = std::vector<value>;
@@ -332,7 +339,9 @@ class value {
 	friend bool to_bool(const value &v);
 
 	friend bool operator==(const value &lhs, const value &rhs);
+#if __cplusplus < 202002L	//	C++20 defaulted comparison operators
 	friend bool operator!=(const value &lhs, const value &rhs);
+#endif
 
 	friend class parser;
 
@@ -458,7 +467,7 @@ public:
 
 public:
 	// object/array like
-	size_t size() const {
+	std::size_t size() const {
 		if (is_object()) {
 			return as_object().size();
 		} else if (is_array()) {
@@ -1097,6 +1106,7 @@ inline bool operator==(const value &lhs, const value &rhs) {
 	return false;
 }
 
+#if __cplusplus < 202002L	//	C++20 defaulted comparison operators
 /**
  * @brief operator !=
  * @param lhs
@@ -1106,6 +1116,7 @@ inline bool operator==(const value &lhs, const value &rhs) {
 inline bool operator!=(const value &lhs, const value &rhs) {
 	return !(lhs == rhs);
 }
+#endif
 
 /**
  * @brief operator ==
@@ -1120,6 +1131,7 @@ inline bool operator==(const object &lhs, const object &rhs) noexcept {
 	return false;
 }
 
+#if __cplusplus < 202002L	//	C++20 defaulted comparison operators
 /**
  * @brief operator !=
  * @param lhs
@@ -1129,6 +1141,7 @@ inline bool operator==(const object &lhs, const object &rhs) noexcept {
 inline bool operator!=(const object &lhs, const object &rhs) noexcept {
 	return !(lhs == rhs);
 }
+#endif
 
 /**
  * @brief operator ==
@@ -1143,6 +1156,7 @@ inline bool operator==(const array &lhs, const array &rhs) noexcept {
 	return false;
 }
 
+#if __cplusplus < 202002L	//	C++20 defaulted comparison operators
 /**
  * @brief operator !=
  * @param lhs
@@ -1152,6 +1166,7 @@ inline bool operator==(const array &lhs, const array &rhs) noexcept {
 inline bool operator!=(const array &lhs, const array &rhs) noexcept {
 	return !(lhs == rhs);
 }
+#endif
 
 template <class T>
 void value::push_back(T &&v) {
