@@ -114,12 +114,12 @@ inline std::string escape_string(std::string_view s, Options options) {
 					shift_state.seen     = 1;
 				} else if ((ch & 0xfc) == 0xf8) {
 					// 5 byte
-					JSON_THROW(invalid_utf8_string()); // Restricted by RFC 3629
+					CPP_JSON_THROW(invalid_utf8_string()); // Restricted by RFC 3629
 				} else if ((ch & 0xfe) == 0xfc) {
 					// 6 byte
-					JSON_THROW(invalid_utf8_string()); // Restricted by RFC 3629
+					CPP_JSON_THROW(invalid_utf8_string()); // Restricted by RFC 3629
 				} else {
-					JSON_THROW(invalid_utf8_string()); // should never happen
+					CPP_JSON_THROW(invalid_utf8_string()); // should never happen
 				}
 			} else if (shift_state.seen < shift_state.expected) {
 				if ((ch & 0xc0) == 0x80) {
@@ -155,10 +155,10 @@ inline std::string escape_string(std::string_view s, Options options) {
 					}
 
 				} else {
-					JSON_THROW(invalid_utf8_string()); // should never happen
+					CPP_JSON_THROW(invalid_utf8_string()); // should never happen
 				}
 			} else {
-				JSON_THROW(invalid_utf8_string()); // should never happen
+				CPP_JSON_THROW(invalid_utf8_string()); // should never happen
 			}
 		}
 	} else {

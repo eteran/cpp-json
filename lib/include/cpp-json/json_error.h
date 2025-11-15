@@ -3,15 +3,15 @@
 #define JSON_ERROR_H_
 
 #ifdef CPP_JSON_EXCEPTIONS_SUPPORTED
-#define JSON_THROW(x) throw x
+#define CPP_JSON_THROW(x) throw x
 #elif defined(CPP_JSON_LIB_UNREACHABLE_SUPPORTED)
 #include <utility>
 #include <cassert>
-#define JSON_THROW(...) assert(false); std::unreachable()
+#define CPP_JSON_THROW(...) assert(false); std::unreachable()
 #else
 #include <cstdlib>
 #include <cassert>
-#define JSON_THROW(...) assert(false); std::abort()
+#define CPP_JSON_THROW(...) assert(false); std::abort()
 #endif
 
 #include <cstddef>
