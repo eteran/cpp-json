@@ -40,7 +40,7 @@ inline bool to_bool(const value &v);
 inline object to_object(const value &v);
 inline array to_array(const value &v);
 
-template <class T, class = typename std::enable_if<std::is_arithmetic<T>::value>::type>
+template <class T, class = std::enable_if_t<std::is_arithmetic_v<T>>>
 T to_number(const value &v);
 
 // interpretation (you get a reference)
@@ -376,7 +376,7 @@ public:
 		: storage_(std::move(s)), type_(type_string) {
 	}
 
-	template <class T, typename = typename std::enable_if<std::is_arithmetic<T>::value>::type>
+	template <class T, typename = std::enable_if_t<std::is_arithmetic_v<T>>>
 	value(T n)
 		: storage_(std::to_string(n)), type_(type_number) {
 	}
@@ -731,8 +731,8 @@ inline void object::swap(object &other) noexcept {
  */
 inline object::object(std::initializer_list<object_entry> list) {
 
-	for (auto &entry : list) {
-		insert(entry.first, entry.second);
+	for (auto &[key, value] : list) {
+		insert(key, value);
 	}
 }
 
@@ -1125,10 +1125,7 @@ inline bool operator!=(const value &lhs, const value &rhs) {
  * @return
  */
 inline bool operator==(const object &lhs, const object &rhs) noexcept {
-	if (lhs.values_.size() == rhs.values_.size()) {
-		return lhs.values_ == rhs.values_;
-	}
-	return false;
+	return lhs.values_ == rhs.values_;
 }
 
 #ifndef CPP_JSON_DEFAULT_COMPARISONS_SUPPORTED
@@ -1150,10 +1147,7 @@ inline bool operator!=(const object &lhs, const object &rhs) noexcept {
  * @return
  */
 inline bool operator==(const array &lhs, const array &rhs) noexcept {
-	if (lhs.values_.size() == rhs.values_.size()) {
-		return lhs.values_ == rhs.values_;
-	}
-	return false;
+	return lhs.values_ == rhs.values_;
 }
 
 #ifndef CPP_JSON_DEFAULT_COMPARISONS_SUPPORTED
