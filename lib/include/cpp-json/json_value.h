@@ -397,17 +397,10 @@ private:
 	explicit value(array_pointer a);
 
 public:
-	value(const value &other)
-		: storage_(other.storage_), type_(other.type_) {
-	}
-
-	value(value &&other)
-		: storage_(std::move(other.storage_)), type_(other.type_) {
-	}
-
-public:
-	value &operator=(const value &rhs);
-	value &operator=(value &&rhs);
+	value(const value& other)          = default;
+	value(value &&other)               = default;
+	value &operator=(const value &rhs) = default;
+	value &operator=(value &&rhs)      = default;
 
 public:
 	void swap(value &other) noexcept {
@@ -865,35 +858,6 @@ inline value::value(object_pointer o)
  */
 inline value::value(array_pointer a)
 	: storage_(std::move(a)), type_(type_array) {
-}
-
-/**
- * @brief value::operator =
- * @param rhs
- * @return
- */
-inline value &value::operator=(value &&rhs) {
-	if (this != &rhs) {
-		storage_ = std::move(rhs.storage_);
-		type_    = std::move(rhs.type_);
-	}
-
-	return *this;
-}
-
-/**
- * @brief value::operator =
- * @param rhs
- * @return
- */
-inline value &value::operator=(const value &rhs) {
-
-	if (this != &rhs) {
-		storage_ = rhs.storage_;
-		type_    = rhs.type_;
-	}
-
-	return *this;
 }
 
 /**
