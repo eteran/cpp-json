@@ -10,11 +10,6 @@ target_link_libraries(example2 PUBLIC cpp-json)
 target_link_libraries(example3 PUBLIC cpp-json)
 target_link_libraries(example4 PUBLIC cpp-json)
 
-set_property(TARGET example1 PROPERTY CXX_STANDARD 17)
-set_property(TARGET example2 PROPERTY CXX_STANDARD 17)
-set_property(TARGET example3 PROPERTY CXX_STANDARD 17)
-set_property(TARGET example4 PROPERTY CXX_STANDARD 17)
-
 if(CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
     target_compile_options(example1 PUBLIC -pedantic -W -Wall -Wmissing-field-initializers -Wunused -Wshadow)
     target_compile_options(example2 PUBLIC -pedantic -W -Wall -Wmissing-field-initializers -Wunused -Wshadow)

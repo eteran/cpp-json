@@ -1,6 +1,11 @@
 cmake_minimum_required (VERSION 3.15)
 project(cpp-json CXX)
 
+if (NOT "${CMAKE_CXX_STANDARD}")
+    set(CMAKE_CXX_STANDARD 17)
+endif()
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
 enable_testing()
 
 if (MSVC)
