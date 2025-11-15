@@ -1,7 +1,11 @@
 cmake_minimum_required(VERSION 3.15)
 
+file(GLOB_RECURSE library_headers "include/cpp-json/*.h")
 add_library(cpp-json INTERFACE
+    ${library_headers}
 )
+# Set up file tabs in Visual Studio
+source_group(TREE ${CMAKE_CURRENT_SOURCE_DIR}/include/cpp-json/ PREFIX "Header Files" FILES ${library_headers})
 
 target_include_directories(cpp-json
 	INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include
