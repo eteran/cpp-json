@@ -1,0 +1,17 @@
+#pragma once
+
+/*
+ *  This header detects optional C++ core language features.
+ */
+
+#if __cpp_exceptions >= 199711L
+#define CPP_JSON_EXCEPTIONS_SUPPORTED
+#endif
+
+#if __cpp_static_call_operator >= 202207L
+#define CPP_JSON_STATIC_CALL_OPERATOR_SUPPORTED
+#endif
+
+#if __cplusplus >= 202002L
+#define CPP_JSON_DEFAULT_COMPARISONS_SUPPORTED
+#endif

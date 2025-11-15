@@ -91,7 +91,7 @@ T to_number(const value &v) {
  */
 class object {
 	friend bool operator==(const object &lhs, const object &rhs) noexcept;
-#if __cplusplus < 202002L	//	C++20 defaulted comparison operators
+#ifndef CPP_JSON_DEFAULT_COMPARISONS_SUPPORTED
 	friend bool operator!=(const object &lhs, const object &rhs) noexcept;
 #endif
 
@@ -201,7 +201,7 @@ inline object::const_iterator cend(const object &obj) noexcept {
  */
 class array {
 	friend bool operator==(const array &lhs, const array &rhs) noexcept;
-#if __cplusplus < 202002L	//	C++20 defaulted comparison operators
+#ifndef CPP_JSON_DEFAULT_COMPARISONS_SUPPORTED
 	friend bool operator!=(const array &lhs, const array &rhs) noexcept;
 #endif
 
@@ -339,7 +339,7 @@ class value {
 	friend bool to_bool(const value &v);
 
 	friend bool operator==(const value &lhs, const value &rhs);
-#if __cplusplus < 202002L	//	C++20 defaulted comparison operators
+#ifndef CPP_JSON_DEFAULT_COMPARISONS_SUPPORTED
 	friend bool operator!=(const value &lhs, const value &rhs);
 #endif
 
@@ -1106,7 +1106,7 @@ inline bool operator==(const value &lhs, const value &rhs) {
 	return false;
 }
 
-#if __cplusplus < 202002L	//	C++20 defaulted comparison operators
+#ifndef CPP_JSON_DEFAULT_COMPARISONS_SUPPORTED
 /**
  * @brief operator !=
  * @param lhs
@@ -1131,7 +1131,7 @@ inline bool operator==(const object &lhs, const object &rhs) noexcept {
 	return false;
 }
 
-#if __cplusplus < 202002L	//	C++20 defaulted comparison operators
+#ifndef CPP_JSON_DEFAULT_COMPARISONS_SUPPORTED
 /**
  * @brief operator !=
  * @param lhs
@@ -1156,7 +1156,7 @@ inline bool operator==(const array &lhs, const array &rhs) noexcept {
 	return false;
 }
 
-#if __cplusplus < 202002L	//	C++20 defaulted comparison operators
+#ifndef CPP_JSON_DEFAULT_COMPARISONS_SUPPORTED
 /**
  * @brief operator !=
  * @param lhs
