@@ -8,6 +8,10 @@
 #define CPP_JSON_EXCEPTIONS_SUPPORTED
 #endif
 
+#if __cpp_conditional_explicit >= 201806L
+#define CPP_JSON_CONDITIONAL_EXPLICIT_SUPPORTED
+#endif
+
 #if __cpp_static_call_operator >= 202207L
 #define CPP_JSON_STATIC_CALL_OPERATOR_SUPPORTED
 #endif

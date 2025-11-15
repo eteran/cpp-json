@@ -30,7 +30,7 @@ struct value_expected : exception {};
 
 // lexing errors
 struct lexing_error : exception {
-	lexing_error(std::size_t index)
+	explicit lexing_error(std::size_t index)
 		: index_(index) {}
 
 	std::size_t index() const {

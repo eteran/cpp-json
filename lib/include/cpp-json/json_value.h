@@ -117,7 +117,7 @@ public:
 	object(object &&other)               = default;
 	object &operator=(const object &rhs) = default;
 	object &operator=(object &&rhs)      = default;
-	object(std::initializer_list<object_entry> list);
+	CPP_JSON_EXPLICIT_IF(false) object(std::initializer_list<object_entry> list);
 
 public:
 	iterator begin() noexcept { return values_.begin(); }
@@ -227,7 +227,7 @@ public:
 	array(const array &other)          = default;
 	array &operator=(array &&rhs)      = default;
 	array &operator=(const array &rhs) = default;
-	array(std::initializer_list<value> list);
+	CPP_JSON_EXPLICIT_IF(false) array(std::initializer_list<value> list);
 
 	template <class In>
 	array(In first, In last) {
@@ -357,10 +357,10 @@ public:
 	explicit value(const array &a);
 	explicit value(const object &o);
 
-	value(array &&a);
-	value(object &&o);
+	CPP_JSON_EXPLICIT_IF(false) value(array &&a);
+	CPP_JSON_EXPLICIT_IF(false) value(object &&o);
 
-	value(bool b)
+	CPP_JSON_EXPLICIT_IF(false) value(bool b)
 		: storage_(b ? Boolean::True : Boolean::False), type_(type_boolean) {
 	}
 
@@ -368,24 +368,24 @@ public:
 	// which necessitates that we have a const char * overload to prevent value("hello")
 	// from creating a "True" value. Since we need this overload anyway, no real benefit
 	// to using a string_view
-	value(const char *s)
+	CPP_JSON_EXPLICIT_IF(false) value(const char *s)
 		: storage_(std::string(s)), type_(type_string) {
 	}
 
-	value(std::string s)
+	CPP_JSON_EXPLICIT_IF(false) value(std::string s)
 		: storage_(std::move(s)), type_(type_string) {
 	}
 
 	template <class T, typename = std::enable_if_t<std::is_arithmetic_v<T>>>
-	value(T n)
+	CPP_JSON_EXPLICIT_IF(false) value(T n)
 		: storage_(std::to_string(n)), type_(type_number) {
 	}
 
-	value(const std::nullptr_t &)
+	CPP_JSON_EXPLICIT_IF(false) value(const std::nullptr_t &)
 		: storage_(Null()), type_(type_null) {
 	}
 
-	value()
+	CPP_JSON_EXPLICIT_IF(false) value()
 		: storage_(Null()), type_(type_null) {
 	}
 
