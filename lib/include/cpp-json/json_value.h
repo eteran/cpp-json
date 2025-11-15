@@ -381,12 +381,12 @@ public:
 		: storage_(std::to_string(n)), type_(type_number) {
 	}
 
-	CPP_JSON_EXPLICIT_IF(false) value(const std::nullptr_t &)
-		: storage_(Null()), type_(type_null) {
+	CPP_JSON_EXPLICIT_IF(false) value(std::nullptr_t)
+		: storage_(Null::Value), type_(type_null) {
 	}
 
 	CPP_JSON_EXPLICIT_IF(false) value()
-		: storage_(Null()), type_(type_null) {
+		: storage_(Null::Value), type_(type_null) {
 	}
 
 public:
@@ -550,7 +550,9 @@ public:
 	}
 
 private:
-	struct Null {};
+	enum class Null {
+		Value,
+	};
 
 	enum class Boolean {
 		False,
