@@ -1,6 +1,6 @@
 
-#ifndef JSON_PTR_H_
-#define JSON_PTR_H_
+#ifndef CPP_JSON_PTR_H_
+#define CPP_JSON_PTR_H_
 
 #include "json_reader.h"
 #include "json_detail.h"

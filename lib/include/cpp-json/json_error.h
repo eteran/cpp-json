@@ -1,6 +1,6 @@
 
-#ifndef JSON_ERROR_H_
-#define JSON_ERROR_H_
+#ifndef CPP_JSON_ERROR_H_
+#define CPP_JSON_ERROR_H_
 
 #ifdef CPP_JSON_EXCEPTIONS_SUPPORTED
 #define CPP_JSON_THROW(x) throw x

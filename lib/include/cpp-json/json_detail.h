@@ -1,6 +1,6 @@
 
-#ifndef JSON_DETAIL_H_
-#define JSON_DETAIL_H_
+#ifndef CPP_JSON_DETAIL_H_
+#define CPP_JSON_DETAIL_H_
 
 #include "json_error.h"
 #include <cstdint>

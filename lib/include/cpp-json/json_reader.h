@@ -1,6 +1,6 @@
 
-#ifndef JSON_READER_H_
-#define JSON_READER_H_
+#ifndef CPP_JSON_READER_H_
+#define CPP_JSON_READER_H_
 
 #include <cassert>
 #include <cstddef>

@@ -1,5 +1,5 @@
-#ifndef JSON_CXX_UNIVERSAL_H_
-#define JSON_CXX_UNIVERSAL_H_
+#ifndef CPP_JSON_CXX_UNIVERSAL_H_
+#define CPP_JSON_CXX_UNIVERSAL_H_
 
 /*
  *  This header makes central C++ functionality on which cpp-json depends universally available:

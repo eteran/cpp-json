@@ -1,6 +1,6 @@
 
-#ifndef JSON_DECODE_H_
-#define JSON_DECODE_H_
+#ifndef CPP_JSON_DECODE_H_
+#define CPP_JSON_DECODE_H_
 
 /* TODO(eteran): support unicode
 	00 00 00 xx  UTF-32BE

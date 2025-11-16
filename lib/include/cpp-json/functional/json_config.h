@@ -1,5 +1,5 @@
-#ifndef JSON_CONFIG_H_
-#define JSON_CONFIG_H_
+#ifndef CPP_JSON_CONFIG_H_
+#define CPP_JSON_CONFIG_H_
 
 #include "cxx_universal.h"
 

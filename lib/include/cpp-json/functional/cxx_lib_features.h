@@ -1,5 +1,5 @@
-#ifndef JSON_CXX_LIB_FEATURES_H_
-#define JSON_CXX_LIB_FEATURES_H_
+#ifndef CPP_JSON_CXX_LIB_FEATURES_H_
+#define CPP_JSON_CXX_LIB_FEATURES_H_
 
 /*
  *  This header detects optional C++ Standard Library features.

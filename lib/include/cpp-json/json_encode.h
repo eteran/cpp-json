@@ -1,6 +1,6 @@
 
-#ifndef JSON_ENCODE_H_
-#define JSON_ENCODE_H_
+#ifndef CPP_JSON_ENCODE_H_
+#define CPP_JSON_ENCODE_H_
 
 #include "json_value.h"
 #include <cstdint>

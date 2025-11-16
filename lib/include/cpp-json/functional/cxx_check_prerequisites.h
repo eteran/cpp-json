@@ -1,5 +1,5 @@
-#ifndef JSON_CXX_CHECK_PREREQUISITES_H_
-#define JSON_CXX_CHECK_PREREQUISITES_H_
+#ifndef CPP_JSON_CXX_CHECK_PREREQUISITES_H_
+#define CPP_JSON_CXX_CHECK_PREREQUISITES_H_
 
 /*
  *  This header detects missing core C++ language features on which cpp-json depends, bailing out with a hard error.

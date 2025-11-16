@@ -1,6 +1,6 @@
 
-#ifndef JSON_VALUE__H_
-#define JSON_VALUE__H_
+#ifndef CPP_JSON_VALUE__H_
+#define CPP_JSON_VALUE__H_
 
 #include "json_error.h"
 #include "json_ptr.h"
