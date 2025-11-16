@@ -1,4 +1,5 @@
-#pragma once
+#ifndef JSON_CONFIG_H_
+#define JSON_CONFIG_H_
 
 #include "cxx_universal.h"
 
@@ -14,4 +15,6 @@
 #else
 #define CPP_JSON_STATIC_CALLOP
 #define CPP_JSON_OR_CONST_CALLOP const
+#endif
+
 #endif

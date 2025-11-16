@@ -1,4 +1,5 @@
-#pragma once
+#ifndef JSON_CXX_UNIVERSAL_H_
+#define JSON_CXX_UNIVERSAL_H_
 
 /*
  *  This header makes central C++ functionality on which cpp-json depends universally available:
@@ -9,3 +10,5 @@
 #include "cxx_check_prerequisites.h"
 #include "cxx_core_features.h"
 #include "cxx_lib_features.h"
+
+#endif

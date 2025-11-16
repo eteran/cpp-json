@@ -235,7 +235,7 @@ private:
 	}
 
 public:
-	CPP_JSON_EXPLICIT_IF(false) parser(std::string_view s)
+	explicit parser(std::string_view s)
 		: reader_(s) {
 	}
 

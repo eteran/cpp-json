@@ -1,4 +1,5 @@
-#pragma once
+#ifndef JSON_CXX_CORE_FEATURES_H_
+#define JSON_CXX_CORE_FEATURES_H_
 
 /*
  *  This header detects optional C++ core language features.
@@ -18,4 +19,6 @@
 
 #if __cplusplus >= 202002L
 #define CPP_JSON_DEFAULT_COMPARISONS_SUPPORTED
+#endif
+
 #endif
