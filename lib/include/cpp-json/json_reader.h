@@ -1,6 +1,6 @@
 
-#ifndef JSON_READER_H_
-#define JSON_READER_H_
+#ifndef CPP_JSON_READER_H_
+#define CPP_JSON_READER_H_
 
 #include <cassert>
 #include <cstddef>
@@ -93,7 +93,7 @@ public:
 	 * @return std::size_t
 	 */
 	std::size_t consume_whitespace() noexcept {
-		return consume_while([](Ch ch) noexcept {
+		return consume_while([](Ch ch) CPP_JSON_STATIC_CALLOP noexcept {
 			return (ch == ' ' || ch == '\t');
 		});
 	}

@@ -1,6 +1,6 @@
 
-#ifndef JSON_ENCODE_H_
-#define JSON_ENCODE_H_
+#ifndef CPP_JSON_ENCODE_H_
+#define CPP_JSON_ENCODE_H_
 
 #include "json_value.h"
 #include <cstdint>
@@ -8,6 +8,7 @@
 #include <ostream>
 #include <sstream>
 #include <string>
+#include <string_view>
 #include <type_traits>
 
 namespace json {
@@ -22,19 +23,19 @@ enum Options {
 };
 
 constexpr Options operator&(Options lhs, Options rhs) noexcept {
-	using T = std::underlying_type<Options>::type;
+	using T = std::underlying_type_t<Options>;
 	return static_cast<Options>(static_cast<T>(lhs) & static_cast<T>(rhs));
 }
 
 constexpr Options operator|(Options lhs, Options rhs) noexcept {
-	using T = std::underlying_type<Options>::type;
+	using T = std::underlying_type_t<Options>;
 	return static_cast<Options>(static_cast<T>(lhs) | static_cast<T>(rhs));
 }
 
-template <class T, class = typename std::enable_if<std::is_same<T, value>::value || std::is_same<T, object>::value || std::is_same<T, array>::value>::type>
+template <class T, class = std::enable_if_t<std::is_same_v<T, value> || std::is_same_v<T, object> || std::is_same_v<T, array>>>
 std::string stringify(const T &v, Options options = Options::None);
 
-template <class T, class = typename std::enable_if<std::is_same<T, value>::value || std::is_same<T, object>::value || std::is_same<T, array>::value>::type>
+template <class T, class = std::enable_if_t<std::is_same_v<T, value> || std::is_same_v<T, object> || std::is_same_v<T, array>>>
 void stringify(std::ostream &os, const T &v, Options options = Options::None);
 
 namespace detail {
@@ -113,12 +114,12 @@ inline std::string escape_string(std::string_view s, Options options) {
 					shift_state.seen     = 1;
 				} else if ((ch & 0xfc) == 0xf8) {
 					// 5 byte
-					JSON_THROW(invalid_utf8_string()); // Restricted by RFC 3629
+					CPP_JSON_THROW(invalid_utf8_string()); // Restricted by RFC 3629
 				} else if ((ch & 0xfe) == 0xfc) {
 					// 6 byte
-					JSON_THROW(invalid_utf8_string()); // Restricted by RFC 3629
+					CPP_JSON_THROW(invalid_utf8_string()); // Restricted by RFC 3629
 				} else {
-					JSON_THROW(invalid_utf8_string()); // should never happen
+					CPP_JSON_THROW(invalid_utf8_string()); // should never happen
 				}
 			} else if (shift_state.seen < shift_state.expected) {
 				if ((ch & 0xc0) == 0x80) {
@@ -154,10 +155,10 @@ inline std::string escape_string(std::string_view s, Options options) {
 					}
 
 				} else {
-					JSON_THROW(invalid_utf8_string()); // should never happen
+					CPP_JSON_THROW(invalid_utf8_string()); // should never happen
 				}
 			} else {
-				JSON_THROW(invalid_utf8_string()); // should never happen
+				CPP_JSON_THROW(invalid_utf8_string()); // should never happen
 			}
 		}
 	} else {
@@ -366,7 +367,7 @@ inline void serialize(std::ostream &os, const value &v, Options options) {
 	}
 }
 
-template <class T, class = typename std::enable_if<std::is_same<T, value>::value || std::is_same<T, object>::value || std::is_same<T, array>::value>::type>
+template <class T, class = std::enable_if_t<std::is_same_v<T, value>|| std::is_same_v<T, object> || std::is_same_v<T, array>>>
 std::string serialize(const T &v, Options options) {
 	std::stringstream ss;
 
@@ -377,12 +378,12 @@ std::string serialize(const T &v, Options options) {
 	return ss.str();
 }
 
-template <class T, class = typename std::enable_if<std::is_same<T, value>::value || std::is_same<T, object>::value || std::is_same<T, array>::value>::type>
+template <class T, class = std::enable_if_t<std::is_same_v<T, value> || std::is_same_v<T, object> || std::is_same_v<T, array>>>
 std::string pretty_print(const T &v, Options options) {
 	return value_to_string(value(v), options);
 }
 
-template <class T, class = typename std::enable_if<std::is_same<T, value>::value || std::is_same<T, object>::value || std::is_same<T, array>::value>::type>
+template <class T, class = std::enable_if_t<std::is_same_v<T, value> || std::is_same_v<T, object> || std::is_same_v<T, array>>>
 void pretty_print(std::ostream &os, const T &v, Options options) {
 	value_to_string(os, value(v), options);
 }

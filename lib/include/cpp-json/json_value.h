@@ -1,6 +1,6 @@
 
-#ifndef JSON_VALUE__H_
-#define JSON_VALUE__H_
+#ifndef CPP_JSON_VALUE__H_
+#define CPP_JSON_VALUE__H_
 
 #include "json_error.h"
 #include "json_ptr.h"
@@ -40,7 +40,7 @@ inline bool to_bool(const value &v);
 inline object to_object(const value &v);
 inline array to_array(const value &v);
 
-template <class T, class = typename std::enable_if<std::is_arithmetic<T>::value>::type>
+template <class T, class = std::enable_if_t<std::is_arithmetic_v<T>>>
 T to_number(const value &v);
 
 // interpretation (you get a reference)
@@ -58,7 +58,7 @@ inline bool has_key(const object &o, std::string_view key) noexcept;
 template <class T, class>
 T to_number(const value &v) {
 	if (!is_number(v)) {
-		JSON_THROW(invalid_type_cast());
+		CPP_JSON_THROW(invalid_type_cast());
 	}
 
 	if constexpr (std::is_same_v<T, int64_t>) {
@@ -82,7 +82,7 @@ T to_number(const value &v) {
 	} else if constexpr (std::is_same_v<T, float>) {
 		return stof(as_string(v), nullptr);
 	} else {
-		JSON_THROW(invalid_type_cast());
+		CPP_JSON_THROW(invalid_type_cast());
 	}
 }
 
@@ -91,7 +91,7 @@ T to_number(const value &v) {
  */
 class object {
 	friend bool operator==(const object &lhs, const object &rhs) noexcept;
-#if __cplusplus < 202002L	//	C++20 defaulted comparison operators
+#ifndef CPP_JSON_DEFAULT_COMPARISONS_SUPPORTED
 	friend bool operator!=(const object &lhs, const object &rhs) noexcept;
 #endif
 
@@ -117,7 +117,7 @@ public:
 	object(object &&other)               = default;
 	object &operator=(const object &rhs) = default;
 	object &operator=(object &&rhs)      = default;
-	object(std::initializer_list<object_entry> list);
+	CPP_JSON_EXPLICIT_IF(false) object(std::initializer_list<object_entry> list);
 
 public:
 	iterator begin() noexcept { return values_.begin(); }
@@ -201,7 +201,7 @@ inline object::const_iterator cend(const object &obj) noexcept {
  */
 class array {
 	friend bool operator==(const array &lhs, const array &rhs) noexcept;
-#if __cplusplus < 202002L	//	C++20 defaulted comparison operators
+#ifndef CPP_JSON_DEFAULT_COMPARISONS_SUPPORTED
 	friend bool operator!=(const array &lhs, const array &rhs) noexcept;
 #endif
 
@@ -227,7 +227,7 @@ public:
 	array(const array &other)          = default;
 	array &operator=(array &&rhs)      = default;
 	array &operator=(const array &rhs) = default;
-	array(std::initializer_list<value> list);
+	CPP_JSON_EXPLICIT_IF(false) array(std::initializer_list<value> list);
 
 	template <class In>
 	array(In first, In last) {
@@ -339,7 +339,7 @@ class value {
 	friend bool to_bool(const value &v);
 
 	friend bool operator==(const value &lhs, const value &rhs);
-#if __cplusplus < 202002L	//	C++20 defaulted comparison operators
+#ifndef CPP_JSON_DEFAULT_COMPARISONS_SUPPORTED
 	friend bool operator!=(const value &lhs, const value &rhs);
 #endif
 
@@ -357,10 +357,10 @@ public:
 	explicit value(const array &a);
 	explicit value(const object &o);
 
-	value(array &&a);
-	value(object &&o);
+	CPP_JSON_EXPLICIT_IF(false) value(array &&a);
+	CPP_JSON_EXPLICIT_IF(false) value(object &&o);
 
-	value(bool b)
+	CPP_JSON_EXPLICIT_IF(false) value(bool b)
 		: storage_(b ? Boolean::True : Boolean::False), type_(type_boolean) {
 	}
 
@@ -368,24 +368,24 @@ public:
 	// which necessitates that we have a const char * overload to prevent value("hello")
 	// from creating a "True" value. Since we need this overload anyway, no real benefit
 	// to using a string_view
-	value(const char *s)
+	CPP_JSON_EXPLICIT_IF(false) value(const char *s)
 		: storage_(std::string(s)), type_(type_string) {
 	}
 
-	value(std::string s)
+	CPP_JSON_EXPLICIT_IF(false) value(std::string s)
 		: storage_(std::move(s)), type_(type_string) {
 	}
 
-	template <class T, typename = typename std::enable_if<std::is_arithmetic<T>::value>::type>
-	value(T n)
+	template <class T, typename = std::enable_if_t<std::is_arithmetic_v<T>>>
+	CPP_JSON_EXPLICIT_IF(false) value(T n)
 		: storage_(std::to_string(n)), type_(type_number) {
 	}
 
-	value(const std::nullptr_t &)
+	CPP_JSON_EXPLICIT_IF(false) value(std::nullptr_t)
 		: storage_(Null::Value), type_(type_null) {
 	}
 
-	value()
+	CPP_JSON_EXPLICIT_IF(false) value()
 		: storage_(Null::Value), type_(type_null) {
 	}
 
@@ -397,17 +397,10 @@ private:
 	explicit value(array_pointer a);
 
 public:
-	value(const value &other)
-		: storage_(other.storage_), type_(other.type_) {
-	}
-
-	value(value &&other)
-		: storage_(std::move(other.storage_)), type_(other.type_) {
-	}
-
-public:
-	value &operator=(const value &rhs);
-	value &operator=(value &&rhs);
+	value(const value& other)          = default;
+	value(value &&other)               = default;
+	value &operator=(const value &rhs) = default;
+	value &operator=(value &&rhs)      = default;
 
 public:
 	void swap(value &other) noexcept {
@@ -474,7 +467,7 @@ public:
 			return as_array().size();
 		}
 
-		JSON_THROW(invalid_type_cast());
+		CPP_JSON_THROW(invalid_type_cast());
 	}
 
 public:
@@ -510,7 +503,7 @@ public:
 		case value::type_number:
 			return std::get<std::string>(storage_);
 		default:
-			JSON_THROW(invalid_type_cast());
+			CPP_JSON_THROW(invalid_type_cast());
 		}
 	}
 
@@ -520,13 +513,13 @@ public:
 		case value::type_number:
 			return std::get<std::string>(storage_);
 		default:
-			JSON_THROW(invalid_type_cast());
+			CPP_JSON_THROW(invalid_type_cast());
 		}
 	}
 
 	const object &as_object() const {
 		if (type_ != type_object) {
-			JSON_THROW(invalid_type_cast());
+			CPP_JSON_THROW(invalid_type_cast());
 		}
 
 		return *std::get<object_pointer>(storage_);
@@ -534,7 +527,7 @@ public:
 
 	object &as_object() {
 		if (type_ != type_object) {
-			JSON_THROW(invalid_type_cast());
+			CPP_JSON_THROW(invalid_type_cast());
 		}
 
 		return *std::get<object_pointer>(storage_);
@@ -542,7 +535,7 @@ public:
 
 	const array &as_array() const {
 		if (type_ != type_array) {
-			JSON_THROW(invalid_type_cast());
+			CPP_JSON_THROW(invalid_type_cast());
 		}
 
 		return *std::get<array_pointer>(storage_);
@@ -550,7 +543,7 @@ public:
 
 	array &as_array() {
 		if (type_ != type_array) {
-			JSON_THROW(invalid_type_cast());
+			CPP_JSON_THROW(invalid_type_cast());
 		}
 
 		return *std::get<array_pointer>(storage_);
@@ -583,7 +576,7 @@ inline value array::at(std::size_t n) const {
 		return values_[n];
 	}
 
-	JSON_THROW(invalid_index());
+	CPP_JSON_THROW(invalid_index());
 }
 
 inline value &array::at(std::size_t n) {
@@ -591,7 +584,7 @@ inline value &array::at(std::size_t n) {
 		return values_[n];
 	}
 
-	JSON_THROW(invalid_index());
+	CPP_JSON_THROW(invalid_index());
 }
 
 inline std::string to_string(const value &v) {
@@ -600,7 +593,7 @@ inline std::string to_string(const value &v) {
 
 inline bool to_bool(const value &v) {
 	if (!is_bool(v)) {
-		JSON_THROW(invalid_type_cast());
+		CPP_JSON_THROW(invalid_type_cast());
 	}
 
 	return std::get<value::Boolean>(v.storage_) == value::Boolean::True;
@@ -616,27 +609,27 @@ inline array to_array(const value &v) {
 
 inline object &as_object(array &v) {
 	(void)v;
-	JSON_THROW(invalid_type_cast());
+	CPP_JSON_THROW(invalid_type_cast());
 }
 
 inline array &as_array(object &v) {
 	(void)v;
-	JSON_THROW(invalid_type_cast());
+	CPP_JSON_THROW(invalid_type_cast());
 }
 
 inline const object &as_object(const array &v) {
 	(void)v;
-	JSON_THROW(invalid_type_cast());
+	CPP_JSON_THROW(invalid_type_cast());
 }
 
 inline const array &as_array(const object &v) {
 	(void)v;
-	JSON_THROW(invalid_type_cast());
+	CPP_JSON_THROW(invalid_type_cast());
 }
 
 inline object &as_object(value &v) {
 	if (!is_object(v)) {
-		JSON_THROW(invalid_type_cast());
+		CPP_JSON_THROW(invalid_type_cast());
 	}
 
 	return v.as_object();
@@ -644,7 +637,7 @@ inline object &as_object(value &v) {
 
 inline const object &as_object(const value &v) {
 	if (!is_object(v)) {
-		JSON_THROW(invalid_type_cast());
+		CPP_JSON_THROW(invalid_type_cast());
 	}
 
 	return v.as_object();
@@ -652,7 +645,7 @@ inline const object &as_object(const value &v) {
 
 inline array &as_array(value &v) {
 	if (!is_array(v)) {
-		JSON_THROW(invalid_type_cast());
+		CPP_JSON_THROW(invalid_type_cast());
 	}
 
 	return v.as_array();
@@ -660,7 +653,7 @@ inline array &as_array(value &v) {
 
 inline const array &as_array(const value &v) {
 	if (!is_array(v)) {
-		JSON_THROW(invalid_type_cast());
+		CPP_JSON_THROW(invalid_type_cast());
 	}
 
 	return v.as_array();
@@ -668,7 +661,7 @@ inline const array &as_array(const value &v) {
 
 const std::string &as_string(const value &v) {
 	if (!is_string(v) && !is_number(v)) {
-		JSON_THROW(invalid_type_cast());
+		CPP_JSON_THROW(invalid_type_cast());
 	}
 
 	return v.as_string();
@@ -676,7 +669,7 @@ const std::string &as_string(const value &v) {
 
 std::string &as_string(value &v) {
 	if (!is_string(v) && !is_number(v)) {
-		JSON_THROW(invalid_type_cast());
+		CPP_JSON_THROW(invalid_type_cast());
 	}
 
 	return v.as_string();
@@ -733,8 +726,8 @@ inline void object::swap(object &other) noexcept {
  */
 inline object::object(std::initializer_list<object_entry> list) {
 
-	for (auto &entry : list) {
-		insert(entry.first, entry.second);
+	for (auto &[key, value] : list) {
+		insert(key, value);
 	}
 }
 
@@ -777,7 +770,7 @@ inline value object::at(std::string_view key) const {
 		return values_[it->second].second;
 	}
 
-	JSON_THROW(invalid_index());
+	CPP_JSON_THROW(invalid_index());
 }
 
 /**
@@ -792,7 +785,7 @@ inline value &object::at(std::string_view key) {
 		return values_[it->second].second;
 	}
 
-	JSON_THROW(invalid_index());
+	CPP_JSON_THROW(invalid_index());
 }
 
 /**
@@ -867,35 +860,6 @@ inline value::value(object_pointer o)
  */
 inline value::value(array_pointer a)
 	: storage_(std::move(a)), type_(type_array) {
-}
-
-/**
- * @brief value::operator =
- * @param rhs
- * @return
- */
-inline value &value::operator=(value &&rhs) {
-	if (this != &rhs) {
-		storage_ = std::move(rhs.storage_);
-		type_    = std::move(rhs.type_);
-	}
-
-	return *this;
-}
-
-/**
- * @brief value::operator =
- * @param rhs
- * @return
- */
-inline value &value::operator=(const value &rhs) {
-
-	if (this != &rhs) {
-		storage_ = rhs.storage_;
-		type_    = rhs.type_;
-	}
-
-	return *this;
 }
 
 /**
@@ -989,7 +953,7 @@ inline value value::operator[](const ptr &ptr) const {
 				result        = &result->at(n);
 			}
 		} else {
-			JSON_THROW(invalid_path());
+			CPP_JSON_THROW(invalid_path());
 		}
 	}
 
@@ -1012,7 +976,7 @@ inline value &value::operator[](const ptr &ptr) {
 				result        = &result->at(n);
 			}
 		} else {
-			JSON_THROW(invalid_path());
+			CPP_JSON_THROW(invalid_path());
 		}
 	}
 
@@ -1037,7 +1001,7 @@ inline value &value::create(const ptr &ptr) {
 				result        = &result->at(n);
 			}
 		} else {
-			JSON_THROW(invalid_path());
+			CPP_JSON_THROW(invalid_path());
 		}
 	}
 
@@ -1108,7 +1072,7 @@ inline bool operator==(const value &lhs, const value &rhs) {
 	return false;
 }
 
-#if __cplusplus < 202002L	//	C++20 defaulted comparison operators
+#ifndef CPP_JSON_DEFAULT_COMPARISONS_SUPPORTED
 /**
  * @brief operator !=
  * @param lhs
@@ -1127,13 +1091,10 @@ inline bool operator!=(const value &lhs, const value &rhs) {
  * @return
  */
 inline bool operator==(const object &lhs, const object &rhs) noexcept {
-	if (lhs.values_.size() == rhs.values_.size()) {
-		return lhs.values_ == rhs.values_;
-	}
-	return false;
+	return lhs.values_ == rhs.values_;
 }
 
-#if __cplusplus < 202002L	//	C++20 defaulted comparison operators
+#ifndef CPP_JSON_DEFAULT_COMPARISONS_SUPPORTED
 /**
  * @brief operator !=
  * @param lhs
@@ -1152,13 +1113,10 @@ inline bool operator!=(const object &lhs, const object &rhs) noexcept {
  * @return
  */
 inline bool operator==(const array &lhs, const array &rhs) noexcept {
-	if (lhs.values_.size() == rhs.values_.size()) {
-		return lhs.values_ == rhs.values_;
-	}
-	return false;
+	return lhs.values_ == rhs.values_;
 }
 
-#if __cplusplus < 202002L	//	C++20 defaulted comparison operators
+#ifndef CPP_JSON_DEFAULT_COMPARISONS_SUPPORTED
 /**
  * @brief operator !=
  * @param lhs

@@ -1,6 +1,6 @@
 
-#ifndef JSON_DECODE_H_
-#define JSON_DECODE_H_
+#ifndef CPP_JSON_DECODE_H_
+#define CPP_JSON_DECODE_H_
 
 /* TODO(eteran): support unicode
 	00 00 00 xx  UTF-32BE
@@ -123,10 +123,10 @@ private:
 						// convert \uXXXX escape sequences to UTF-8
 						char hex[4];
 
-						if (!std::isxdigit(hex[0] = reader_.read())) JSON_THROW(invalid_unicode_character(reader_.index()));
-						if (!std::isxdigit(hex[1] = reader_.read())) JSON_THROW(invalid_unicode_character(reader_.index()));
-						if (!std::isxdigit(hex[2] = reader_.read())) JSON_THROW(invalid_unicode_character(reader_.index()));
-						if (!std::isxdigit(hex[3] = reader_.read())) JSON_THROW(invalid_unicode_character(reader_.index()));
+						if (!std::isxdigit(hex[0] = reader_.read())) CPP_JSON_THROW(invalid_unicode_character(reader_.index()));
+						if (!std::isxdigit(hex[1] = reader_.read())) CPP_JSON_THROW(invalid_unicode_character(reader_.index()));
+						if (!std::isxdigit(hex[2] = reader_.read())) CPP_JSON_THROW(invalid_unicode_character(reader_.index()));
+						if (!std::isxdigit(hex[3] = reader_.read())) CPP_JSON_THROW(invalid_unicode_character(reader_.index()));
 
 						std::uint_least16_t w1 = 0;
 						std::uint_least16_t w2 = 0;
@@ -137,20 +137,20 @@ private:
 						w1 |= (detail::to_hex(hex[3]));
 
 						if ((w1 & 0xfc00) == 0xdc00) {
-							JSON_THROW(invalid_unicode_character(reader_.index()));
+							CPP_JSON_THROW(invalid_unicode_character(reader_.index()));
 						}
 
 						if ((w1 & 0xfc00) == 0xd800) {
 							// part of a surrogate pair
 							if (!reader_.match("\\u")) {
-								JSON_THROW(utf16_surrogate_expected(reader_.index()));
+								CPP_JSON_THROW(utf16_surrogate_expected(reader_.index()));
 							}
 
 							// convert \uXXXX escape sequences for surrogate pairs to UTF-8
-							if (!std::isxdigit(hex[0] = reader_.read())) JSON_THROW(invalid_unicode_character(reader_.index()));
-							if (!std::isxdigit(hex[1] = reader_.read())) JSON_THROW(invalid_unicode_character(reader_.index()));
-							if (!std::isxdigit(hex[2] = reader_.read())) JSON_THROW(invalid_unicode_character(reader_.index()));
-							if (!std::isxdigit(hex[3] = reader_.read())) JSON_THROW(invalid_unicode_character(reader_.index()));
+							if (!std::isxdigit(hex[0] = reader_.read())) CPP_JSON_THROW(invalid_unicode_character(reader_.index()));
+							if (!std::isxdigit(hex[1] = reader_.read())) CPP_JSON_THROW(invalid_unicode_character(reader_.index()));
+							if (!std::isxdigit(hex[2] = reader_.read())) CPP_JSON_THROW(invalid_unicode_character(reader_.index()));
+							if (!std::isxdigit(hex[3] = reader_.read())) CPP_JSON_THROW(invalid_unicode_character(reader_.index()));
 
 							w2 |= (detail::to_hex(hex[0]) << 12);
 							w2 |= (detail::to_hex(hex[1]) << 8);
@@ -171,7 +171,7 @@ private:
 			}
 
 			if (!reader_.match('"')) {
-				JSON_THROW(quote_expected(reader_.index()));
+				CPP_JSON_THROW(quote_expected(reader_.index()));
 			}
 
 			return token{token_type::String, std::move(s), token_start};
@@ -194,7 +194,7 @@ private:
 				*out++ = '0';
 			} else {
 				if (!std::isdigit(reader_.peek())) {
-					JSON_THROW(invalid_number(reader_.index()));
+					CPP_JSON_THROW(invalid_number(reader_.index()));
 				}
 
 				while (std::isdigit(reader_.peek())) {
@@ -206,7 +206,7 @@ private:
 			if (reader_.match('.')) {
 				*out++ = '.';
 				if (!std::isdigit(reader_.peek())) {
-					JSON_THROW(invalid_number(reader_.index()));
+					CPP_JSON_THROW(invalid_number(reader_.index()));
 				}
 
 				while (std::isdigit(reader_.peek())) {
@@ -222,7 +222,7 @@ private:
 				}
 
 				if (!std::isdigit(reader_.peek())) {
-					JSON_THROW(invalid_number(reader_.index()));
+					CPP_JSON_THROW(invalid_number(reader_.index()));
 				}
 
 				while (std::isdigit(reader_.peek())) {
@@ -235,7 +235,7 @@ private:
 	}
 
 public:
-	parser(std::string_view s)
+	explicit parser(std::string_view s)
 		: reader_(s) {
 	}
 
@@ -265,7 +265,7 @@ private:
 			}
 
 			if (next.type != token_type::ArrayEnd) {
-				JSON_THROW(bracket_expected());
+				CPP_JSON_THROW(bracket_expected());
 			}
 		}
 
@@ -292,7 +292,7 @@ private:
 			}
 
 			if (next.type != token_type::ObjectEnd) {
-				JSON_THROW(brace_expected());
+				CPP_JSON_THROW(brace_expected());
 			}
 		}
 
@@ -301,12 +301,12 @@ private:
 
 	object_entry get_entry(const token &key) {
 		if (key.type != token_type::String) {
-			JSON_THROW(string_expected());
+			CPP_JSON_THROW(string_expected());
 		}
 
 		token colon = next_token();
 		if (colon.type != token_type::Colon) {
-			JSON_THROW(colon_expected());
+			CPP_JSON_THROW(colon_expected());
 		}
 
 		return object_entry(key.value, get_value());
@@ -329,7 +329,7 @@ private:
 		case token_type::Number:
 			return value(std::move(tok.value), value::numeric_type());
 		default:
-			JSON_THROW(value_expected());
+			CPP_JSON_THROW(value_expected());
 		}
 	}
 

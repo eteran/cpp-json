@@ -1,6 +1,6 @@
 
-#ifndef JSON_DETAIL_H_
-#define JSON_DETAIL_H_
+#ifndef CPP_JSON_DETAIL_H_
+#define CPP_JSON_DETAIL_H_
 
 #include "json_error.h"
 #include <cstdint>
@@ -51,7 +51,7 @@ void surrogate_pair_to_utf8(std::uint_least16_t w1, std::uint_least16_t w2, Out 
 		if ((w2 & 0xfc00) == 0xdc00) {
 			cp = 0x10000 + (((static_cast<std::uint_least32_t>(w1) & 0x3ff) << 10) | (w2 & 0x3ff));
 		} else {
-			JSON_THROW(invalid_unicode_character(0));
+			CPP_JSON_THROW(invalid_unicode_character(0));
 		}
 	} else {
 		cp = w1;

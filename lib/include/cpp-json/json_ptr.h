@@ -1,6 +1,6 @@
 
-#ifndef JSON_PTR_H_
-#define JSON_PTR_H_
+#ifndef CPP_JSON_PTR_H_
+#define CPP_JSON_PTR_H_
 
 #include "json_reader.h"
 #include "json_detail.h"
@@ -47,7 +47,7 @@ public:
 		const bool uri_format = input.match('#');
 
 		if (!input.match('/')) {
-			JSON_THROW(invalid_pointer_syntax());
+			CPP_JSON_THROW(invalid_pointer_syntax());
 		}
 
 		std::string reference_token;
@@ -62,7 +62,7 @@ public:
 					path_.push_back(reference_token);
 					reference_token.clear();
 				} else if (input.match("~")) {
-					JSON_THROW(invalid_pointer_syntax());
+					CPP_JSON_THROW(invalid_pointer_syntax());
 				} else {
 					reference_token.push_back(input.read());
 				}
@@ -76,12 +76,12 @@ public:
 					path_.push_back(reference_token);
 					reference_token.clear();
 				} else if (input.match("~")) {
-					JSON_THROW(invalid_pointer_syntax());
+					CPP_JSON_THROW(invalid_pointer_syntax());
 				} else if (auto hex_value = input.match(hex_regex)) {
 					// %XX -> char(0xXX)
 					reference_token.push_back(static_cast<char>((detail::to_hex(hex_value->data()[1]) << 4) | (detail::to_hex(hex_value->data()[2]))));
 				} else if (input.match("%")) {
-					JSON_THROW(invalid_pointer_syntax());
+					CPP_JSON_THROW(invalid_pointer_syntax());
 				} else {
 					reference_token.push_back(input.read());
 				}

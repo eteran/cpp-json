@@ -1,7 +1,8 @@
 
-#ifndef JSON_20110525_H_
-#define JSON_20110525_H_
+#ifndef CPP_JSON_20110525_H_
+#define CPP_JSON_20110525_H_
 
+#include "functional/json_config.h"
 #include "json_decode.h"
 #include "json_detail.h"
 #include "json_encode.h"
